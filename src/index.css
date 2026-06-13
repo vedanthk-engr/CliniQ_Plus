@@ -23,7 +23,7 @@
   --text-on-accent: #FFFFFF;
 
   --border-card: #C4C7C7;
-  
+
   --shadow-card: none;
   --shadow-elevated: none;
   --glow-neon: none;
@@ -67,10 +67,10 @@ body {
 /* Material symbols setup */
 .material-symbols-outlined {
   font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24;
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
   font-family: 'Material Symbols Outlined';
   display: inline-block;
   vertical-align: middle;
@@ -104,7 +104,10 @@ body {
 }
 
 /* Base Glass Tier - Fallback to Flat Card */
-.glass-tier-1, .glass-tier-2, .glass-tier-3, .glassPanel {
+.glass-tier-1,
+.glass-tier-2,
+.glass-tier-3,
+.glassPanel {
   background: #FFFFFF !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -152,7 +155,9 @@ body {
 }
 
 /* Global Element Polish */
-input, select, textarea {
+input,
+select,
+textarea {
   border-radius: 14px !important;
   font-family: 'DM Sans', sans-serif;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
@@ -161,7 +166,9 @@ input, select, textarea {
   color: #1B1C1A;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: #F5C842 !important;
   box-shadow: 0 0 0 3px rgba(245, 200, 66, 0.1) !important;
   outline: none;
@@ -190,6 +197,7 @@ select option {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -211,10 +219,26 @@ select option {
   pointer-events: none;
   z-index: 0;
 }
-.blob-yellow { background: radial-gradient(circle, #000 0%, transparent 70%); clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
-.blob-pink { background: radial-gradient(circle, #000 0%, transparent 70%); border-radius: 50% 50% 50% 50% / 60% 40% 30% 70%; }
-.blob-olive { background: radial-gradient(circle, #000 0%, transparent 70%); clip-path: polygon(50% 100%, 0 0, 100% 0); }
-.blob-blue { background: radial-gradient(circle, #000 0%, transparent 70%); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+
+.blob-yellow {
+  background: radial-gradient(circle, #000 0%, transparent 70%);
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+.blob-pink {
+  background: radial-gradient(circle, #000 0%, transparent 70%);
+  border-radius: 50% 50% 50% 50% / 60% 40% 30% 70%;
+}
+
+.blob-olive {
+  background: radial-gradient(circle, #000 0%, transparent 70%);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.blob-blue {
+  background: radial-gradient(circle, #000 0%, transparent 70%);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
 
 .card-content {
   position: relative;
@@ -222,10 +246,13 @@ select option {
 }
 
 @keyframes livePulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.4);
     opacity: 0.6;
@@ -248,10 +275,41 @@ select option {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+@keyframes cliniq-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cliniq-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(0.75);
+  }
 }

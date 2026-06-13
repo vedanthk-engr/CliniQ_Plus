@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from services.supabase_service import db_service
 import google.generativeai as genai
 from dotenv import load_dotenv
+from agents.voice_query_agent import run_voice_query
 
 # Load env variables
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
@@ -33,6 +34,11 @@ class TranslateRequest(BaseModel):
     text: str
     source_language: str = "auto"
     target_language: str = "en"
+
+class VoiceQueryRequest(BaseModel):
+    patient_id: str
+    query: str
+    source: str = "voice"
 
 # Helper: Clean JSON from Gemini markdown block
 def clean_gemini_json(text: str) -> dict:
@@ -424,3 +430,33 @@ async def patient_symptom(
             "structured_data": {},
             "patient_reassurance_native": "Error processing your request. Please tell your doctor directly."
         }
+print("VOICE QUERY ROUTE LOADED")
+
+@router.post("/query")
+async def clinical_voice_query(
+    req: VoiceQueryRequest
+):
+
+    try:
+
+        result = await run_voice_query(
+            query=req.query,
+            patient_id=req.patient_id
+        )
+
+        return result
+
+    except Exception as e:
+
+        print("Voice Query Error:", e)
+
+        return {
+            "response_type": "patient_summary",
+            "intent_detected": req.query,
+            "summary": "Failed to process query.",
+            "data": {},
+            "confidence": "low"
+        }
+@router.get("/test-query")
+def test_query():
+    return {"status": "voice route loaded"}
