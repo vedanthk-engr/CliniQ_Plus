@@ -4,6 +4,7 @@ import { usePatientStore } from '../stores/patientStore';
 import { useForecastStore } from '../stores/forecastStore';
 import useSSEStream from '../hooks/useSSEStream';
 import TopHeader from '../components/TopHeader';
+import CalendarSidebar from '../components/CalendarSidebar';
 
 const Forecast = () => {
   const { patients, currentPatient, setCurrentPatient } = usePatientStore();
@@ -455,83 +456,7 @@ const Forecast = () => {
 
         </div>
 
-        {/* Right Side Panel (Calendar/Events) */}
-        <aside className="w-80 shrink-0 flex flex-col gap-6 sticky top-[140px] h-[calc(100vh-160px)]">
-          {/* Calendar Widget */}
-          <div className="bg-white border border-gray-200/85 rounded-[24px] p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <span className="material-symbols-outlined cursor-pointer hover:text-gray-500 transition-colors">arrow_back</span>
-              <span className="bg-[#FFDCE6] text-black px-4 py-1.5 rounded-full font-bold text-xs">May 2024</span>
-              <span className="material-symbols-outlined cursor-pointer hover:text-gray-500 transition-colors">arrow_forward</span>
-            </div>
-            <div className="grid grid-cols-7 gap-y-3 text-center text-[10px] font-bold text-gray-400 mb-2 uppercase">
-              <div>MO</div><div>TU</div><div>WE</div><div>TH</div><div>FR</div><div>SA</div><div>SU</div>
-            </div>
-            <div className="grid grid-cols-7 gap-y-3.5 text-center text-xs font-bold text-gray-750">
-              <div className="text-gray-200">29</div><div className="text-gray-200">30</div>
-              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-              <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span>
-              <span>13</span><span>14</span>
-              <span className="bg-black text-white rounded-full w-7 h-7 flex items-center justify-center mx-auto font-black shadow-sm">15</span>
-              <span>16</span><span>17</span><span>18</span><span>19</span>
-            </div>
-            <button className="w-full bg-black text-white py-3 rounded-full font-bold text-xs hover:bg-gray-800 transition-colors mt-6 shadow-sm">
-              Add event
-            </button>
-          </div>
-
-          {/* Daily Timeline */}
-          <div className="bg-white border border-gray-200/85 rounded-[24px] p-6 flex-1 flex flex-col shadow-sm">
-            <div className="flex justify-between items-end mb-4">
-              <div>
-                <h2 className="font-extrabold text-lg text-brand-sidebar leading-none">May 15</h2>
-                <span className="text-[10px] font-bold text-gray-400">Today's timeline</span>
-              </div>
-              <button className="bg-[#efeeea] text-black px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 hover:bg-gray-200 transition-colors border border-gray-200/50">
-                All <span className="material-symbols-outlined text-[14px]">expand_more</span>
-              </button>
-            </div>
-            
-            <div className="relative flex-1 flex flex-col gap-6 pl-10 before:absolute before:left-[19px] before:top-2 before:bottom-0 before:w-px before:bg-gray-200 overflow-y-auto pr-1 custom-scrollbar">
-              
-              {/* Event 1 */}
-              <div className="relative opacity-50 hover:opacity-80 transition-opacity">
-                <span className="absolute -left-[42px] top-1 text-[10px] font-bold text-gray-400 font-mono">07:00</span>
-                <div className="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-gray-300 border border-white"></div>
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#FFDCE6] flex items-center justify-center text-brand-pink shrink-0">
-                    <span className="material-symbols-outlined text-[16px]">stethoscope</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xs text-brand-sidebar">Emergency visit</h4>
-                    <p className="text-[9px] text-gray-500 font-medium">West camp, Room 312</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Event 2 */}
-              <div className="relative">
-                <span className="absolute -left-[45px] top-2 text-[10px] font-bold text-brand-sidebar font-mono bg-[#FFDCE6] px-1 rounded">08:12</span>
-                <div className="absolute -left-[27px] top-3 w-3 h-3 rounded-full bg-black border-2 border-white z-10 shadow-sm animate-pulse"></div>
-                <div className="flex gap-3 bg-[#FFECA1]/30 p-3 rounded-xl border border-[#F8D664]/50 shadow-sm">
-                  <div className="w-8 h-8 rounded-full bg-brand-yellow flex items-center justify-center text-brand-sidebar shrink-0">
-                    <span className="material-symbols-outlined text-[16px] fill-icon">groups</span>
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-xs text-brand-sidebar">Team meeting</h4>
-                    <p className="text-[9px] text-gray-650 font-bold">East camp, Room 408</p>
-                    <div className="flex -space-x-1.5 mt-1.5">
-                      <div className="w-5 h-5 rounded-full bg-[#A8D4F5] text-[8px] font-bold flex items-center justify-center border border-white text-brand-sidebar">TY</div>
-                      <div className="w-5 h-5 rounded-full bg-[#B5C43A] text-[8px] font-bold flex items-center justify-center border border-white text-brand-sidebar">AB</div>
-                      <div className="w-5 h-5 rounded-full bg-black text-[8px] font-bold flex items-center justify-center border border-white text-white">NR</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </aside>
+        <CalendarSidebar />
       </main>
     </div>
   );

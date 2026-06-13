@@ -12,7 +12,6 @@ import ComorbidityWeb from './pages/ComorbidityWeb';
 import { usePatientStore } from './stores/patientStore';
 import { T } from './tokens';
 import ShaderBackground from './components/ShaderBackground';
-import VoiceOrb from './components/voice/VoiceOrb';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -145,7 +144,6 @@ function AppContent() {
           </Routes>
         </main>
       </div>
-      <VoiceOrb onActionExecuted={handleVoiceAction} />
     </div>
   );
 }

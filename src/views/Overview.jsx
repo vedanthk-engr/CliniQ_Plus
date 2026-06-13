@@ -297,8 +297,6 @@ const Overview = () => {
             {/* Right Column (4/12) */}
             <CalendarSidebar showGreeting={false} isSidebar={false} className="xl:col-span-4 bg-transparent flex flex-col h-full animate-fade-in-up" />
 
-            </div>
-
           </div>
 
         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import TopHeader from '../components/TopHeader';
 import AlertCard from '../components/AlertCentre/AlertCard';
+import CalendarSidebar from '../components/CalendarSidebar';
 
 const AlertCentre = ({ patients = [] }) => {
   const [activeFilter, setActiveFilter] = useState('ALL');
@@ -128,12 +129,13 @@ const AlertCentre = ({ patients = [] }) => {
 
           {/* Alerts List */}
           <div className="flex flex-col gap-6">
-            {processedAlerts.map(alert => (
+            {processedAlerts.map((alert, index) => (
               <AlertCard
                 key={alert.id}
                 alert={alert}
                 isAcknowledged={acknowledgedIds.has(alert.id)}
                 onAck={handleAck}
+                colorIndex={index}
               />
             ))}
             {processedAlerts.length === 0 && (
@@ -146,100 +148,7 @@ const AlertCentre = ({ patients = [] }) => {
         </div>
 
         {/* Right Sidebar Panel (Calendar & Timeline) */}
-        <aside className="w-80 shrink-0 hidden lg:flex flex-col gap-6 sticky top-[140px] h-[calc(100vh-160px)] px-4">
-          
-          {/* Greeting */}
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs text-gray-500 font-bold">Good morning,</p>
-              <h2 className="text-xl font-extrabold text-brand-sidebar tracking-tight leading-none mt-1">Dr. Yuthika</h2>
-            </div>
-            <button className="w-10 h-10 rounded-full bg-white border border-gray-200/80 shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors">
-              <span className="material-symbols-outlined text-brand-sidebar">more_vert</span>
-            </button>
-          </div>
-
-          {/* Calendar Widget */}
-          <div className="bg-white border border-gray-200 rounded-[24px] p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <span className="material-symbols-outlined text-gray-400 cursor-pointer hover:text-gray-650 transition-colors">chevron_left</span>
-              <span className="bg-[#FFDCE6] text-black px-4 py-1.5 rounded-full font-bold text-xs shadow-sm">
-                May 2024
-              </span>
-              <span className="material-symbols-outlined text-gray-400 cursor-pointer hover:text-gray-650 transition-colors">chevron_right</span>
-            </div>
-
-            <div className="grid grid-cols-7 gap-y-3 text-center text-[10px] font-black text-gray-450 uppercase mb-2">
-              <div>MO</div><div>TU</div><div>WE</div><div>TH</div><div>FR</div><div>SA</div><div>SU</div>
-            </div>
-
-            <div className="grid grid-cols-7 gap-y-3.5 text-center text-xs font-bold text-gray-700">
-              <div className="text-gray-200">29</div><div className="text-gray-200">30</div>
-              <span>1</span><span>2</span><span>3</span><span>4</span><span className="text-gray-400">5</span>
-              <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span className="text-gray-400">12</span>
-              <span>13</span><span>14</span>
-              <span className="bg-[#FFDCE6] text-black font-bold rounded-full w-7 h-7 flex items-center justify-center mx-auto shadow-sm cursor-pointer">15</span>
-              <span>16</span><span>17</span><span>18</span><span className="text-gray-400">19</span>
-            </div>
-
-            <div className="mt-6 flex gap-3">
-              <button className="flex-1 bg-black text-white font-bold text-xs py-3 rounded-full hover:bg-gray-800 transition-colors shadow-sm cursor-pointer">
-                Add event
-              </button>
-              <button className="w-[46px] h-[46px] bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
-                <span className="material-symbols-outlined text-[20px] text-black">sync</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Daily Timeline */}
-          <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex-1 flex flex-col shadow-sm overflow-hidden">
-            <div className="flex justify-between items-end mb-5 shrink-0">
-              <div>
-                <h3 className="font-extrabold text-base text-brand-sidebar">May 15</h3>
-                <p className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">Today's timeline</p>
-              </div>
-              <span className="bg-[#efeeea] border border-gray-250 text-black px-3.5 py-1.5 rounded-full text-[10px] font-black flex items-center gap-1 cursor-pointer hover:bg-gray-200 transition-colors">
-                All <span className="material-symbols-outlined text-xs">expand_more</span>
-              </span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-5 relative before:absolute before:left-[19px] before:top-2 before:bottom-0 before:w-px before:bg-gray-200">
-              
-              {/* Event 1 */}
-              <div className="relative">
-                <span className="absolute -left-[45px] top-2 text-[10px] font-bold text-gray-400 font-mono bg-[#FAF9F5] border border-gray-200 px-1.5 py-0.5 rounded">07:00</span>
-                <div className="absolute -left-[27px] top-3.5 w-2.5 h-2.5 rounded-full bg-gray-300 border-2 border-white z-10 shadow-sm"></div>
-                <div className="flex gap-3 bg-[#FAF9F5]/80 p-3 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-brand-pink/20 flex items-center justify-center text-brand-pink shrink-0">
-                    <span className="material-symbols-outlined text-[16px]">stethoscope</span>
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-xs text-brand-sidebar">Emergency visit</h4>
-                    <p className="text-[9px] text-gray-450 font-bold mt-0.5">West camp, Room 312</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Event 2 */}
-              <div className="relative">
-                <span className="absolute -left-[45px] top-2 text-[10px] font-bold text-gray-400 font-mono bg-[#FAF9F5] border border-gray-200 px-1.5 py-0.5 rounded">08:00</span>
-                <div className="absolute -left-[27px] top-3.5 w-2.5 h-2.5 rounded-full bg-gray-300 border-2 border-white z-10 shadow-sm"></div>
-                <div className="flex gap-3 bg-[#FAF9F5]/80 p-3 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-brand-blue/20 flex items-center justify-center text-brand-blue shrink-0">
-                    <span className="material-symbols-outlined text-[16px]">science</span>
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-xs text-brand-sidebar">Diagnostic test</h4>
-                    <p className="text-[9px] text-gray-450 font-bold mt-0.5">East camp, Laboratory</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-        </aside>
+        <CalendarSidebar />
 
       </div>
     </div>

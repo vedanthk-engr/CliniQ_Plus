@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useSSEStream from '../../hooks/useSSEStream';
 import StreamingText from '../ui/StreamingText';
 
-const AlertCard = ({ alert, isAcknowledged, onAck }) => {
+const AlertCard = ({ alert, isAcknowledged, onAck, colorIndex }) => {
   const { data, loading, startStream } = useSSEStream();
   const [showExplain, setShowExplain] = useState(false);
 
@@ -20,6 +20,11 @@ const AlertCard = ({ alert, isAcknowledged, onAck }) => {
       console.error("Failed to fetch explanation:", err);
     }
   };
+
+  // Cycle themes: 0=pink(HIGH), 1=yellow(MEDIUM), 2=blue(LOW)
+  const cycledSeverity = colorIndex !== undefined
+    ? ['HIGH', 'MEDIUM', 'LOW'][colorIndex % 3]
+    : alert.severity;
 
   let theme = {
     bg: 'bg-[#a6d1e6]',
@@ -39,7 +44,7 @@ const AlertCard = ({ alert, isAcknowledged, onAck }) => {
     )
   };
 
-  if (alert.severity === 'HIGH') {
+  if (cycledSeverity === 'HIGH') {
     theme = {
       bg: 'bg-[#ffb0cc]',
       border: 'border-[#ff88b2]/60',
@@ -57,7 +62,7 @@ const AlertCard = ({ alert, isAcknowledged, onAck }) => {
         </svg>
       )
     };
-  } else if (alert.severity === 'MEDIUM') {
+  } else if (cycledSeverity === 'MEDIUM') {
     theme = {
       bg: 'bg-[#fdcf49]',
       border: 'border-[#eec13c]/60',
