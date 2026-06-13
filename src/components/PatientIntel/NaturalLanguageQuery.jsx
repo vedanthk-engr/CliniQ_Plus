@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { T } from '../../tokens';
-import GlassPanel from '../GlassPanel';
 import { runQuery } from '../../api';
 import { useDemoContext } from '../../context/DemoContext';
 
@@ -49,42 +47,67 @@ const NaturalLanguageQuery = ({ patient }) => {
     }
   };
 
-  return (
-    <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex flex-col shadow-sm">
-      <div className="flex items-center gap-2 text-[11px] font-extrabold text-[#F278A1] tracking-wider mb-4 font-mono uppercase">
-        <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
-        Clinical Query Interface
-      </div>
+  const handleChipClick = (term) => {
+    setQuery(`Show recent ${term} markers and progression details for the last 6 months.`);
+  };
 
-      <div className="flex gap-3">
-        <input
-          type="text"
+  return (
+    <section className="bg-white rounded-[32px] p-8 shadow-xl shadow-black/5 flex flex-col gap-6 relative overflow-hidden border border-gray-150 animate-fade-in-up w-full">
+      <h2 className="font-headline-card text-[24px] text-primary flex items-center gap-4 z-10 tracking-tight font-bold font-sans">
+        <div className="bg-[#C2E7FF]/30 p-2.5 rounded-2xl flex items-center justify-center">
+          <span className="material-symbols-outlined text-[#7DB4D6] text-[28px]">biotech</span>
+        </div>
+        Clinical Query
+      </h2>
+
+      <div className="relative z-10">
+        <textarea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-          placeholder="QUERY PATIENT LONG-TERM HISTORY..."
-          className="flex-1 bg-white border border-[#FFDCE6] rounded-xl text-black py-3 px-4 text-xs font-bold font-mono placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-brand-pink/30 focus:border-brand-pink transition-all"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleAsk();
+            }
+          }}
+          placeholder="e.g., Show HbA1c trends for last 12 months alongside recent weight fluctuations..."
+          className="w-full h-28 bg-gray-50/50 rounded-2xl border border-gray-100 p-5 font-sans text-sm text-on-surface focus:ring-2 focus:ring-[#C2E7FF] outline-none transition-shadow resize-none placeholder:text-on-surface-variant/40"
         />
+      </div>
+
+      <div className="flex justify-between items-center z-10 flex-wrap gap-4">
+        <div className="flex gap-2">
+          {['HbA1c', 'Lipids', 'Renal'].map((chip) => (
+            <button
+              key={chip}
+              onClick={() => handleChipClick(chip)}
+              className="px-4 py-2 bg-white border border-gray-200 text-gray-650 rounded-full font-bold text-xs cursor-pointer hover:bg-gray-50 transition-colors shadow-sm font-sans"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
         <button
           onClick={handleAsk}
           disabled={isLoading || !query.trim()}
-          className={`border rounded-xl px-6 py-3 text-xs font-extrabold transition-all uppercase tracking-wider ${
+          className={`px-6 py-3 rounded-full font-bold text-sm flex items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md cursor-pointer ${
             isLoading || !query.trim()
-              ? 'bg-gray-50 border-gray-250 text-gray-400 cursor-not-allowed'
-              : 'bg-white border-[#F8A1C4] text-[#912D55] hover:bg-[#FFDCE6]/25 cursor-pointer shadow-sm'
+              ? 'bg-gray-50 text-gray-400 border border-gray-250 cursor-not-allowed shadow-none'
+              : 'bg-black text-white hover:bg-black/90 shadow-black/10'
           }`}
         >
-          {isLoading ? 'Consulting' : 'Ask AI'}
+          <span className="material-symbols-outlined text-[20px]">search_insights</span>
+          {isLoading ? 'Analyzing...' : 'Analyze'}
         </button>
       </div>
 
       {answer && !isLoading && (
-        <div className="fadeIn bg-[#FFDCE6]/10 border border-[#F8A1C4]/20 rounded-xl p-4 mt-4 text-xs font-medium text-black leading-relaxed">
-          <span className="font-extrabold text-[#912D55] mr-2 tracking-wider font-mono">AI RESPOND:</span>
-          <span>{answer}</span>
+        <div className="fadeIn bg-[#C2E7FF]/10 border border-[#7DB4D6]/20 rounded-2xl p-5 mt-2 text-sm text-black leading-relaxed font-sans">
+          <div className="font-black text-[#5287A8] text-xs uppercase tracking-wider mb-2">AI Response</div>
+          <p className="font-semibold text-gray-700">{answer}</p>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

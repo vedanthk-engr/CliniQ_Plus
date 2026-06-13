@@ -231,3 +231,27 @@ select option {
     opacity: 0.6;
   }
 }
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.bg-vibrant-gradient {
+  background: linear-gradient(135deg, rgba(255, 217, 228, 0.4) 0%, rgba(253, 207, 73, 0.2) 100%);
+}
+
+.mic-glow {
+  box-shadow: 0 0 40px rgba(255, 176, 204, 0.6), 0 0 80px rgba(255, 176, 204, 0.3);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}

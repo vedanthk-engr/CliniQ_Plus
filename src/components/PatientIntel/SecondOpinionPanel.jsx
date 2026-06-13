@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { T } from '../../tokens';
 import { runSecondOpinion } from '../../api';
 import { useDemoContext } from '../../context/DemoContext';
 
@@ -48,79 +47,84 @@ const SecondOpinionPanel = ({ patient }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
-      <div className="flex items-center gap-2 text-[11px] font-extrabold text-[#F278A1] tracking-wider mb-1 font-mono uppercase">
-        <span className="w-1.5 h-1.5 rounded-full bg-brand-pink"></span>
-        Second Opinion Engine
-      </div>
-      <div className="text-[10px] text-gray-500 font-extrabold mb-4 tracking-wider font-mono">
-        AI STRESS-TESTS HYPOTHESIS AGAINST COMPLETE CLINICAL ARCHIVE
-      </div>
-
-      <textarea
-        value={diagnosis}
-        onChange={(e) => setDiagnosis(e.target.value)}
-        placeholder="ENTER HYPOTHESIS (e.g. DIABETIC NEPHROPATHY)..."
-        rows={2}
-        className="w-full bg-white border border-[#FFDCE6] rounded-xl text-black py-3 px-4 text-xs font-bold font-mono placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-brand-pink/30 focus:border-brand-pink transition-all resize-none mb-4 uppercase"
-      />
-
-      <button
-        onClick={handleRun}
-        disabled={isLoading || !diagnosis.trim()}
-        className={`w-full py-3.5 rounded-xl text-xs font-extrabold transition-all uppercase tracking-wider ${
-          isLoading || !diagnosis.trim()
-            ? 'bg-gray-50 border border-gray-200 text-gray-400 cursor-not-allowed'
-            : 'bg-[#FFDCE6]/50 border border-[#F8A1C4]/30 text-[#912D55] hover:bg-[#FFDCE6]/70 cursor-pointer shadow-sm'
-        }`}
-      >
-        {isLoading ? 'Cross-referencing archive...' : 'Execute Validation'}
-      </button>
-
-      {response && !isLoading && (
-        <div className="fadeIn mt-5 border-t border-gray-100 pt-5">
-          
-          <div className="text-center mb-4">
-            <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider border uppercase font-mono ${
-              response.verdict === 'CORROBORATED' ? 'bg-[#EAF0AD] border-[#CFD96C] text-[#566118]' : 
-              response.verdict === 'CONTRADICTED' ? 'bg-[#ffdad6] border-[#ffdad6] text-[#ba1a1a]' : 
-              'bg-[#FFECA1] border-[#F8D664] text-[#8C6D14]'
-            }`}>
-              {response.verdict}
-            </span>
+    <section className="bg-white rounded-[32px] p-8 shadow-xl shadow-black/5 flex flex-col gap-6 relative overflow-hidden border border-gray-150 animate-fade-in-up">
+      {/* Header */}
+      <div className="flex justify-between items-center z-10">
+        <h2 className="font-headline-card text-[24px] text-primary flex items-center gap-4 tracking-tight font-bold font-sans">
+          <div className="bg-[#FFDE59]/30 p-2.5 rounded-2xl flex items-center justify-center">
+            <span className="material-symbols-outlined text-[#F5C324] text-[28px]">neurology</span>
           </div>
+          AI Opinion
+        </h2>
+        <span className="px-3 py-1 bg-[#FFDE59] text-black rounded-full font-label-bold text-[11px] uppercase tracking-wider font-bold shadow-sm font-sans">Beta</span>
+      </div>
 
-          <div className="flex gap-4">
-            {/* LEFT / SUPPORT */}
-            <div className="flex-1">
-              <div className="text-[9px] font-extrabold text-brand-green mb-2.5 font-mono tracking-wider">SUPPORTING EVIDENCE</div>
-              <div className="flex flex-col gap-2">
-                {response.support.map((s, i) => (
-                  <div key={i} className="flex gap-2 text-xs text-gray-700 font-semibold leading-relaxed">
-                    <span className="text-brand-green font-bold">✓</span><span>{s}</span>
-                  </div>
-                ))}
-              </div>
+      <div className="flex flex-col gap-4 z-10">
+        <p className="text-sm text-gray-500 font-semibold font-sans leading-relaxed">
+          Stress-test diagnostic hypotheses against patient profile and historical databases.
+        </p>
+
+        <textarea
+          value={diagnosis}
+          onChange={(e) => setDiagnosis(e.target.value)}
+          placeholder="Enter clinical hypothesis (e.g., Diabetic Nephropathy)..."
+          rows={2}
+          className="w-full bg-gray-50/50 rounded-2xl border border-gray-100 p-4 font-sans text-sm text-on-surface focus:ring-2 focus:ring-[#FFDE59]/30 focus:border-[#F5C324] outline-none transition-shadow resize-none placeholder:text-on-surface-variant/40"
+        />
+
+        <button
+          onClick={handleRun}
+          disabled={isLoading || !diagnosis.trim()}
+          className={`w-full py-4 rounded-full font-bold text-sm transition-all uppercase tracking-wider cursor-pointer border shadow-sm ${
+            isLoading || !diagnosis.trim()
+              ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-black text-white hover:bg-black/90'
+          }`}
+        >
+          {isLoading ? 'Cross-referencing archive...' : 'Execute Validation'}
+        </button>
+
+        {response && !isLoading && (
+          <div className="fadeIn border-t border-gray-100 pt-4 mt-2">
+            <div className="text-center mb-4">
+              <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-black tracking-wider border uppercase font-sans ${
+                response.verdict === 'CORROBORATED' ? 'bg-[#EAF0AD] border-[#CFD96C] text-[#566118]' : 
+                response.verdict === 'CONTRADICTED' ? 'bg-[#ffdad6] border-[#ffdad6] text-[#ba1a1a]' : 
+                'bg-[#FFECA1] border-[#F8D664] text-[#8C6D14]'
+              }`}>
+                {response.verdict}
+              </span>
             </div>
 
-            {/* DIVIDER */}
-            <div className="w-px bg-gray-200 shrink-0"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* SUPPORT */}
+              <div>
+                <div className="text-[10px] font-black text-brand-green mb-2.5 tracking-wider font-sans">SUPPORTING EVIDENCE</div>
+                <div className="flex flex-col gap-2">
+                  {response.support.map((s, i) => (
+                    <div key={i} className="flex gap-2 text-xs text-gray-700 font-semibold leading-relaxed font-sans">
+                      <span className="text-brand-green font-bold">✓</span><span>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            {/* RIGHT / CONTRADICT */}
-            <div className="flex-grow flex-1">
-              <div className="text-[9px] font-extrabold text-[#ba1a1a] mb-2.5 font-mono tracking-wider">GAPS / CONFLICTS</div>
-              <div className="flex flex-col gap-2">
-                {response.contradict.map((c, i) => (
-                  <div key={i} className="flex gap-2 text-xs text-gray-700 font-semibold leading-relaxed">
-                    <span className="text-[#ba1a1a] font-bold">⚑</span><span>{c}</span>
-                  </div>
-                ))}
+              {/* CONTRADICT */}
+              <div>
+                <div className="text-[10px] font-black text-[#ba1a1a] mb-2.5 tracking-wider font-sans">GAPS / CONFLICTS</div>
+                <div className="flex flex-col gap-2">
+                  {response.contradict.map((c, i) => (
+                    <div key={i} className="flex gap-2 text-xs text-gray-700 font-semibold leading-relaxed font-sans">
+                      <span className="text-[#ba1a1a] font-bold">⚑</span><span>{c}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </section>
   );
 };
 
