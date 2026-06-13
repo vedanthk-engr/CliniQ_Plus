@@ -240,7 +240,7 @@ select option {
 }
 
 .bg-vibrant-gradient {
-  background: linear-gradient(135deg, rgba(255, 217, 228, 0.4) 0%, rgba(253, 207, 73, 0.2) 100%);
+  background-image: linear-gradient(135deg, rgba(255, 217, 228, 0.4) 0%, rgba(253, 207, 73, 0.2) 100%);
 }
 
 .mic-glow {

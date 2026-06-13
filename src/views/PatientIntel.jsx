@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { T } from '../tokens';
 import TopHeader from '../components/TopHeader';
@@ -379,7 +380,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     : 'bg-brand-green/20 text-[#5A631D] border-[#CFD96C]/30';
 
   if (patientMode) {
-    return (
+    return createPortal(
       <div className="fixed inset-0 bg-[#FAF9F5] bg-vibrant-gradient text-on-surface z-[100000] flex flex-col p-8 justify-between animate-fade-in font-sans overflow-hidden w-screen h-screen">
         
         {/* Decorative Blur Blobs */}
@@ -565,7 +566,8 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             ))}
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 
@@ -704,54 +706,22 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             </div>
           </div>
 
-          {/* 2-Column Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch font-sans">
+          {/* Section 1: Patient Intelligence Profile (3-Column Layout) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch font-sans">
             
-            {/* Left Column (col-span-8) */}
-            <div className="lg:col-span-8 flex flex-col gap-8">
-              
-              {/* Consultation Scribe (Recorder) */}
-              <ConsultationRecorder patientId={patient.id} />
-
-              {/* Query Co-Pilot (Clinical Query) */}
-              <NaturalLanguageQuery patient={patient} />
-
-              {/* Somatic Map */}
+            {/* Column 1: Somatic Map */}
+            <div className="flex flex-col gap-6">
               <BodyMapContext patient={patient} />
-
-              {/* Biometrics Trends */}
-              <LabTrendChart patient={patient} />
-
-              {/* Trajectory Forecast (Yellow Card) */}
-              <section className="bg-[#FFD646] rounded-[32px] p-8 shadow-2xl shadow-[#FFD646]/30 relative overflow-hidden flex flex-col gap-8 animate-fade-in-up">
-                <div className="flex justify-between items-start z-10 text-black">
-                  <div>
-                    <h2 className="font-headline-card text-[28px] text-black tracking-tight font-bold font-sans">Trajectory Forecast</h2>
-                    <p className="font-body-sm text-[15px] text-black/75 mt-1 font-medium font-sans">Type 2 Diabetes Progression Risk</p>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[72px] font-bold text-black tracking-tighter leading-none">{patient.riskScore}</span>
-                    <span className="font-label-bold text-[12px] text-black/60 uppercase tracking-widest font-bold font-sans">Risk Score</span>
-                  </div>
-                </div>
-                <div className="bg-white/20 backdrop-blur-md rounded-3xl border border-white/30 p-6 flex flex-col shadow-inner">
-                  <TrajectoryPreview patient={patient} />
-                </div>
-              </section>
-
             </div>
 
-            {/* Right Column (col-span-4) */}
-            <div className="lg:col-span-4 flex flex-col gap-8">
+            {/* Column 2: Biometrics & Risk Assessment */}
+            <div className="flex flex-col gap-6">
               
-              {/* Alert Feed */}
-              <ClinicalPatternFeed patient={patient} />
-
-              {/* AI Opinion Co-Pilot */}
-              <SecondOpinionPanel patient={patient} />
+              {/* Biometrics Card */}
+              <LabTrendChart patient={patient} />
 
               {/* Risk Assessment Card (Gauges) */}
-              <div className="bg-[#FFD646] rounded-[32px] p-8 flex flex-col relative overflow-hidden shadow-2xl shadow-[#FFD646]/20 border border-[#FFD646]/30 animate-fade-in-up text-black">
+              <div className="bg-[#FFD646] rounded-[32px] p-8 flex flex-col relative overflow-hidden shadow-2xl shadow-[#FFD646]/20 border border-[#FFD646]/30 animate-fade-in-up text-black h-[268px]">
                 <div className="card-content flex flex-col h-full z-10 w-full">
                   <h3 className="font-headline-card text-[22px] font-bold text-black mb-4 tracking-tight flex items-center gap-2 font-sans">
                     <span className="material-symbols-outlined text-[24px]">shield</span>
@@ -793,11 +763,16 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                 </div>
               </div>
 
+            </div>
+
+            {/* Column 3: Regimen & Insights */}
+            <div className="flex flex-col gap-6">
+              
               {/* Current Regimen */}
               <MedicationsPanel patient={patient} />
 
               {/* Dr. Insights Card */}
-              <div className="bg-white rounded-[32px] p-8 flex flex-col relative overflow-hidden border border-gray-150 transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up">
+              <div className="bg-white rounded-[32px] p-8 flex flex-col relative overflow-hidden border border-gray-150 transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up h-[268px]">
                 <div className="card-content flex flex-col h-full z-10">
                   <h3 className="font-headline-card text-[22px] font-extrabold text-on-surface mb-4 tracking-tight flex items-center gap-2 font-sans">
                     <span className="material-symbols-outlined text-[24px] text-brand-blue">lightbulb</span>
@@ -839,6 +814,52 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                 </div>
               </div>
 
+            </div>
+
+          </div>
+
+          {/* Section Divider / Transition Header */}
+          <div className="mt-10 mb-4 animate-fade-in-up font-sans">
+            <h2 className="text-[28px] font-bold text-brand-sidebar tracking-tight flex items-center gap-3">
+              <span className="material-symbols-outlined text-black text-[32px]">insights</span>
+              Deep Analytics
+            </h2>
+            <p className="text-sm font-semibold text-gray-500 mt-1">Advanced forecasting and intervention simulations</p>
+          </div>
+
+          {/* Section 2: Deep Analytics (Split into Two Rows for Perfect Alignment) */}
+          <div className="flex flex-col gap-8">
+            {/* Row 1: Scribe, Clinical Query, and Alert Feed */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch font-sans animate-fade-in-up">
+              {/* Left Column (col-span-8) */}
+              <div className="lg:col-span-8 flex flex-col gap-8">
+                {/* Consultation Scribe (Recorder) */}
+                <ConsultationRecorder patientId={patient.id} />
+
+                {/* Query Co-Pilot (Clinical Query) */}
+                <NaturalLanguageQuery patient={patient} />
+              </div>
+
+              {/* Right Column (col-span-4) */}
+              <div className="lg:col-span-4 flex flex-col gap-8">
+                {/* Alert Feed */}
+                <ClinicalPatternFeed patient={patient} />
+              </div>
+            </div>
+
+            {/* Row 2: Trajectory Forecast, Simulator, and AI Opinion */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch font-sans animate-fade-in-up">
+              {/* Left Column (col-span-8) */}
+              <div className="lg:col-span-8 flex flex-col gap-6">
+                {/* Trajectory Forecast & Intervention Simulator */}
+                <TrajectoryPreview patient={patient} />
+              </div>
+
+              {/* Right Column (col-span-4) */}
+              <div className="lg:col-span-4 flex flex-col gap-8">
+                {/* AI Opinion Co-Pilot */}
+                <SecondOpinionPanel patient={patient} />
+              </div>
             </div>
           </div>
         </div>

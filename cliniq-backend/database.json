@@ -7,10 +7,24 @@
       "sex": "Male",
       "dob": "12 Mar 1967",
       "diagnosis": [
-        "Type 2 Diabetes",
-        "Hypertension",
-        "CKD Stage 2",
-        "Dyslipidemia"
+        "Paroxysmal Atrial Fibrillatio",
+        "(Active si",
+        "ce Mar 2023)",
+        "Type 2 Diabetes Mellitus with hyperglycaemia (Active si",
+        "ce Ja",
+        "2015)",
+        "Esse",
+        "tial Hyperte",
+        "sio",
+        "(u",
+        "co",
+        "trolled",
+        "Active si",
+        "ce Apr 2012)",
+        "Familial Hypercholesterolaemia (Pure",
+        "Active si",
+        "ce Ja",
+        "2015)"
       ],
       "doctor": "Dr. Priya Nair",
       "ward": "Endocrinology",
@@ -18,28 +32,68 @@
       "adherenceScore": 61,
       "medications": [
         {
-          "name": "Metformin",
-          "dose": "500mg",
-          "freq": "Twice daily",
-          "color": "#7C3AED",
+          "name": "1. Apixaban 5 mg orally t",
+          "dose": "wice daily",
+          "freq": "As Directed",
+          "color": "#1a6bff",
           "shape": "Round",
-          "markings": "MF500"
+          "markings": "-"
         },
         {
-          "name": "Amlodipine",
-          "dose": "5mg",
-          "freq": "Once daily",
-          "color": "#FBBF24",
-          "shape": "Oval",
-          "markings": "AML5"
+          "name": "ongoing (Note: Avoid NSAI",
+          "dose": "Ds",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
         },
         {
-          "name": "Lisinopril",
-          "dose": "10mg",
-          "freq": "Once daily",
-          "color": "#F87171",
+          "name": "Aspirin",
+          "dose": "Standard",
+          "freq": "As Directed",
+          "color": "#1a6bff",
           "shape": "Round",
-          "markings": "LIS10"
+          "markings": "-"
+        },
+        {
+          "name": "other anticoagulants",
+          "dose": "Standard",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "and grapefruit). 2. Metop",
+          "dose": "rolol Succinate XR 100 mg orally once daily in the morning",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "for 90 days. 3. Amlodipin",
+          "dose": "e Besylate 5 mg orally once daily in the morning",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "for 90 days (Note: Avoid ",
+          "dose": "grapefruit juice). 4. Atorvastatin Calcium 80 mg orally once daily at bedtime",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "for 90 days (Note: Avoid ",
+          "dose": "Clarithromycin/Erythromycin).",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
         }
       ],
       "labs": {
@@ -337,148 +391,8 @@
         ],
         "BP_Systolic": [
           {
-            "date": "Jul 23",
-            "val": 125
-          },
-          {
-            "date": "Aug 23",
-            "val": 125
-          },
-          {
-            "date": "Sep 23",
-            "val": 126
-          },
-          {
-            "date": "Oct 23",
-            "val": 127
-          },
-          {
-            "date": "Nov 23",
-            "val": 128
-          },
-          {
-            "date": "Dec 23",
-            "val": 128
-          },
-          {
-            "date": "Jan 24",
-            "val": 129
-          },
-          {
-            "date": "Feb 24",
-            "val": 130
-          },
-          {
-            "date": "Mar 24",
-            "val": 131
-          },
-          {
-            "date": "Apr 24",
-            "val": 131
-          },
-          {
-            "date": "May 24",
-            "val": 132
-          },
-          {
-            "date": "Jun 24",
-            "val": 133
-          },
-          {
-            "date": "Jul 24",
-            "val": 134
-          },
-          {
-            "date": "Aug 24",
-            "val": 135
-          },
-          {
-            "date": "Sep 24",
-            "val": 135
-          },
-          {
-            "date": "Oct 24",
-            "val": 136
-          },
-          {
-            "date": "Nov 24",
-            "val": 137
-          },
-          {
-            "date": "Dec 24",
-            "val": 138
-          },
-          {
-            "date": "Jan 25",
-            "val": 138
-          },
-          {
-            "date": "Feb 25",
-            "val": 139
-          },
-          {
-            "date": "Mar 25",
-            "val": 140
-          },
-          {
-            "date": "Apr 25",
-            "val": 141
-          },
-          {
-            "date": "May 25",
-            "val": 141
-          },
-          {
-            "date": "Jun 25",
-            "val": 142
-          },
-          {
-            "date": "Jul 25",
-            "val": 143
-          },
-          {
-            "date": "Aug 25",
-            "val": 144
-          },
-          {
-            "date": "Sep 25",
-            "val": 145
-          },
-          {
-            "date": "Oct 25",
-            "val": 145
-          },
-          {
-            "date": "Nov 25",
-            "val": 146
-          },
-          {
-            "date": "Dec 25",
-            "val": 147
-          },
-          {
-            "date": "Jan 26",
-            "val": 148
-          },
-          {
-            "date": "Feb 26",
-            "val": 148
-          },
-          {
-            "date": "Mar 26",
-            "val": 149
-          },
-          {
-            "date": "Apr 26",
-            "val": 150
-          },
-          {
-            "date": "May 26",
-            "val": 151
-          },
-          {
-            "date": "Jun 26",
-            "val": 143
+            "time": "Just Now",
+            "val": 158
           }
         ],
         "LDL": [
@@ -626,6 +540,18 @@
             "date": "Jun 26",
             "val": 162
           }
+        ],
+        "HeartRate": [
+          {
+            "time": "Just Now",
+            "val": 92
+          }
+        ],
+        "Glucose": [
+          {
+            "time": "Just Now",
+            "val": 212
+          }
         ]
       },
       "bodyFlags": [
@@ -633,6 +559,12 @@
         "Heart"
       ],
       "clinicalPatterns": [
+        {
+          "type": "Data Ingest",
+          "time": "Just Now",
+          "description": "New clinical report ingested by AI.",
+          "severity": "LOW"
+        },
         {
           "type": "Lab Alert",
           "time": "2h ago",
@@ -2041,106 +1973,6 @@
         false
       ],
       "consultBrief": "Advanced CHF and renal decline. High risk of hyperkalemia. Strict adherence counseling required."
-    },
-    {
-      "id": "P-50764",
-      "name": "Rajan Iyer",
-      "age": 43,
-      "sex": "Unknown",
-      "dob": "01 Jan 1980",
-      "diagnosis": [
-        "Paroxysmal Atrial Fibrillatio",
-        "(ICD-10: I48.11)",
-        "Type 2 Diabetes Mellitus with hyperglycaemia (ICD-10: E11.65)",
-        "Esse",
-        "tial Hyperte",
-        "sio",
-        "(u",
-        "co",
-        "trolled",
-        "ICD-10: I10)",
-        "Familial Hypercholesterolaemia (Pure",
-        "ICD-10: E78.01)"
-      ],
-      "doctor": "Dr. AI Agent",
-      "ward": "General",
-      "riskScore": 55,
-      "adherenceScore": 50,
-      "medications": [
-        {
-          "name": "1. Apixaban 5 mg, Twice D",
-          "dose": "aily, Duration: Ongoing (Warning: Do NOT combine with NSAIDs, Aspirin, or other anticoagulants. Avoid grapefruit).",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "2. Metoprolol Succinate X",
-          "dose": "R 100 mg, Once Daily (morning), Duration: 90 Days.",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "3. Amlodipine Besylate 5 ",
-          "dose": "mg, Once Daily (morning), Duration: 90 Days (Warning: Monitor lower limbs for peripheral oedema, avoid grapefruit juice).",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "4. Atorvastatin Calcium 8",
-          "dose": "0 mg, Once Daily (night - bedtime), Duration: 90 Days (Warning: Report myopathy symptoms immediately, avoid Clarithromycin/Erythromycin).",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        }
-      ],
-      "labs": {
-        "BP_Systolic": [
-          {
-            "time": "Just Now",
-            "val": 158
-          }
-        ],
-        "HeartRate": [
-          {
-            "time": "Just Now",
-            "val": 92
-          }
-        ],
-        "Glucose": [
-          {
-            "time": "Just Now",
-            "val": 212
-          }
-        ]
-      },
-      "bodyFlags": [
-        "Heart"
-      ],
-      "clinicalPatterns": [
-        {
-          "type": "Intake Note",
-          "time": "Just Now",
-          "description": "Patient file initialized via AI.",
-          "severity": "LOW"
-        }
-      ],
-      "adherenceCalendar": [
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
-      "consultBrief": "Intake completed. Primary focus: Paroxysmal Atrial Fibrillatio."
     }
   ],
   "pill_events": [
