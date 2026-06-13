@@ -19,7 +19,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
   const [activeTab, setActiveTab] = useState('dashboard');
   // Trial cache lives here so it survives tab switching (component unmount/remount)
-  const [cachedTrials, setCachedTrials] = useState(null);
+  const [cachedTrials, setCachedTrials] = useState({});
 
   // Voice & Patient Mode states
   const [patientLang, setPatientLang] = useState('hi-IN');

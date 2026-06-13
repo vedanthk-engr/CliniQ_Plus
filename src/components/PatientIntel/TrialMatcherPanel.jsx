@@ -6,8 +6,8 @@ const TrialMatcherPanel = ({ patient, cachedTrials, setCachedTrials }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // If parent already has cached results, do nothing — no Gemini call
-    if (cachedTrials !== null || !patient?.id) return;
+    // If parent already has cached results for this patient, do nothing — no Gemini call
+    if (cachedTrials[patient?.id] || !patient?.id) return;
 
     const fetchTrials = async () => {
       setLoading(true);
@@ -33,7 +33,7 @@ const TrialMatcherPanel = ({ patient, cachedTrials, setCachedTrials }) => {
         const studies = ctData.studies || [];
 
         if (studies.length === 0) {
-          setCachedTrials([]);
+          setCachedTrials(prev => ({ ...prev, [patient.id]: [] }));
           return;
         }
 
@@ -51,8 +51,8 @@ const TrialMatcherPanel = ({ patient, cachedTrials, setCachedTrials }) => {
         }
 
         const data = await res.json();
-        // Store in parent cache — survives tab switching forever
-        setCachedTrials(data.matches || []);
+        // Store in parent cache keyed by patient ID — survives tab switching forever
+        setCachedTrials(prev => ({ ...prev, [patient.id]: data.matches || [] }));
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -64,7 +64,7 @@ const TrialMatcherPanel = ({ patient, cachedTrials, setCachedTrials }) => {
     fetchTrials();
   }, [patient?.id, cachedTrials]);
 
-  const trials = cachedTrials || [];
+  const trials = cachedTrials[patient?.id] || [];
 
   if (loading) {
     return (
