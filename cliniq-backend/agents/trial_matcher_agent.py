@@ -136,30 +136,52 @@ def rule_based_screen(patient: dict, trial: dict) -> dict:
 
 async def screen_trials_with_gemini(patient: dict, studies: list) -> dict:
     """
-    Rule-based trial screening — no Gemini/API calls, zero quota usage.
+    Gemini-powered trial screening using gemini-2.5-flash with thinking disabled for speed.
     """
+    import google.generativeai as genai
+    api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
+    genai.configure(api_key=api_key)
+
     try:
+        diagnoses = patient.get("diagnosis", [])
+        age = patient.get("age", 0)
+        sex = patient.get("sex", "Unknown")
+
         if not studies:
             return {"patient_id": patient.get("id"), "matches": [], "total_searched": 0}
 
         extracted_trials = extract_trials_from_studies(studies)
-        results = []
 
-        for trial in extracted_trials:
-            screening = rule_based_screen(patient, trial)
-            results.append({
-                "nctId": trial["nctId"],
-                "briefTitle": trial["briefTitle"],
-                "phases": trial["phases"],
-                "briefSummary": trial["briefSummary"],
-                **screening
-            })
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
-        results.sort(key=lambda x: x.get("priority_score", 0), reverse=True)
+        prompt = f"""You are a clinical trial eligibility screener. Evaluate the patient against each trial and return a JSON array.
+
+Patient: Age {age}, Sex {sex}, Diagnoses: {', '.join(diagnoses)}
+
+Trials:
+{json.dumps(extracted_trials, indent=2)}
+
+Return ONLY a JSON array. Each object must have: nctId, briefTitle, phases, eligible ("likely"|"possible"|"unlikely"), confidence (0-1), match_reasons (list), disqualifiers (list), priority_score (1-10)."""
+
+        res = model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                response_mime_type="application/json",
+                temperature=0.1,
+                thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
+            )
+        )
+
+        try:
+            evaluated_trials = json.loads(res.text)
+        except json.JSONDecodeError as e:
+            return {"error": f"Failed to parse AI response: {e}"}
+
+        evaluated_trials.sort(key=lambda x: x.get("priority_score", 0), reverse=True)
 
         return {
             "patient_id": patient.get("id"),
-            "matches": results,
+            "matches": evaluated_trials,
             "total_searched": len(studies)
         }
 
