@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUserStore } from '../stores/userStore';
 import { useLocation } from 'react-router-dom';
 
 const getHeaderTitle = (pathname) => {
@@ -17,6 +18,7 @@ const getHeaderTitle = (pathname) => {
 const TopHeader = () => {
   const location = useLocation();
   const title = getHeaderTitle(location.pathname);
+  const { doctorName } = useUserStore();
 
   // Modal states
   const [showNotifications, setShowNotifications] = useState(false);
@@ -200,7 +202,7 @@ const TopHeader = () => {
               <div className="border-t border-gray-100 pt-3 space-y-1 text-[11px]">
                 <p>• <span className="font-bold text-black">Version:</span> 1.2.0 (Build 2026.06.13)</p>
                 <p>• <span className="font-bold text-black">Developer:</span> Google DeepMind Advanced Coding Team</p>
-                <p>• <span className="font-bold text-black">Client ID:</span> Dr. Yuthika (Physician)</p>
+                <p>• <span className="font-bold text-black">Client ID:</span> {doctorName} (Physician)</p>
               </div>
             </div>
 

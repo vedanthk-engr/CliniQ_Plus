@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useCalendarStore } from '../stores/calendarStore';
+import { useUserStore } from '../stores/userStore';
 
 const CalendarSidebar = ({ showGreeting = true, className = '', isSidebar = true }) => {
   const { selectedDate, setSelectedDate, events, addEvent } = useCalendarStore();
+  const { doctorName } = useUserStore();
   const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
   const [showAddModal, setShowAddModal] = useState(false);
   const [eventTime, setEventTime] = useState('10:00');
@@ -114,7 +116,7 @@ const CalendarSidebar = ({ showGreeting = true, className = '', isSidebar = true
         <div className="flex justify-between items-center shrink-0">
           <div>
             <p className="text-xs text-gray-500 font-bold">Good morning,</p>
-            <h2 className="text-xl font-extrabold text-brand-sidebar tracking-tight leading-none mt-1">Dr. Yuthika</h2>
+            <h2 className="text-xl font-extrabold text-brand-sidebar tracking-tight leading-none mt-1">{doctorName}</h2>
           </div>
           <button className="w-10 h-10 rounded-full bg-white border border-gray-200/80 shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors">
             <span className="material-symbols-outlined text-brand-sidebar">more_vert</span>

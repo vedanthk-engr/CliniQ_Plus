@@ -1,20 +1,27 @@
 import React from 'react';
 
 const PrescriptionReference = ({ patient }) => {
-  if (!patient || !patient.medications) return null;
+  if (!patient || !patient.medications) {
+    return (
+      <aside className="w-[320px] bg-white border border-gray-150 rounded-[24px] p-6 shadow-sm flex flex-col h-[calc(100vh-160px)] sticky top-[140px] shrink-0 justify-center items-center text-center font-sans">
+        <span className="material-symbols-outlined text-gray-300 text-4xl mb-2">medication</span>
+        <p className="text-xs text-gray-400 font-medium">No patient selected</p>
+      </aside>
+    );
+  }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-[24px] p-6 shadow-sm flex flex-col">
-      <div className="mb-4">
-        <span className="text-[10px] font-black text-brand-pink tracking-wider uppercase font-mono block">
+    <aside className="w-[320px] bg-white border border-gray-150 rounded-[24px] p-6 shadow-sm flex flex-col h-[calc(100vh-160px)] sticky top-[140px] shrink-0 font-sans">
+      <div className="mb-6">
+        <span className="text-[11px] font-black text-brand-pink tracking-wider uppercase font-mono block">
           Prescription Reference
         </span>
-        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block mt-0.5">
+        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mt-0.5">
           Molecular Signature Database
         </span>
       </div>
 
-      <div className="flex flex-col gap-4 flex-1">
+      <div className="flex flex-col gap-4 flex-1 overflow-y-auto pr-1">
         {patient.medications.map((med, idx) => {
           const pillColor = med.color || '#F7A8C4'; 
           
@@ -38,16 +45,16 @@ const PrescriptionReference = ({ patient }) => {
               
               {/* Drug details */}
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-extrabold text-brand-sidebar truncate">
-                  {med.name} <span className="text-xs text-gray-500 font-bold ml-1">{med.dose}</span>
+                <div className="text-xs font-black text-brand-sidebar truncate">
+                  {med.name} <span className="text-[10px] text-gray-500 font-bold ml-1">{med.dose}</span>
                 </div>
-                <div className="text-[10px] text-gray-400 font-bold font-mono mt-0.5">
+                <div className="text-[9px] text-gray-400 font-extrabold font-mono mt-0.5">
                   {med.shape} • {med.markings}
                 </div>
               </div>
               
               {/* Frequency Badge */}
-              <div className="text-[9px] font-black bg-brand-pink-light text-brand-sidebar px-2.5 py-1 rounded-full border border-brand-pink/20 uppercase tracking-wider shrink-0 font-mono">
+              <div className="text-[9px] font-black bg-brand-pink-light text-brand-sidebar px-2 py-0.5 rounded-full border border-brand-pink/20 uppercase tracking-wider shrink-0 font-mono">
                 {med.freq}
               </div>
             </div>
@@ -55,10 +62,10 @@ const PrescriptionReference = ({ patient }) => {
         })}
       </div>
 
-      <div className="mt-5 pt-4 border-t border-gray-100 text-gray-400 text-[10px] font-bold text-center">
+      <div className="mt-auto pt-4 border-t border-gray-100 text-gray-400 text-[10px] font-bold text-center leading-relaxed">
         Vision AI cross-references physical characteristics against verified pharmacy standards.
       </div>
-    </div>
+    </aside>
   );
 };
 

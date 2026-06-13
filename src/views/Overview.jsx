@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUserStore } from '../stores/userStore';
 import { useNavigate } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import { usePatientStore } from '../stores/patientStore';
@@ -6,6 +7,7 @@ import CalendarSidebar from '../components/CalendarSidebar';
 
 const Overview = () => {
   const navigate = useNavigate();
+  const { doctorName } = useUserStore();
   const { patients, currentPatient, setCurrentPatient } = usePatientStore();
   const [selectedPatientId, setSelectedPatientId] = useState(
     currentPatient ? currentPatient.id : (patients[0] ? patients[0].id : null)
@@ -44,7 +46,7 @@ const Overview = () => {
           {/* Hero Header */}
           <div className="mb-8 animate-fade-in-up">
             <h1 className="text-[40px] font-extrabold text-brand-sidebar tracking-tight leading-none">
-              Good morning, Dr. Yuthika
+              Good morning, {doctorName}
             </h1>
             <p className="text-base text-gray-500 max-w-2xl mt-2 font-medium">
               ClinIQ+ wishes you a good and productive day. {totalPatients} patients waiting for your treatment today. You also have one live event in your calendar today.
