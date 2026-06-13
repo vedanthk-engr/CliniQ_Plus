@@ -71,26 +71,23 @@ const BodyMapContext = ({ patient }) => {
   };
 
   return (
-    <GlassCard className="flex flex-col gap-4 relative h-full">
-      <div className="border-b border-borderCard pb-3 text-center">
-        <h3 className="text-xs font-bold text-accentPrimary uppercase tracking-widest font-mono">
-          Interactive Somatic Map
-        </h3>
-        <p className="text-[10px] text-textSecondary mt-0.5">
-          Click glowing nodes to run organ-specific AI assessments.
-        </p>
-      </div>
+    <div className="bg-brand-blue rounded-card p-6 h-[560px] flex flex-col relative overflow-hidden transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up">
+      {/* Title */}
+      <h3 className="font-headline-card text-[22px] font-extrabold text-on-surface mb-6 tracking-tight flex items-center gap-2">
+        <span className="material-symbols-outlined text-[24px]">accessibility_new</span>
+        Somatic Map
+      </h3>
 
-      <div className="flex flex-col md:flex-row items-center gap-6 flex-1 min-h-[380px]">
+      <div className="flex-1 flex flex-col md:flex-row items-center gap-4 bg-black/5 rounded-2xl p-4 overflow-hidden backdrop-blur-sm border border-white/20 relative">
         {/* SVG Hologram Body outline */}
-        <div className="relative w-44 h-80 flex-shrink-0">
+        <div className="relative w-36 h-72 flex-shrink-0 flex items-center justify-center">
           <svg width="100%" height="100%" viewBox="0 0 100 200" fill="none" className="opacity-80">
             {/* Silhouette */}
             <path 
               d="M 50 10 C 42 10 38 18 38 25 C 38 32 42 35 50 35 C 58 35 62 32 62 25 C 62 18 58 10 50 10 Z 
                  M 50 35 L 50 40 L 45 42 L 35 48 L 30 65 L 26 90 L 22 110 C 20 115 25 118 28 115 L 32 95 L 35 75 L 38 70 L 38 105 L 38 140 L 32 180 C 31 185 36 188 38 185 L 44 145 L 48 112 L 50 112 L 52 112 L 56 145 L 62 185 C 64 188 69 185 68 180 L 62 140 L 62 105 L 62 70 L 65 75 L 68 95 L 72 115 C 75 118 80 115 78 110 L 74 90 L 70 65 L 65 48 L 55 42 Z" 
-              fill="rgba(124, 58, 237, 0.05)" 
-              stroke="rgba(124, 58, 237, 0.3)" 
+              fill="rgba(26, 26, 26, 0.05)" 
+              stroke="rgba(26, 26, 26, 0.25)" 
               strokeWidth="0.8" 
             />
 
@@ -126,7 +123,7 @@ const BodyMapContext = ({ patient }) => {
           </svg>
 
           {/* Somatic labels list */}
-          <div className="absolute top-2 left-0 flex flex-col gap-1 text-[9px] font-mono text-textSecondary uppercase">
+          <div className="absolute top-0 left-0 flex flex-col gap-1 text-[9px] font-mono text-on-surface/60 uppercase">
             <span>SYS: SECURE</span>
             <span>HOLO: ACTIVE</span>
           </div>
@@ -135,16 +132,16 @@ const BodyMapContext = ({ patient }) => {
         {/* Floating AI Organ Health Summary Panel */}
         <div className="flex-1 flex flex-col gap-3 w-full self-stretch justify-center">
           {selectedOrgan ? (
-            <div className="flex flex-col gap-2 p-3 bg-black/20 rounded-[12px] border border-borderCard flex-1 justify-center">
-              <div className="flex justify-between items-start border-b border-borderCard pb-2 mb-1">
+            <div className="flex flex-col gap-2 p-3 bg-white/40 rounded-[12px] border border-white/30 flex-1 justify-center">
+              <div className="flex justify-between items-start border-b border-black/10 pb-2 mb-1">
                 <div>
-                  <h4 className="text-xs font-bold text-textPrimary uppercase">
+                  <h4 className="text-xs font-extrabold text-on-surface uppercase">
                     {selectedOrgan.name} Assessment
                   </h4>
                   {/* Biomarkers */}
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selectedOrgan.biomarkers.map(b => (
-                      <span key={b} className="text-[9px] font-mono bg-white/5 px-1.5 py-0.5 rounded text-textSecondary">
+                      <span key={b} className="text-[9px] font-mono bg-black/5 px-1.5 py-0.5 rounded text-on-surface/70">
                         {b}: {getLatestBiomarker(b)}
                       </span>
                     ))}
@@ -158,25 +155,25 @@ const BodyMapContext = ({ patient }) => {
                     variant={organRisk > 60 ? 'critical' : organRisk > 30 ? 'warning' : 'good'} 
                   />
                 ) : (
-                  <span className="text-[10px] text-accentPrimary animate-pulse">Running...</span>
+                  <span className="text-[10px] text-on-surface/80 animate-pulse font-bold">Running...</span>
                 )}
               </div>
 
               {/* Streaming Summary */}
-              <div className="text-[11px] text-textSecondary leading-relaxed bg-black/10 p-2.5 rounded border border-borderCard/50 min-h-16">
+              <div className="text-[11px] text-on-surface/90 leading-relaxed bg-white/20 p-2.5 rounded border border-white/10 min-h-[120px] max-h-[160px] overflow-y-auto custom-scrollbar font-medium">
                 <StreamingText text={organSummary || organSSE.data} active={organSSE.loading} />
               </div>
             </div>
           ) : (
-            <div className="flex flex-col justify-center items-center text-center p-6 border border-dashed border-borderCard rounded-[12px] flex-1 text-textSecondary">
+            <div className="flex flex-col justify-center items-center text-center p-4 border border-dashed border-black/20 rounded-[12px] flex-1 text-on-surface/70">
               <span className="text-2xl mb-2">🩺</span>
-              <span className="text-xs font-bold">Select organ on somatic model</span>
-              <span className="text-[10px] mt-1 opacity-70">Query longitudinal neural assessments for kidneys, heart, brain, lungs, and liver.</span>
+              <span className="text-xs font-extrabold">Somatic Analyzer</span>
+              <span className="text-[10px] mt-1 opacity-80 leading-normal">Click glowing nodes on the somatic model to run organ-specific AI assessments.</span>
             </div>
           )}
         </div>
       </div>
-    </GlassCard>
+    </div>
   );
 };
 

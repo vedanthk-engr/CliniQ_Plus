@@ -12,6 +12,7 @@ import ComorbidityWeb from './pages/ComorbidityWeb';
 import { usePatientStore } from './stores/patientStore';
 import { T } from './tokens';
 import ShaderBackground from './components/ShaderBackground';
+import VoiceOrb from './components/voice/VoiceOrb';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -70,6 +71,38 @@ function AppContent() {
     );
   }
 
+  const handleVoiceAction = (actionObj) => {
+    console.log("Global Voice Action Intercepted:", actionObj);
+    
+    if (actionObj.action === 'navigate_page') {
+      const page = actionObj.target.toLowerCase();
+      if (page.includes('dashboard') || page.includes('overview') || page.includes('home')) {
+        setCurrentView('overview');
+      } else if (page.includes('forecast')) {
+        setCurrentView('forecast');
+      } else if (page.includes('comorbidity') || page.includes('network')) {
+        setCurrentView('comorbidity');
+      } else if (page.includes('alert')) {
+        setCurrentView('alerts');
+      } else if (page.includes('analytics') || page.includes('chart')) {
+        setCurrentView('analytics');
+      } else if (page.includes('pillguard') || page.includes('scanner') || page.includes('pill')) {
+        setCurrentView('pillguard');
+      } else if (page.includes('patient') || page.includes('registry')) {
+        setCurrentView('patient-registry');
+      } else if (page.includes('intake')) {
+        setCurrentView('intake');
+      }
+    } else if (actionObj.action === 'show_patient') {
+      const name = actionObj.target.toLowerCase();
+      const p = patients.find(pat => pat.name.toLowerCase().includes(name) || pat.id.toLowerCase() === name);
+      if (p) {
+        setCurrentPatient(p);
+        navigate(`/patient/${p.id}`);
+      }
+    }
+  };
+
   return (
     <div style={{ display: 'flex', width: '100%', minHeight: '100vh', flexDirection: 'column', backgroundColor: 'transparent' }}>
       <ShaderBackground />
@@ -112,6 +145,7 @@ function AppContent() {
           </Routes>
         </main>
       </div>
+      <VoiceOrb onActionExecuted={handleVoiceAction} />
     </div>
   );
 }

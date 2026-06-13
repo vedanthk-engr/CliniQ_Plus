@@ -61,96 +61,92 @@ const LabTrendChart = ({ patient }) => {
   if (activeTab === 'Hemoglobin') isImproving = diff > 0;
   if (diff === 0) isImproving = null;
   
-  const trendLabel = isImproving ? `↓ IMPROVING` : `↑ WORSENING`;
-
-  return (
-    <GlassPanel style={{ padding: '24px', marginBottom: '16px', border: '1px solid rgba(115, 65, 234, 0.1)' }}>
-      
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {labKeys.map(k => {
-          const isActive = activeTab === k;
-          const kColor = LAB_COLORS[k] || T.teal;
-          return (
-            <button
-              key={k}
-              onClick={() => setActiveTab(k)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '8px',
-                border: isActive ? `1px solid ${kColor}` : `1px solid rgba(255, 255, 255, 0.5)`,
-                background: isActive ? `${kColor}11` : 'rgba(255, 255, 255, 0.5)',
-                color: isActive ? kColor : T.textSecondary,
-                fontSize: '11px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                boxShadow: isActive ? `0 0 15px ${kColor}22` : 'none'
-              }}
-              onMouseOver={e => { if(!isActive) e.target.style.background = 'rgba(255, 255, 255, 0.5)'; }}
-              onMouseOut={e => { if(!isActive) e.target.style.background = 'rgba(255, 255, 255, 0.5)'; }}
-            >
-              {k}
-            </button>
-          );
-        })}
+  const trendLabel = isImproving ? `↓ IMPROVING` : `↑ WORSENING`;  return (
+    <div className="bg-brand-pink rounded-card p-6 h-[268px] flex flex-col relative overflow-hidden transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up">
+      {/* Header and Switcher Tabs */}
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="font-headline-card text-[22px] font-extrabold text-on-surface tracking-tight flex items-center gap-2">
+          <span className="material-symbols-outlined text-[24px]">monitoring</span>
+          Biometrics
+        </h3>
+        <div className="flex bg-white/50 backdrop-blur-sm rounded-full p-1 border border-white/20">
+          {labKeys.slice(0, 3).map(k => {
+            const isActive = activeTab === k;
+            return (
+              <button
+                key={k}
+                onClick={() => setActiveTab(k)}
+                className={`px-3 py-1 rounded-full text-xs font-extrabold transition-all duration-300 ${
+                  isActive 
+                    ? 'bg-white text-on-surface shadow-sm' 
+                    : 'text-on-surface/70 hover:bg-white/40 hover:text-on-surface'
+                }`}
+              >
+                {k === 'BP_Systolic' ? 'BP' : k}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Main Stats */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
-        <div>
-          <div style={{ fontSize: '10px', color: T.textSecondary, fontWeight: '800', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.1em' }}>
-            Latest {activeTab}
-          </div>
-          <div style={{ fontSize: '44px', fontWeight: '800', color: color, lineHeight: 1, fontFamily: T.fontDisplay, textShadow: `0 0 20px ${color}44` }}>
+      {/* Metric Display */}
+      <div className="flex justify-between items-baseline mb-2">
+        <div className="flex items-baseline gap-1">
+          <span className="text-[44px] font-black text-on-surface leading-none tracking-tight font-sans">
             {currentVal}
-          </div>
+          </span>
+          <span className="text-sm font-bold text-on-surface/70">
+            {activeTab === 'HbA1c' ? '%' : activeTab === 'BP_Systolic' ? 'mmHg' : ''}
+          </span>
         </div>
-        <div style={{ textAlign: 'right', paddingBottom: '4px' }}>
-          <div style={{ 
-            fontSize: '11px', 
-            color: isImproving ? T.green : T.amber, 
-            fontWeight: '800',
-            letterSpacing: '0.05em',
-            padding: '4px 8px',
-            background: isImproving ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-            borderRadius: '6px',
-            border: `1px solid ${isImproving ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`
-          }}>
-            {diff !== 0 ? trendLabel : 'STEADY'}
-          </div>
+        <div>
+          {diff !== 0 && (
+            <div className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 ${
+              isImproving 
+                ? 'bg-brand-green/20 text-[#5A631D]' 
+                : 'bg-red-500/10 text-red-700'
+            }`}>
+              <span className="material-symbols-outlined text-[12px]">
+                {isImproving ? 'trending_down' : 'trending_up'}
+              </span>
+              <span>{diff > 0 ? `+${diff}` : diff} since last visit</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Chart */}
-      <div style={{ width: '100%', height: '130px' }}>
-        <ResponsiveContainer>
-          <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id={`color${activeTab}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
-                <stop offset="95%" stopColor={color} stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <XAxis dataKey="date" hide={false} axisLine={false} tickLine={false} tick={{ fill: T.textSecondary, fontSize: 10, fontWeight: '500' }} dy={10} />
-            <Tooltip content={<CustomTooltip color={color} />} cursor={{ stroke: 'rgba(255, 255, 255, 0.5)', strokeDasharray: '4 4' }} />
-            <Area
-              type="monotone"
-              dataKey="val"
-              stroke={color}
-              strokeWidth={3}
-              fillOpacity={1}
-              fill={`url(#color${activeTab})`}
-              activeDot={{ r: 5, fill: color, stroke: T.bgDeep, strokeWidth: 3, boxShadow: `0 0 15px ${color}` }}
-              dot={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+      {/* Sparkline Chart */}
+      <div className="flex-grow min-h-0 relative flex flex-col justify-end">
+        <div className="w-full h-16">
+          <ResponsiveContainer>
+            <AreaChart data={data} margin={{ top: 5, right: 2, left: 2, bottom: 0 }}>
+              <defs>
+                <linearGradient id={`color${activeTab}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="rgba(0, 0, 0, 0.2)" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="rgba(0, 0, 0, 0.2)" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Tooltip content={<CustomTooltip color="#000000" />} cursor={{ stroke: 'rgba(0, 0, 0, 0.1)', strokeDasharray: '4 4' }} />
+              <Area
+                type="monotone"
+                dataKey="val"
+                stroke="rgba(0, 0, 0, 0.85)"
+                strokeWidth={2.5}
+                fillOpacity={1}
+                fill={`url(#color${activeTab})`}
+                activeDot={{ r: 4, fill: '#000000', stroke: '#FFFFFF', strokeWidth: 2 }}
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex justify-between text-[9px] text-on-surface/60 font-extrabold uppercase mt-2 tracking-wider font-mono">
+          {data.slice(-5).map((d, i) => (
+            <span key={i} className={i === 4 ? 'text-on-surface font-black' : ''}>{d.date}</span>
+          ))}
+        </div>
       </div>
-
-    </GlassPanel>
+    </div>
   );
 };
 

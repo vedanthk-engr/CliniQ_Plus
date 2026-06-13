@@ -21,103 +21,62 @@ const MedicationsPanel = ({ patient }) => {
   );
 
   return (
-    <GlassPanel style={{
-      padding: '24px 20px',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'rgba(255, 255, 255, 0.5)',
-      border: '1px solid rgba(115, 65, 234, 0.08)'
-    }}>
-      <div style={{
-        fontSize: '10px',
-        fontWeight: '800',
-        color: T.teal,
-        letterSpacing: '0.15em',
-        textTransform: 'uppercase',
-        marginBottom: '20px',
-        borderBottom: '1px solid rgba(115, 65, 234, 0.1)',
-        paddingBottom: '12px',
-        fontFamily: T.fontMono
-      }}>
-        CURRENT REGIMEN
+    <div className="bg-brand-green rounded-card p-6 h-[268px] flex flex-col relative overflow-hidden transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-headline-card text-[22px] font-extrabold text-on-surface tracking-tight flex items-center gap-2">
+          <span className="material-symbols-outlined text-[24px]">medication</span>
+          Current Regimen
+        </h3>
+        <button className="w-8 h-8 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center hover:bg-white hover:scale-105 transition-all shadow-sm border border-white/20">
+          <span className="material-symbols-outlined text-[18px]">add</span>
+        </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
-        {patient.medications.map((med, idx) => {
+      {/* Subheader */}
+      <div className="flex justify-between items-center mb-2 px-1 text-[11px] font-bold text-on-surface/70 uppercase tracking-wide">
+        <span>Medication</span>
+        <span>Adherence</span>
+      </div>
 
-          let shadowColor = med.color;
-          // Convert hex to rgba for shadow if we assume standard 6-char hex, otherwise just use color
-          const baseColor = med.color.startsWith('#') ? med.color : T.teal;
+      {/* Medications Rows */}
+      <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+        {patient.medications.map((med, idx) => {
+          const hasConflict = activeInteractions.some(int => 
+            int.drug_a.toLowerCase() === med.name.toLowerCase() || 
+            int.drug_b.toLowerCase() === med.name.toLowerCase()
+          );
 
           return (
-            <div key={idx} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              borderBottom: idx < patient.medications.length - 1 ? '1px solid rgba(255, 255, 255, 0.5)' : 'none',
-              paddingBottom: idx < patient.medications.length - 1 ? '16px' : '0'
-            }}>
-              <div style={{
-                width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(255, 255, 255, 0.5)', borderRadius: '8px', border: `1px solid rgba(115, 65, 234, 0.1)`,
-                boxShadow: `0 0 10px ${baseColor}22`
-              }}>
-                <svg width="24" height="16" viewBox="0 0 24 16">
-                  {med.shape === 'Round' ? (
-                    <circle cx="12" cy="8" r="6" fill={med.color} filter={`drop-shadow(0 0 3px ${med.color}88)`} />
-                  ) : (
-                    <ellipse cx="12" cy="8" rx="9" ry="5" fill={med.color} filter={`drop-shadow(0 0 3px ${med.color}88)`} />
-                  )}
-                </svg>
+            <div key={idx} className={`rounded-xl p-2 flex items-center gap-3 shadow-sm hover:shadow transition-shadow group border ${
+              hasConflict ? 'bg-red-500/10 border-red-500/20 text-red-700' : 'bg-white border-transparent hover:border-black/5 text-on-surface'
+            }`}>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                hasConflict ? 'bg-red-500/15 text-red-600' : 'bg-surface-container-low text-primary group-hover:bg-primary group-hover:text-white'
+              }`}>
+                <span className="material-symbols-outlined text-[18px]">
+                  {med.shape === 'Capsule' ? 'pill' : 'medication'}
+                </span>
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '2px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '800', color: T.textPrimary, fontFamily: T.fontDisplay }}>{med.name}</span>
-                  <span style={{ fontSize: '11px', fontWeight: '600', color: T.textSecondary, fontFamily: T.fontMono }}>{med.dose}</span>
+              <div className="flex-1 min-w-0">
+                <div className="font-extrabold text-[13px] truncate">{med.name}</div>
+                <div className={`text-[10px] font-semibold truncate ${hasConflict ? 'text-red-700/80' : 'text-on-surface-variant'}`}>
+                  {med.dose} • {med.freq}
                 </div>
-                <div style={{ fontSize: '10px', color: T.textSecondary, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{med.freq}</div>
               </div>
-              <div style={{
-                fontFamily: T.fontMono,
-                fontSize: '10px',
-                color: T.textMuted,
-                background: 'rgba(255, 255, 255, 0.5)',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                border: '1px solid rgba(255, 255, 255, 0.5)',
-                fontWeight: '600'
-              }}>
-                {med.markings}
+              {/* Adherence block row (using 5 days from adherenceCalendar) */}
+              <div className="w-16 h-3.5 flex gap-0.5 opacity-85 shrink-0">
+                {(patient.adherenceCalendar || [true, true, true, false, true]).slice(0, 5).map((taken, sIdx) => (
+                  <div key={sIdx} className={`flex-1 rounded-sm ${
+                    taken ? 'bg-brand-green' : 'bg-red-500'
+                  }`} />
+                ))}
               </div>
             </div>
           );
         })}
       </div>
-
-      {activeInteractions.length > 0 && (
-        <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.5)' }}>
-          {activeInteractions.map((int, i) => (
-            <div key={i} style={{
-              background: 'rgba(245, 158, 11, 0.03)',
-              border: '1px solid rgba(245, 158, 11, 0.15)',
-              borderLeft: `4px solid ${T.amber}`,
-              borderRadius: '10px',
-              padding: '16px',
-              marginTop: '12px',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
-            }}>
-              <div style={{ color: T.amber, fontSize: '10px', fontWeight: '800', letterSpacing: '0.1em', marginBottom: '6px', fontFamily: T.fontMono, textTransform: 'uppercase' }}>
-                ⚠ PHARMACOLOGICAL CONFLICT
-              </div>
-              <div style={{ fontSize: '11px', color: T.textSecondary, lineHeight: 1.6, fontWeight: '500' }}>
-                <strong style={{ color: T.textPrimary, fontWeight: '800' }}>{int.drug_a.toUpperCase()} + {int.drug_b.toUpperCase()}</strong>: {int.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </GlassPanel>
+    </div>
   );
 };
 

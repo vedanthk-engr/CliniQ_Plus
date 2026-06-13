@@ -42,7 +42,7 @@ app.add_middleware(CORSMiddleware,
     allow_origins=['http://localhost:5173'],  # Vite dev server
     allow_methods=['*'], allow_headers=['*'])
 
-from routers import forecast, comorbidity, alerts, pillguard, patients, export
+from routers import forecast, comorbidity, alerts, pillguard, patients, export, voice
 
 class QueryRequest(BaseModel):
     query: str
@@ -126,6 +126,7 @@ app.include_router(alerts.router)
 app.include_router(pillguard.router)
 app.include_router(patients.router)
 app.include_router(export.router)
+app.include_router(voice.router)
 
 
 @app.post('/api/pill/verify')

@@ -84,6 +84,58 @@ class SupabaseService:
                 generated_at TEXT
             )
         """)
+
+        # Create consultation_notes table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS consultation_notes (
+                id TEXT PRIMARY KEY,
+                patient_id TEXT,
+                physician_id TEXT,
+                recorded_at TEXT,
+                raw_transcript TEXT,
+                structured_note_json TEXT,
+                duration_seconds INTEGER,
+                language_code TEXT,
+                status TEXT
+            )
+        """)
+
+        # Create voice_commands_log table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS voice_commands_log (
+                id TEXT PRIMARY KEY,
+                physician_id TEXT,
+                patient_id TEXT,
+                command_text TEXT,
+                interpreted_action TEXT,
+                confidence REAL,
+                executed_at TEXT,
+                page_context TEXT,
+                success INTEGER
+            )
+        """)
+
+        # Create patient_voice_interactions table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS patient_voice_interactions (
+                id TEXT PRIMARY KEY,
+                patient_id TEXT,
+                physician_id TEXT,
+                spoken_input TEXT,
+                detected_language TEXT,
+                structured_output_json TEXT,
+                physician_alerted INTEGER,
+                created_at TEXT
+            )
+        """)
+
+        # Create physician_preferences table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS physician_preferences (
+                physician_id TEXT PRIMARY KEY,
+                voice_config_json TEXT
+            )
+        """)
         
         conn.commit()
         conn.close()
@@ -277,6 +329,129 @@ class SupabaseService:
             alert_id,
             explanation_text,
             generated_at
+        ))
+        conn.commit()
+        conn.close()
+
+    # --- Voice Additions Helper Methods ---
+    def save_consultation_note(self, patient_id: str, physician_id: str, raw_transcript: str, structured_note_json: dict, duration_seconds: int, language_code: str, status: str = "draft"):
+        import uuid
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        recorded_at = datetime.utcnow().isoformat()
+        note_id = str(uuid.uuid4())
+        cursor.execute("""
+            INSERT INTO consultation_notes (id, patient_id, physician_id, recorded_at, raw_transcript, structured_note_json, duration_seconds, language_code, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            note_id,
+            patient_id,
+            physician_id,
+            recorded_at,
+            raw_transcript,
+            json.dumps(structured_note_json),
+            duration_seconds,
+            language_code,
+            status
+        ))
+        conn.commit()
+        conn.close()
+        return note_id
+
+    def get_consultation_notes(self, patient_id: str):
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM consultation_notes WHERE patient_id = ? ORDER BY recorded_at DESC",
+            (patient_id,)
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        return [
+            {
+                "id": r["id"],
+                "patient_id": r["patient_id"],
+                "physician_id": r["physician_id"],
+                "recorded_at": r["recorded_at"],
+                "raw_transcript": r["raw_transcript"],
+                "structured_note": json.loads(r["structured_note_json"]) if r["structured_note_json"] else {},
+                "duration_seconds": r["duration_seconds"],
+                "language_code": r["language_code"],
+                "status": r["status"]
+            }
+            for r in rows
+        ]
+
+    def log_voice_command(self, physician_id: str, patient_id: str, command_text: str, interpreted_action: str, confidence: float, page_context: str, success: int):
+        import uuid
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        executed_at = datetime.utcnow().isoformat()
+        cursor.execute("""
+            INSERT INTO voice_commands_log (id, physician_id, patient_id, command_text, interpreted_action, confidence, executed_at, page_context, success)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            str(uuid.uuid4()),
+            physician_id,
+            patient_id,
+            command_text,
+            interpreted_action,
+            confidence,
+            executed_at,
+            page_context,
+            success
+        ))
+        conn.commit()
+        conn.close()
+
+    def save_patient_interaction(self, patient_id: str, physician_id: str, spoken_input: str, detected_language: str, structured_output_json: dict, physician_alerted: int):
+        import uuid
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        created_at = datetime.utcnow().isoformat()
+        cursor.execute("""
+            INSERT INTO patient_voice_interactions (id, patient_id, physician_id, spoken_input, detected_language, structured_output_json, physician_alerted, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            str(uuid.uuid4()),
+            patient_id,
+            physician_id,
+            spoken_input,
+            detected_language,
+            json.dumps(structured_output_json),
+            physician_alerted,
+            created_at
+        ))
+        conn.commit()
+        conn.close()
+
+    def get_physician_preferences(self, physician_id: str):
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT voice_config_json FROM physician_preferences WHERE physician_id = ?", (physician_id,))
+        row = cursor.fetchone()
+        conn.close()
+        if row and row["voice_config_json"]:
+            return json.loads(row["voice_config_json"])
+        # Default configuration
+        return {
+            "primaryLanguage": "en-US",
+            "voiceGender": "female",
+            "speakingSpeed": 1.0,
+            "autoReadAlerts": False,
+            "morningBriefing": True,
+            "consultationRecording": True,
+            "patientModeLanguage": "hi-IN",
+            "micSensitivity": 0.5,
+            "voiceConfirmation": False
+        }
+
+    def save_physician_preferences(self, physician_id: str, voice_config: dict):
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO physician_preferences (physician_id, voice_config_json) VALUES (?, ?)", (
+            physician_id,
+            json.dumps(voice_config)
         ))
         conn.commit()
         conn.close()

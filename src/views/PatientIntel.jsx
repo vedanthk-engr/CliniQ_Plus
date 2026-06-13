@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { T } from '../tokens';
 import TopHeader from '../components/TopHeader';
@@ -9,11 +9,258 @@ import SecondOpinionPanel from '../components/PatientIntel/SecondOpinionPanel';
 import NaturalLanguageQuery from '../components/PatientIntel/NaturalLanguageQuery';
 import ClinicalPatternFeed from '../components/PatientIntel/ClinicalPatternFeed';
 import TrajectoryPreview from '../components/PatientIntel/TrajectoryPreview';
+import ConsultationRecorder from '../components/voice/ConsultationRecorder';
+import { useVoice } from '../hooks/useVoice';
+import VoiceWaveform from '../components/voice/VoiceWaveform';
 
 const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentView, startInRegistry, onDeletePatient }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Voice & Patient Mode states
+  const [patientLang, setPatientLang] = useState('hi-IN');
+  const [patientMode, setPatientMode] = useState(false);
+  const [patientRecording, setPatientRecording] = useState(false);
+  const [patientIsProcessing, setPatientIsProcessing] = useState(false);
+  const [patientResponse, setPatientResponse] = useState('');
+  const [patientTranscript, setPatientTranscript] = useState('');
+  const [patientInteractions, setPatientInteractions] = useState([]);
+  const [patientAnalyser, setPatientAnalyser] = useState(null);
+  
+  const patientMediaRecorderRef = useRef(null);
+  const patientChunksRef = useRef([]);
+  const patientAudioContextRef = useRef(null);
+  const patientStreamRef = useRef(null);
+
+  const { speak, stopSpeaking } = useVoice();
+
+  const stopPatientRecording = () => {
+    if (patientMediaRecorderRef.current && patientMediaRecorderRef.current.state !== 'inactive') {
+      patientMediaRecorderRef.current.stop();
+    }
+    if (patientStreamRef.current) {
+      patientStreamRef.current.getTracks().forEach(track => track.stop());
+      patientStreamRef.current = null;
+    }
+    if (patientAudioContextRef.current) {
+      try { patientAudioContextRef.current.close(); } catch(e) {}
+      patientAudioContextRef.current = null;
+    }
+    setPatientAnalyser(null);
+    setPatientRecording(false);
+  };
+
+  const startPatientRecording = async () => {
+    setPatientResponse('');
+    setPatientTranscript('');
+    patientChunksRef.current = [];
+    stopSpeaking();
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      patientStreamRef.current = stream;
+
+      // Setup Web Audio Analyser
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContextClass();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      source.connect(analyser);
+      
+      patientAudioContextRef.current = audioCtx;
+      setPatientAnalyser(analyser);
+
+      const options = { mimeType: 'audio/webm' };
+      let mediaRecorder;
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(stream);
+      }
+      
+      patientMediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          patientChunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        setPatientIsProcessing(true);
+        const audioBlob = new Blob(patientChunksRef.current, { type: 'audio/webm' });
+        
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "patient_symptom.webm");
+        formData.append("language_code", patientLang);
+        formData.append("patient_id", patient.id);
+
+        try {
+          const res = await fetch("http://localhost:8000/api/voice/patient-symptom", {
+            method: "POST",
+            body: formData
+          });
+          const data = await res.json();
+          setPatientIsProcessing(false);
+          
+          if (data.native_transcript) {
+            setPatientTranscript(data.native_transcript);
+            setPatientResponse(data.patient_reassurance_native);
+            
+            // Speak response in patient's language
+            speak(data.patient_reassurance_native, patientLang);
+            
+            if (data.structured_data) {
+              setPatientInteractions(prev => [data.structured_data, ...prev]);
+            }
+          } else {
+            setPatientResponse("Sorry, I could not understand. Please try speaking again.");
+            speak("Sorry, I could not understand. Please try speaking again.", "en-US");
+          }
+        } catch (err) {
+          console.error("Patient mode recording error:", err);
+          setPatientIsProcessing(false);
+          setPatientResponse("Failed to connect to the voice intelligence layer.");
+        }
+      };
+
+      mediaRecorder.start(250);
+      setPatientRecording(true);
+    } catch (err) {
+      console.error("Mic access error for patient mode:", err);
+      alert("Microphone permission denied or unavailable.");
+    }
+  };
+
+  const handlePatientMicClick = () => {
+    if (patientRecording) {
+      stopPatientRecording();
+    } else {
+      startPatientRecording();
+    }
+  };
+
+  const handleMockPatientSpeech = async (text) => {
+    setPatientIsProcessing(true);
+    setPatientResponse('');
+    setPatientTranscript(text);
+    
+    try {
+      let nativeText = text;
+      let reassuranceText = "";
+      let severity = 5;
+      let primaryComplaint = "";
+      let duration = "";
+      let associated = [];
+
+      // Get English translation of the spoken text if not English
+      if (patientLang !== 'en-US') {
+        const res = await fetch("http://localhost:8000/api/voice/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: text,
+            source_language: "en",
+            target_language: patientLang.split('-')[0]
+          })
+        });
+        const data = await res.json();
+        nativeText = data.translated_text || text;
+      }
+
+      if (text.includes("chest pain")) {
+        primaryComplaint = "Chest Pain";
+        duration = "since yesterday";
+        severity = 8;
+        associated = ["Shortness of breath", "Fatigue"];
+        
+        const langMap = {
+          'hi-IN': "मुझे खेद है कि आपको छाती में दर्द हो रहा है। मैंने आपके डॉक्टर, डॉ. यूथिका को तुरंत सूचित कर दिया है। कृपया आराम करें जब तक हम आपके विटल्स की जांच करते हैं।",
+          'ta-IN': "உங்களுக்கு நெஞ்சு வலி இருப்பதாகக் கேள்விப்பட்டு வருந்துகிறேன். இதை உங்கள் மருத்துவர் டாக்டர் யூதிகாவிற்கு உடனடியாகத் தெரிவித்துள்ளேன். உங்கள் முக்கிய அறிகுறிகளை நாங்கள் சரிபார்க்கும்போது தயவுசெய்து ஓய்வெடுக்கவும்.",
+          'te-IN': "మీకు ఛాతీ నొప్పి ఉన్నందుకు చింతిస్తున్నాను. నేను వెంటనే మీ డాక్టర్, డాక్టర్ యుతికాకు తెలియజేసాను. మేము మీ పారామితులను తనిఖీ చేసే వరకు దయచేసి విశ్రాంతి తీసుకోండి.",
+          'kn-IN': "ನಿಮಗೆ ಎದೆ ನೋವು ಇರುವುದಕ್ಕೆ ವಿಷಾದಿಸುತ್ತೇವೆ. ನಾನು ತಕ್ಷಣ ನಿಮ್ಮ ವೈದ್ಯರಾದ ಡಾ. ಯುಥಿಕಾಗೆ ತಿಳಿಸಿದ್ದೇನೆ. ನಾವು ನಿಮ್ಮ ಪ್ರಮುಖ ಲಕ್ಷಣಗಳನ್ನು ಪರಿಶೀಲಿಸುವವರೆಗೆ ದಯವಿಟ್ಟು ವಿಶ್ರಾಂತಿ ಪಡೆಯಿರಿ.",
+          'ml-IN': "നിങ്ങൾക്ക് നെഞ്ചുവേദനയുള്ളതിൽ ഞാൻ ഖേദിക്കുന്നു. ഞാൻ ഉടൻ തന്നെ നിങ്ങളുടെ ഡോക്ടർ ഡോ. യുതികയെ അറിയിച്ചിട്ടുണ്ട്. നിങ്ങളുടെ പ്രധാന ലക്ഷണങ്ങൾ പരിശോധിക്കുന്നത് വരെ ദയവായി വിശ്രമിക്കുക.",
+          'bn-IN': "আপনার বুকে ব্যথার কথা শুনে আমি দুঃখিত। আমি অবিলম্বে আপনার ডাক্তার ডঃ ইউথিকাকে জানিয়েছি। আমরা আপনার ভাইটাল পরীক্ষা করা পর্যন্ত অনুগ্রহ করে বিশ্রাম নিন।",
+          'mr-IN': "तुमच्या छातीत दुखत असल्याबद्दल मला खेद वाटतो. मी तात्काळ तुमचे डॉक्टर, डॉ. युथिका यांना कळवले आहे. आम्ही तुमच्या शरीरातील महत्त्वाच्या खुणा तपासत असताना कृपया विश्रांती घ्या.",
+          'en-US': "I am sorry to hear you have chest pain. I have flagged this for your doctor, Dr. Yuthika, immediately. Please rest while we check your vitals."
+        };
+        reassuranceText = langMap[patientLang] || langMap['en-US'];
+      } else if (text.includes("forgot")) {
+        primaryComplaint = "Missed Metformin Dose";
+        duration = "this morning";
+        severity = 4;
+        associated = ["Glucose fluctuation"];
+        
+        const langMap = {
+          'hi-IN': "बताने के लिए धन्यवाद। मैंने छूटी हुई मेटफॉर्मिन खुराक को लॉग कर दिया है। यदि यह समय सीमा के भीतर है, तो कृपया इसे अभी लें।",
+          'ta-IN': "எனக்குத் தெரிவித்ததற்கு நன்றி. தவறிய மெட்ஃபோர்மின் அளவை நான் பதிவு செய்துள்ளேன். தயவுசெய்து இப்போது எடுத்துக் கொள்ளுங்கள்.",
+          'te-IN': "తెలియజేసినందుకు ధన్యவாదాలు. నేను తప్పిపోయిన మెట్‌ఫార్మిన్ మోతాదును నమోదు చేసాను. దయచేసి ఇప్పుడు తీసుకోండి.",
+          'kn-IN': "ತಿಳಿಸಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು. ತಪ್ಪಿಹೋದ ಮೆಟ್‌ಫಾರ್ಮಿನ್ ಡೋಸ್ ಅನ್ನು ನಾನು ಲಾಗ್ ಮಾಡಿದ್ದೇನೆ. ದಯವಿಟ್ಟು ಈಗ ತೆಗೆದುಕೊಳ್ಳಿ.",
+          'ml-IN': "അറിയിച്ചതിന് നന്ദി. ഞാൻ വിട്ടുപോയ മെറ്റ്ഫോർമിൻ ഡോസ് രേഖപ്പെടുത്തിയിട്ടുണ്ട്. ദയവായി ഇപ്പോൾ എടുക്കുക.",
+          'bn-IN': "জানানোর জন্য ধন্যবাদ। আমি বাদ পড়া মেটফর্মিন ডোজটি রেকর্ড করেছি। অনুগ্রহ করে এখন এটি নিন।",
+          'mr-IN': "कळवल्याबद्दल धन्यवाद. मी चुकलेला मेटफॉर्मिन डोस नोंदवला आहे. कृपया आता घ्या.",
+          'en-US': "Thank you for letting me know. I have logged the missed dose of Metformin and updated your adherence profile. Please take it now if it's within the window, or consult Dr. Yuthika."
+        };
+        reassuranceText = langMap[patientLang] || langMap['en-US'];
+      } else if (text.includes("Metformin") || text.includes("medicine")) {
+        primaryComplaint = "Drug Query (Metformin)";
+        duration = "instant";
+        severity = 2;
+        
+        const langMap = {
+          'hi-IN': "मेटफॉर्मिन का उपयोग टाइप 2 मधुमेह वाले रोगियों में इंसुलिन संवेदनशीलता में सुधार करके रक्त शर्करा के स्तर को नियंत्रित करने के लिए किया जाता है।",
+          'ta-IN': "மெட்ஃபோர்மின் டைப் 2 நீரிழிவு நோயாளிகளின் இரத்த சர்க்கரை அளவைக் கட்டுப்படுத்தப் பயன்படுகிறது.",
+          'te-IN': "మెట్‌ఫార్మిన్ టైప్ 2 మధుమేహం ఉన్న రోగులలో రక్తంలో చక్కెర స్థాయిలను నియంత్రించడానికి ఉపయోగించబడుతుంది.",
+          'kn-IN': "ಮೆಟ್‌ಫಾರ್ಮಿನ್ ಅನ್ನು ಟೈಪ್ 2 ಮಧುಮೇಹ ರೋಗಿಗಳಲ್ಲಿ ರಕ್ತದ ಸಕ್ಕರೆ ಮಟ್ಟವನ್ನು ನಿಯಂತ್ರಿಸಲು ಬಳಸಲಾಗುತ್ತದೆ.",
+          'ml-IN': "ടൈപ്പ് 2 പ്രമേഹ രോഗികളിൽ ರಕ್ತത്തിലെ പഞ്ചസാരയുടെ അളവ് നിയന്ത്രിക്കാൻ മെറ്റ്ഫോർമിൻ ഉപയോഗിക്കുന്നു.",
+          'bn-IN': "মেটফর্মিন টাইপ 2 ডায়াবেটিস রোগীদের রক্তে শর্করার মাত্রা নিয়ন্ত্রণ করতে ব্যবহৃত হয়।",
+          'mr-IN': "मेटफॉर्मिनचा वापर टाईप २ मधुमेह असलेल्या रुग्णांमध्ये रक्तातील साखरेची पातळी नियंत्रित करण्यासाठी केला जातो.",
+          'en-US': "Metformin is used to control blood sugar levels in patients with type 2 diabetes by improving insulin sensitivity."
+        };
+        reassuranceText = langMap[patientLang] || langMap['en-US'];
+      } else {
+        primaryComplaint = "Dizziness and Headache";
+        duration = "today";
+        severity = 6;
+        associated = ["Dizziness", "Headache"];
+        
+        const langMap = {
+          'hi-IN': "चक्कर आना और सिरदर्द लॉग कर लिया गया है। मैं आपके डॉक्टर को सचेत कर रहा हूँ।",
+          'ta-IN': "தலைச்சுற்றல் மற்றும் தலைவலி பதிவு செய்யப்பட்டுள்ளது. நான் உங்கள் மருத்துவரை எச்சரிக்கிறேன்.",
+          'te-IN': "తలతిరగడం మరియు తలనొప్పి నమోదు చేయబడింది. నేను మీ వైద్యుడిని హెచ్చరిస్తున్నాను.",
+          'kn-IN': "ತಲೆತಿರುಗುವಿಕೆ ಮತ್ತು ತಲೆನೋವು ದಾಖಲಿಸಲಾಗಿದೆ. ನಾನು ನಿಮ್ಮ ವೈದ್ಯರನ್ನು ಎಚ್ಚರಿಸುತ್ತಿದ್ದೇನೆ.",
+          'ml-IN': "തലകറക്കവും തലവേദനയും രേഖപ്പെടുത്തിയിട്ടുണ്ട്. ഞാൻ നിങ്ങളുടെ ഡോക്ടറെ അറിയിക്കാം.",
+          'bn-IN': "মাথা ঘোরা এবং মাথাব্যথা রেকর্ড করা হয়েছে। আমি আপনার ডাক্তারকে সতর্ক করছি।",
+          'mr-IN': "चक्कर येणे आणि डोकेदुखी नोंदवली गेली आहे. मी तुमच्या डॉक्टरांना सतर्क करत आहे.",
+          'en-US': "Dizziness and headaches have been logged. I am cross-referencing this with your current medications for side effects and alerting Dr. Yuthika."
+        };
+        reassuranceText = langMap[patientLang] || langMap['en-US'];
+      }
+
+      setPatientTranscript(nativeText);
+      setPatientResponse(reassuranceText);
+      
+      speak(reassuranceText, patientLang);
+
+      const structuredData = {
+        primary_complaint: primaryComplaint,
+        duration: duration,
+        severity: severity,
+        associated_symptoms: associated,
+        history_mentions: [],
+        reassuring_advice_english: text
+      };
+
+      setPatientInteractions(prev => [structuredData, ...prev]);
+
+    } catch (e) {
+      console.error(e);
+      setPatientResponse("Error processing simulated speech.");
+    } finally {
+      setPatientIsProcessing(false);
+    }
+  };
 
   // If list view, show flat-designed registry list
   if (viewMode === 'list' || !patient) {
@@ -127,7 +374,197 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     );
   }
 
-  const riskColor = patient.riskScore >= 70 ? 'text-red-500 bg-red-50 border-red-100' : 'text-green-600 bg-green-50 border-green-100';
+  const isCritical = patient.riskScore >= 70;
+  const riskBadgeClass = isCritical
+    ? 'bg-red-500/15 text-red-700 border-red-500/20'
+    : 'bg-brand-green/20 text-[#5A631D] border-[#CFD96C]/30';
+
+  if (patientMode) {
+    return (
+      <div className="fixed inset-0 bg-[#1A1A1A] text-white z-[100000] flex flex-col p-8 justify-between animate-fade-in font-sans">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[32px] text-brand-pink animate-pulse">medication</span>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight leading-none text-white font-sans">ClinIQ+ Patient Mode</h2>
+              <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Interactive Voice Assistant</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => {
+              stopSpeaking();
+              stopPatientRecording();
+              setPatientMode(false);
+            }}
+            className="px-6 py-2.5 bg-white text-black hover:bg-gray-100 rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md z-[100001]"
+          >
+            <span className="material-symbols-outlined text-[16px]">logout</span>
+            <span>Exit Patient Mode</span>
+          </button>
+        </div>
+
+        {/* Center content */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full my-4">
+          <h3 className="text-4xl font-extrabold text-white mb-3 tracking-tight max-w-2xl font-sans">
+            {patientTranscript ? "I'm listening..." : `Hello ${patient.name.split(' ')[0]}, how can I help you today?`}
+          </h3>
+          <p className="text-lg text-gray-400 max-w-xl mb-12 font-semibold">
+            Select your language, click the microphone, and speak naturally.
+          </p>
+
+          {/* Language selection pills for Patient */}
+          <div className="flex flex-wrap gap-2.5 justify-center mb-12 max-w-2xl">
+            {[
+              { code: 'hi-IN', name: 'Hindi', flag: '🇮🇳' },
+              { code: 'ta-IN', name: 'Tamil', flag: '🇮🇳' },
+              { code: 'te-IN', name: 'Telugu', flag: '🇮🇳' },
+              { code: 'ml-IN', name: 'Malayalam', flag: '🇮🇳' },
+              { code: 'kn-IN', name: 'Kannada', flag: '🇮🇳' },
+              { code: 'bn-IN', name: 'Bengali', flag: '🇮🇳' },
+              { code: 'mr-IN', name: 'Marathi', flag: '🇮🇳' },
+              { code: 'en-US', name: 'English', flag: '🇬🇧' }
+            ].map(lang => (
+              <button
+                key={lang.code}
+                onClick={() => {
+                  setPatientLang(lang.code);
+                  stopSpeaking();
+                }}
+                className={`px-4 py-2 rounded-full border text-xs font-extrabold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
+                  patientLang === lang.code
+                    ? 'bg-brand-pink text-[#1A1A1A] border-brand-pink font-black scale-105 shadow-md shadow-brand-pink/20'
+                    : 'bg-[#2E2E2E]/40 border-gray-700 text-gray-300 hover:bg-[#2E2E2E]/80'
+                }`}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Large mic button */}
+          <div className="relative w-40 h-40 flex items-center justify-center mb-10">
+            {patientRecording && (
+              <>
+                <div className="absolute inset-0 rounded-full bg-brand-pink/15 animate-ping pointer-events-none" />
+                <div className="absolute inset-2 rounded-full bg-brand-pink/10 animate-pulse pointer-events-none" />
+              </>
+            )}
+            
+            <button
+              onClick={handlePatientMicClick}
+              className={`w-32 h-32 rounded-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shadow-2xl border ${
+                patientRecording 
+                  ? 'bg-brand-pink text-[#1A1A1A] border-brand-pink scale-110' 
+                  : patientIsProcessing
+                    ? 'bg-brand-yellow text-black border-brand-yellow'
+                    : 'bg-[#2E2E2E] text-white border-gray-700 hover:scale-105 hover:bg-[#3E3E3E]'
+              }`}
+            >
+              {patientIsProcessing ? (
+                <span className="material-symbols-outlined text-[48px] animate-spin">progress_activity</span>
+              ) : patientRecording ? (
+                <span className="material-symbols-outlined text-[48px] animate-pulse">mic_off</span>
+              ) : (
+                <span className="material-symbols-outlined text-[48px]">mic</span>
+              )}
+              <span className="text-[10px] font-black uppercase tracking-wider mt-2">
+                {patientRecording ? 'Click to Stop' : patientIsProcessing ? 'Processing' : 'Click to Speak'}
+              </span>
+            </button>
+
+            {/* Real-time wave visualizer under the button */}
+            {patientRecording && patientAnalyser && (
+              <div className="absolute inset-x-0 -bottom-8 h-12 flex justify-center items-center pointer-events-none">
+                <div className="w-48 h-full opacity-60">
+                  <VoiceWaveform isListening={patientRecording} analyser={patientAnalyser} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Dynamic Voice Responses / Subtitles */}
+          <div className="w-full max-w-xl min-h-[140px] flex flex-col justify-center items-center px-6 py-4 bg-[#2E2E2E]/20 border border-gray-800 rounded-2xl backdrop-blur-md">
+            {patientIsProcessing ? (
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-brand-yellow text-xs font-black uppercase tracking-wider animate-pulse">AI Scribe Analyzing Voice</span>
+                <p className="text-sm text-gray-400 italic font-bold">"Translating, assessing symptoms, and generating comforting response..."</p>
+              </div>
+            ) : patientTranscript ? (
+              <div className="flex flex-col gap-3 w-full text-center">
+                <div>
+                  <span className="text-gray-500 text-[10px] font-black uppercase tracking-wider">What you said:</span>
+                  <p className="text-sm font-semibold text-gray-300 italic">"{patientTranscript}"</p>
+                </div>
+                {patientResponse && (
+                  <div className="border-t border-gray-800 pt-3 flex flex-col items-center gap-2">
+                    <span className="text-brand-pink text-[10px] font-black uppercase tracking-wider">ClinIQ+ Reassurance:</span>
+                    <p className="text-base font-extrabold text-white leading-relaxed font-sans">{patientResponse}</p>
+                    <button
+                      onClick={() => speak(patientResponse, patientLang)}
+                      className="mt-1 flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-brand-pink hover:opacity-85 cursor-pointer bg-brand-pink/10 px-3 py-1 rounded-full border border-brand-pink/20"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">volume_up</span>
+                      Listen Again
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 font-extrabold">
+                Speak symptoms, missed medication details, or hold up a pill to ask what it does.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Suggestion suggestions at the bottom */}
+        <div className="w-full max-w-5xl mx-auto mb-4 border-t border-gray-800/80 pt-6">
+          <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest text-center mb-4">Try saying one of these:</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                title: "Report Symptoms",
+                text: "I have been having chest pain since yesterday",
+                icon: "favorite"
+              },
+              {
+                title: "Medication Adherence",
+                text: "I forgot to take my morning medicine",
+                icon: "medication"
+              },
+              {
+                title: "Inquire about Pills",
+                text: "What does this Metformin medicine do?",
+                icon: "help"
+              },
+              {
+                title: "Dizziness & Headaches",
+                text: "I feel dizzy and my head hurts",
+                icon: "warning"
+              }
+            ].map((suggest, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setPatientTranscript(suggest.text);
+                  handleMockPatientSpeech(suggest.text);
+                }}
+                className="bg-[#2E2E2E]/20 hover:bg-[#2E2E2E]/40 border border-gray-850 p-4 rounded-xl text-left transition-colors cursor-pointer group flex flex-col justify-between min-h-[90px]"
+              >
+                <div className="flex justify-between items-start w-full mb-1">
+                  <span className="text-gray-400 font-extrabold text-[11px] group-hover:text-brand-pink transition-colors uppercase tracking-wider">{suggest.title}</span>
+                  <span className="material-symbols-outlined text-gray-500 text-[14px]">{suggest.icon}</span>
+                </div>
+                <p className="text-xs text-gray-300 font-bold leading-normal italic">"{suggest.text}"</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
@@ -136,7 +573,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
       <div className="fadeIn px-8 pb-8 flex-1 flex flex-col">
         
         {/* Back navigation & Page Title Header */}
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-2 animate-fade-in-up">
           <div className="flex items-center gap-4">
             <button
               onClick={() => {
@@ -150,12 +587,22 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             <h2 className="text-[28px] font-extrabold text-brand-sidebar tracking-tight leading-none">
               {patient.name}
             </h2>
-            <span className={`px-4 py-1.5 rounded-full text-xs font-extrabold border ${riskColor} shadow-sm tracking-wide`}>
-              Precision Risk: {patient.riskScore}
-            </span>
+            <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 border ${riskBadgeClass} shadow-sm font-bold text-xs tracking-wide`}>
+              <span className="material-symbols-outlined text-[16px]">
+                {isCritical ? 'warning' : 'check_circle'}
+              </span>
+              <span>Precision Risk: {patient.riskScore}</span>
+            </div>
           </div>
 
           <div className="flex gap-2">
+            <button 
+              onClick={() => setPatientMode(true)}
+              className="px-4 py-2 bg-brand-sidebar hover:bg-brand-sidebar/90 text-white rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm mr-2"
+            >
+              <span className="material-symbols-outlined text-[16px]">account_box</span>
+              <span>Patient Mode</span>
+            </button>
             <button className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">
               <span className="material-symbols-outlined text-lg">edit</span>
             </button>
@@ -166,215 +613,227 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         </div>
 
         {/* Demographics Bar */}
-        <div className="flex items-center gap-3 mb-6 ml-14">
-          <div className="flex items-center gap-1.5 text-sm text-gray-500 font-semibold">
-            <span className="material-symbols-outlined text-[16px] text-gray-400">cake</span>
-            <span>{patient.age} Years</span>
-          </div>
-          <span className="text-gray-300 text-sm">•</span>
-          <div className="flex items-center gap-1.5 text-sm text-gray-500 font-semibold">
-            <span className="material-symbols-outlined text-[16px] text-gray-400">badge</span>
-            <span>ID: {patient.id}</span>
-          </div>
-          <span className="text-gray-300 text-sm">•</span>
-          <div className="flex items-center gap-1.5 text-sm text-gray-500 font-semibold">
-            <span className="material-symbols-outlined text-[16px] text-gray-400">person</span>
-            <span>{patient.sex || 'Male'}</span>
-          </div>
+        <div className="flex items-center gap-4 text-gray-500 font-semibold mb-6 pl-14 animate-fade-in-up">
+          <span className="flex items-center gap-1.5 text-sm">
+            <span className="material-symbols-outlined text-[18px] text-gray-400">cake</span>
+            {patient.age} Years
+          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+          <span className="flex items-center gap-1.5 text-sm">
+            <span className="material-symbols-outlined text-[18px] text-gray-400">badge</span>
+            ID: {patient.id}
+          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+          <span className="flex items-center gap-1.5 text-sm">
+            <span className="material-symbols-outlined text-[18px] text-gray-400">
+              {patient.sex?.toLowerCase() === 'female' ? 'female' : 'male'}
+            </span>
+            {patient.sex || 'Male'}
+          </span>
         </div>
 
-        {/* Layout Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch flex-1">
-          
-          {/* Left Area: 9 Columns */}
-          <div className="xl:col-span-9 flex flex-col gap-6">
-            
-            {/* AI Pre-consultation (Yellow Card) */}
-            <div className="bg-brand-yellow rounded-card p-6 relative overflow-hidden flat-look animate-fade-in-up">
-              <div className="blob-bg blob-yellow"></div>
-              <div className="card-content">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-extrabold text-lg text-brand-sidebar flex items-center gap-2">
-                    <span className="material-symbols-outlined fill-icon text-lg">auto_awesome</span>
-                    AI Pre-consultation
-                  </h3>
-                  <span className="text-[10px] font-extrabold text-brand-sidebar/60 bg-brand-sidebar/5 px-3 py-1 rounded-full uppercase tracking-wider">Generated 2h ago</span>
-                </div>
-                <p className="text-sm font-semibold text-brand-sidebar/85 leading-relaxed">
-                  {patient.consultBrief ? (
-                    `Patient reports increased fatigue and symptoms: ${patient.consultBrief}. Historical data suggests correlation with recent medication adherence gap. Recommend immediate review of current Apixaban dosage and a localized echocardiogram to rule out fluid retention.`
-                  ) : (
-                    'Patient records show normal parameters. Clinical metrics remain within acceptable bounds. Recommend standard routine check-ups.'
+        {/* Patient Voice interactions feed */}
+        {patientInteractions.length > 0 && (
+          <div className="bg-brand-pink/10 border border-brand-pink/30 rounded-card p-6 mb-6 animate-fade-in-up w-full max-w-[1600px] mx-auto shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-brand-pink text-[24px]">contact_support</span>
+              <h3 className="text-lg font-extrabold text-brand-sidebar font-sans">Patient-Reported Symptom Feed (Voice Session)</h3>
+              <span className="text-[10px] font-black bg-brand-pink text-[#1A1A1A] px-2.5 py-0.5 rounded-full uppercase tracking-wider ml-auto">
+                {patientInteractions.length} New Report{patientInteractions.length > 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {patientInteractions.map((report, idx) => (
+                <div key={idx} className="bg-white border border-gray-150 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-black text-gray-500 uppercase tracking-wider font-mono">Symptom Log</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                        report.severity >= 7 ? 'bg-red-500/10 text-red-650' : 'bg-brand-yellow/20 text-[#715800]'
+                      }`}>
+                        Severity: {report.severity || 5}/10
+                      </span>
+                    </div>
+                    <p className="text-sm font-extrabold text-brand-sidebar font-sans">
+                      {report.primary_complaint || 'General complaints'} <span className="text-xs text-gray-500 font-semibold font-sans">({report.duration || 'duration unspecified'})</span>
+                    </p>
+                    {report.associated_symptoms && report.associated_symptoms.length > 0 && (
+                      <p className="text-xs text-gray-500 mt-1 font-semibold font-sans">
+                        Associated: {report.associated_symptoms.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                  {report.severity >= 7 && (
+                    <div className="flex items-center gap-1.5 bg-red-50 text-red-650 px-3 py-1.5 rounded-full border border-red-100 text-xs font-black">
+                      <span className="material-symbols-outlined text-[16px] animate-pulse">error</span>
+                      <span>Physician Alert Triggered</span>
+                    </div>
                   )}
-                </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Layout Grid (Expanded - Full Width) */}
+        <div className="flex flex-col gap-6 flex-1 w-full max-w-[1600px] mx-auto">
+          
+          {/* AI Pre-consultation (Yellow Card - Full Width) */}
+          <div className="bg-brand-yellow rounded-card p-6 relative overflow-hidden flat-look animate-fade-in-up">
+            <div className="blob-bg blob-yellow"></div>
+            <div className="card-content">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="font-extrabold text-lg text-brand-sidebar flex items-center gap-2">
+                  <span className="material-symbols-outlined fill-icon text-lg">smart_toy</span>
+                  AI Pre-consultation
+                </h3>
+                <span className="text-[10px] font-extrabold text-brand-sidebar/60 bg-brand-sidebar/5 px-3 py-1 rounded-full uppercase tracking-wider">
+                  Generated 2h ago
+                </span>
               </div>
+              <p className="text-sm font-semibold text-brand-sidebar/85 leading-relaxed max-w-5xl">
+                {patient.consultBrief ? (
+                  `Patient reports increased fatigue and symptoms: ${patient.consultBrief}. Historical data suggests correlation with recent medication adherence gap. Recommend immediate review of current dosage and a localized somatic assessment to evaluate kidney/cardiac metrics.`
+                ) : (
+                  'Patient records show normal parameters. Clinical metrics remain within acceptable bounds. Recommend standard routine check-ups.'
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* 3-Column Layout with Stacked Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            
+            {/* Column 1: Somatic Map */}
+            <div className="flex flex-col gap-6">
+              <BodyMapContext patient={patient} />
             </div>
 
-            {/* 3-Column Grid: Somatic Map + Biometrics + Current Regimen */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in-up">
+            {/* Column 2: Biometrics & Risk Assessment */}
+            <div className="flex flex-col gap-6">
               
-              {/* Column 1: Somatic Map (Blue Card) */}
-              <div className="bg-brand-blue rounded-card p-6 relative overflow-hidden flex flex-col min-h-[380px] flat-look">
-                <div className="card-content flex-1 flex flex-col">
-                  <h3 className="font-extrabold text-lg text-brand-sidebar mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-md">accessibility_new</span>
-                    Somatic Map
-                  </h3>
-                  <div className="flex-1 bg-white/40 rounded-xl p-3 border border-white/30 backdrop-blur-sm">
-                    <BodyMapContext patient={patient} />
-                  </div>
-                </div>
-              </div>
+              {/* Biometrics Card */}
+              <LabTrendChart patient={patient} />
 
-              {/* Column 2: Biometrics (Pink Card) */}
-              <div className="bg-brand-pink rounded-card p-6 relative overflow-hidden flex flex-col min-h-[380px] flat-look">
-                <div className="card-content flex-1 flex flex-col">
-                  <h3 className="font-extrabold text-lg text-brand-sidebar mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-md">monitoring</span>
-                    Biometrics
-                  </h3>
-                  <div className="flex-1 bg-white/40 rounded-xl p-3 border border-white/30 backdrop-blur-sm">
-                    <LabTrendChart patient={patient} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Column 3: Current Regimen (Green Card) */}
-              <div className="bg-brand-green rounded-card p-6 relative overflow-hidden flex flex-col min-h-[380px] flat-look">
-                <div className="card-content flex-1 flex flex-col">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-extrabold text-lg text-brand-sidebar flex items-center gap-2">
-                      <span className="material-symbols-outlined text-md">medication</span>
-                      Current Regimen
-                    </h3>
-                    <button className="w-8 h-8 rounded-full bg-white/40 flex items-center justify-center text-brand-sidebar hover:bg-white/60 transition-colors cursor-pointer">
-                      <span className="material-symbols-outlined text-md">add</span>
-                    </button>
-                  </div>
-                  <div className="flex-1 bg-white/40 rounded-xl p-3 border border-white/30 backdrop-blur-sm">
-                    <MedicationsPanel patient={patient} />
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Risk Assessment + Dr. Insights Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
-              
-              {/* Risk Assessment Card (Pink) */}
-              <div className="bg-brand-pink rounded-card p-6 relative overflow-hidden flat-look">
-                <div className="card-content">
-                  <h3 className="font-extrabold text-lg text-brand-sidebar mb-6 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-md">shield</span>
+              {/* Risk Assessment Card */}
+              <div className="bg-brand-yellow rounded-card p-6 h-[268px] flex flex-col relative overflow-hidden transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up">
+                <div className="card-content flex flex-col h-full z-10">
+                  <h3 className="font-headline-card text-[22px] font-extrabold text-on-surface mb-4 tracking-tight flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[24px]">shield</span>
                     Risk Assessment
                   </h3>
-                  <div className="flex items-center justify-around">
-                    {/* Stroke Risk */}
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="relative w-[100px] h-[100px]">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="7" />
-                          <circle cx="50" cy="50" r="42" fill="none" stroke="#D93025" strokeWidth="7"
-                            strokeDasharray={`${(patient.riskScore >= 70 ? 65 : 35) * 2.64} 264`}
+                  <div className="flex gap-6 items-center justify-around flex-1 mt-2">
+                    {/* Gauge 1: Stroke Risk */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="relative w-24 h-24">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="4" />
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ba1a1a" strokeWidth="4"
+                            strokeDasharray={`${(patient.riskScore >= 70 ? 65 : 35)}, 100`}
                             strokeLinecap="round" />
                         </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-[26px] font-black text-brand-sidebar">{patient.riskScore >= 70 ? '65' : '35'}%</span>
+                        <div className="absolute inset-0 flex items-center justify-center font-black text-xl text-on-surface">
+                          {patient.riskScore >= 70 ? '65' : '35'}%
                         </div>
                       </div>
-                      <span className="text-[11px] font-extrabold text-brand-sidebar/70 uppercase tracking-wider">Stroke Risk</span>
+                      <span className="text-xs font-extrabold text-on-surface/80">Stroke Risk</span>
                     </div>
-                    {/* Renal Failure */}
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="relative w-[100px] h-[100px]">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="7" />
-                          <circle cx="50" cy="50" r="42" fill="none" stroke="#D93025" strokeWidth="7"
-                            strokeDasharray={`${(patient.riskScore >= 70 ? 32 : 12) * 2.64} 264`}
+
+                    {/* Gauge 2: Renal Failure */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="relative w-24 h-24">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="4" />
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1b1c1a" strokeWidth="4"
+                            strokeDasharray={`${(patient.riskScore >= 70 ? 32 : 12)}, 100`}
                             strokeLinecap="round" />
                         </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-[26px] font-black text-brand-sidebar">{patient.riskScore >= 70 ? '32' : '12'}%</span>
+                        <div className="absolute inset-0 flex items-center justify-center font-black text-xl text-on-surface">
+                          {patient.riskScore >= 70 ? '32' : '12'}%
                         </div>
                       </div>
-                      <span className="text-[11px] font-extrabold text-brand-sidebar/70 uppercase tracking-wider">Renal Failure</span>
+                      <span className="text-xs font-extrabold text-on-surface/80">Renal Failure</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Dr. Insights Card (White) */}
-              <div className="bg-white border border-gray-200/80 rounded-card p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-5">
-                  <span className="material-symbols-outlined text-lg text-brand-sidebar">stethoscope</span>
-                  <h3 className="font-extrabold text-lg text-brand-sidebar">Dr. Insights</h3>
-                </div>
-                <div className="space-y-4">
-                  {patient.riskScore >= 70 ? (
-                    <>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#D93025] mt-1.5 shrink-0"></span>
-                        <p className="text-sm font-semibold text-gray-700 leading-relaxed">
-                          Schedule echocardiogram to evaluate recent shortness of breath.
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#D93025] mt-1.5 shrink-0"></span>
-                        <p className="text-sm font-semibold text-gray-700 leading-relaxed">
-                          Discuss strategies for improving {patient.medications?.[0]?.name || 'Metoprolol'} adherence.
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#D93025] mt-1.5 shrink-0"></span>
-                        <p className="text-sm font-semibold text-gray-700 leading-relaxed">
-                          Monitor HbA1c closely.
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#1E8E3E] mt-1.5 shrink-0"></span>
-                        <p className="text-sm font-semibold text-gray-700 leading-relaxed">
-                          Continue current treatment plan. Patient responding well.
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#1E8E3E] mt-1.5 shrink-0"></span>
-                        <p className="text-sm font-semibold text-gray-700 leading-relaxed">
-                          Schedule routine follow-up in 3 months.
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#1E8E3E] mt-1.5 shrink-0"></span>
-                        <p className="text-sm font-semibold text-gray-700 leading-relaxed">
-                          Monitor inflammatory markers at next visit.
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
             </div>
 
-            {/* Advanced Clinical Tools Accordion */}
-            <div className="bg-white border border-gray-200 rounded-[24px] overflow-hidden shadow-sm">
-              <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full px-6 py-5 flex justify-between items-center bg-white hover:bg-gray-50/50 transition-colors cursor-pointer font-extrabold text-black"
-              >
-                <span className="flex items-center gap-2 text-sm uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-xl text-black">engineering</span>
-                  Advanced Clinical Co-Pilot Tools
-                </span>
-                <span className="material-symbols-outlined text-lg">
-                  {showAdvanced ? 'expand_less' : 'expand_more'}
-                </span>
-              </button>
+            {/* Column 3: Regimen & Insights */}
+            <div className="flex flex-col gap-6">
               
-              {showAdvanced && (
-                <div className="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white border-t border-gray-100 animate-fade-in-up">
+              {/* Current Regimen Card */}
+              <MedicationsPanel patient={patient} />
+
+              {/* Dr. Insights Card */}
+              <div className="bg-white rounded-card p-6 h-[268px] flex flex-col relative overflow-hidden border-2 border-brand-blue/30 transition-shadow duration-300 shadow-sm hover:shadow-md animate-fade-in-up">
+                <div className="card-content flex flex-col h-full z-10">
+                  <h3 className="font-headline-card text-[22px] font-extrabold text-on-surface mb-4 tracking-tight flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[24px] text-brand-blue">lightbulb</span>
+                    Dr. Insights
+                  </h3>
+                  <ul className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar">
+                    {patient.riskScore >= 70 ? (
+                      <>
+                        <li className="flex items-start gap-2.5 text-xs font-semibold text-on-surface/80">
+                          <span className="material-symbols-outlined text-brand-blue text-[18px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Schedule echocardiogram to evaluate recent shortness of breath.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5 text-xs font-semibold text-on-surface/80">
+                          <span className="material-symbols-outlined text-brand-yellow text-[18px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Discuss strategies for improving medication adherence immediately.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5 text-xs font-semibold text-on-surface/80">
+                          <span className="material-symbols-outlined text-brand-pink text-[18px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Monitor renal markers (e.g. Creatinine) closely on next clinic visit.</span>
+                        </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="flex items-start gap-2.5 text-xs font-semibold text-on-surface/80">
+                          <span className="material-symbols-outlined text-brand-blue text-[18px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Continue current treatment plan; patient is responding well.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5 text-xs font-semibold text-on-surface/80">
+                          <span className="material-symbols-outlined text-brand-yellow text-[18px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Schedule routine clinical follow-up in 3 months.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5 text-xs font-semibold text-on-surface/80">
+                          <span className="material-symbols-outlined text-brand-pink text-[18px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Recommend standard lifestyle and dietary adjustments.</span>
+                        </li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Advanced Clinical Tools Accordion */}
+          <div className="bg-white border border-gray-200 rounded-[24px] overflow-hidden shadow-sm mt-2 animate-fade-in-up">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full px-6 py-5 flex justify-between items-center bg-white hover:bg-gray-50/50 transition-colors cursor-pointer font-extrabold text-black"
+            >
+              <span className="flex items-center gap-2 text-sm uppercase tracking-wider">
+                <span className="material-symbols-outlined text-xl text-black">engineering</span>
+                Advanced Clinical Co-Pilot Tools
+              </span>
+              <span className="material-symbols-outlined text-lg">
+                {showAdvanced ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
+            
+            {showAdvanced && (
+              <div className="flex flex-col gap-8 p-8 bg-white border-t border-gray-100 animate-fade-in-up">
+                <div className="w-full">
+                  <ConsultationRecorder patientId={patient.id} />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
                   <div className="flex flex-col gap-8">
                     <NaturalLanguageQuery patient={patient} />
                     <ClinicalPatternFeed patient={patient} />
@@ -384,68 +843,8 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                     <TrajectoryPreview patient={patient} />
                   </div>
                 </div>
-              )}
-            </div>
-
-          </div>
-
-          {/* Right Panel: 3 Columns */}
-          <div className="xl:col-span-3 flex flex-col gap-6">
-            
-            {/* Calendar Card */}
-            <div className="bg-white border border-gray-200/80 rounded-card p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-6">
-                <span className="material-symbols-outlined cursor-pointer hover:text-gray-500 transition-colors">chevron_left</span>
-                <div className="bg-brand-pink-light px-4 py-1.5 rounded-full font-bold text-sm text-gray-800">May 2024</div>
-                <span className="material-symbols-outlined cursor-pointer hover:text-gray-500 transition-colors">chevron_right</span>
               </div>
-              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-gray-400 mb-4 uppercase">
-                <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-              </div>
-              <div className="grid grid-cols-7 gap-y-3 text-center text-xs font-bold text-gray-700">
-                <span className="text-gray-200">29</span><span className="text-gray-200">30</span>
-                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-                <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span>
-                <span>13</span><span>14</span>
-                <span className="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto font-black cursor-pointer shadow-sm">15</span>
-                <span>16</span><span>17</span><span>18</span><span>19</span>
-              </div>
-            </div>
-
-            {/* Timeline Notes Feed */}
-            <div className="bg-white border border-gray-200/80 rounded-card p-6 shadow-sm flex-1 flex flex-col">
-              <div className="flex justify-between items-center mb-6">
-                <h4 className="font-extrabold text-lg text-brand-sidebar">Timeline</h4>
-                <button className="text-[10px] font-bold bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-600 transition-colors border border-gray-200 cursor-pointer">
-                  Add note
-                </button>
-              </div>
-
-              <div className="relative pl-5 border-l border-gray-200 space-y-6 flex-grow overflow-y-auto pr-2 custom-scrollbar">
-                {/* Note 1 */}
-                <div className="relative group cursor-pointer">
-                  <span className="absolute -left-[25px] top-1.5 w-2.5 h-2.5 rounded-full bg-brand-blue border-2 border-white shadow-sm"></span>
-                  <div className="text-[10px] font-bold text-gray-400 mb-1">Today, 09:15 AM</div>
-                  <div className="bg-gray-50 hover:bg-gray-100/50 p-3 rounded-xl text-xs font-bold text-gray-700 border border-gray-100">
-                    Routine Check-up. BP stable. Discussed diet adjustments.
-                  </div>
-                </div>
-                {/* Note 2 */}
-                <div className="relative group cursor-pointer">
-                  <span className="absolute -left-[25px] top-1.5 w-2.5 h-2.5 rounded-full bg-brand-yellow border-2 border-white shadow-sm"></span>
-                  <div className="text-[10px] font-bold text-gray-400 mb-1">May 10, 2024</div>
-                  <div className="bg-gray-50 hover:bg-gray-100/50 p-3 rounded-xl text-xs font-bold text-gray-700 border border-gray-100">
-                    Lab results uploaded. Mild elevation in liver enzymes.
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule Follow-up CTA Button */}
-              <button className="w-full bg-black text-white py-3.5 rounded-xl font-extrabold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all text-xs tracking-wider uppercase mt-6 flat-look cursor-pointer">
-                Schedule Follow-up
-              </button>
-            </div>
-
+            )}
           </div>
 
         </div>
