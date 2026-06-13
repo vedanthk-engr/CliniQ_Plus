@@ -16,6 +16,7 @@ from agents.query_agent import run_nl_query
 from agents.pill_agent import run_vision_agent
 from agents.pill_analyzer_agent import analyze_pill_images
 from agents.intake_agent import run_intake_extraction
+from agents.trial_matcher_agent import match_clinical_trials
 
 import random
 import uuid
@@ -255,6 +256,25 @@ def intake_save(data: dict):
 
 def doc_str(data):
     return str(data).lower()
+
+from fastapi import HTTPException
+@app.post('/api/trials/match/{patient_id}')
+async def match_trials(patient_id: str):
+    patient = next((p for p in db["patients"] if p['id'] == patient_id), None)
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    if not patient.get("diagnosis"):
+        raise HTTPException(status_code=400, detail="Patient has no conditions for trial matching")
+
+    result = await match_clinical_trials(patient)
+    if "error" in result:
+        # If it's a connection issue or timeout
+        if "Failed to connect" in result["error"] or "Timeout" in result["error"]:
+            raise HTTPException(status_code=503, detail=result["error"])
+        raise HTTPException(status_code=500, detail=result["error"])
+        
+    return result
 
 if __name__ == "__main__":
     import uvicorn

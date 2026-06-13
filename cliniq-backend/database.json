@@ -7,10 +7,17 @@
       "sex": "Male",
       "dob": "12 Mar 1967",
       "diagnosis": [
-        "Type 2 Diabetes",
-        "Hypertension",
-        "CKD Stage 2",
-        "Dyslipidemia"
+        "Lupus Nephritis",
+        "Class III (Focal Proliferative); Chro",
+        "ic Kid",
+        "ey Disease",
+        "Stage 3a; A",
+        "aemia of Chro",
+        "ic Disease (Normocytic); Osteoporosis without Pathological Fracture; Seco",
+        "dary Hyperte",
+        "sio",
+        "(Re",
+        "al)"
       ],
       "doctor": "Dr. Priya Nair",
       "ward": "Endocrinology",
@@ -18,28 +25,52 @@
       "adherenceScore": 61,
       "medications": [
         {
-          "name": "Metformin",
-          "dose": "500mg",
-          "freq": "Twice daily",
-          "color": "#7C3AED",
+          "name": "1. Hydroxychloroquine Sul",
+          "dose": "phate 200 mg Twice Daily (Ongoing)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
           "shape": "Round",
-          "markings": "MF500"
+          "markings": "-"
         },
         {
-          "name": "Amlodipine",
-          "dose": "5mg",
-          "freq": "Once daily",
-          "color": "#FBBF24",
-          "shape": "Oval",
-          "markings": "AML5"
+          "name": "2. Prednisolone (Tapering",
+          "dose": " Schedule) 40 mg Once Daily in the morning with food (90 days taper: 40mg x 4 wks -> 30mg x 2 wks -> 20mg as directed)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
         },
         {
-          "name": "Lisinopril",
-          "dose": "10mg",
-          "freq": "Once daily",
-          "color": "#F87171",
+          "name": "3. Mycophenolate Mofetil ",
+          "dose": "(MMF) 750 mg Twice Daily on an empty stomach (Ongoing)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
           "shape": "Round",
-          "markings": "LIS10"
+          "markings": "-"
+        },
+        {
+          "name": "4. Losartan Potassium 50 ",
+          "dose": "mg Once Daily in the morning (Ongoing)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "5. Calcium Carbonate + Vi",
+          "dose": "tamin D3 500mg / 400 IU Twice Daily with meals (Ongoing)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "6. Ferrous Sulphate 200 m",
+          "dose": "g Once Daily between meals (90 Days)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
         }
       ],
       "labs": {
@@ -337,148 +368,8 @@
         ],
         "BP_Systolic": [
           {
-            "date": "Jul 23",
-            "val": 125
-          },
-          {
-            "date": "Aug 23",
-            "val": 125
-          },
-          {
-            "date": "Sep 23",
-            "val": 126
-          },
-          {
-            "date": "Oct 23",
-            "val": 127
-          },
-          {
-            "date": "Nov 23",
-            "val": 128
-          },
-          {
-            "date": "Dec 23",
-            "val": 128
-          },
-          {
-            "date": "Jan 24",
-            "val": 129
-          },
-          {
-            "date": "Feb 24",
-            "val": 130
-          },
-          {
-            "date": "Mar 24",
-            "val": 131
-          },
-          {
-            "date": "Apr 24",
-            "val": 131
-          },
-          {
-            "date": "May 24",
-            "val": 132
-          },
-          {
-            "date": "Jun 24",
-            "val": 133
-          },
-          {
-            "date": "Jul 24",
-            "val": 134
-          },
-          {
-            "date": "Aug 24",
-            "val": 135
-          },
-          {
-            "date": "Sep 24",
-            "val": 135
-          },
-          {
-            "date": "Oct 24",
-            "val": 136
-          },
-          {
-            "date": "Nov 24",
-            "val": 137
-          },
-          {
-            "date": "Dec 24",
-            "val": 138
-          },
-          {
-            "date": "Jan 25",
-            "val": 138
-          },
-          {
-            "date": "Feb 25",
-            "val": 139
-          },
-          {
-            "date": "Mar 25",
-            "val": 140
-          },
-          {
-            "date": "Apr 25",
-            "val": 141
-          },
-          {
-            "date": "May 25",
-            "val": 141
-          },
-          {
-            "date": "Jun 25",
-            "val": 142
-          },
-          {
-            "date": "Jul 25",
-            "val": 143
-          },
-          {
-            "date": "Aug 25",
-            "val": 144
-          },
-          {
-            "date": "Sep 25",
-            "val": 145
-          },
-          {
-            "date": "Oct 25",
-            "val": 145
-          },
-          {
-            "date": "Nov 25",
-            "val": 146
-          },
-          {
-            "date": "Dec 25",
-            "val": 147
-          },
-          {
-            "date": "Jan 26",
+            "time": "Just Now",
             "val": 148
-          },
-          {
-            "date": "Feb 26",
-            "val": 148
-          },
-          {
-            "date": "Mar 26",
-            "val": 149
-          },
-          {
-            "date": "Apr 26",
-            "val": 150
-          },
-          {
-            "date": "May 26",
-            "val": 151
-          },
-          {
-            "date": "Jun 26",
-            "val": 143
           }
         ],
         "LDL": [
@@ -626,6 +517,18 @@
             "date": "Jun 26",
             "val": 162
           }
+        ],
+        "HeartRate": [
+          {
+            "time": "Just Now",
+            "val": 78
+          }
+        ],
+        "Glucose": [
+          {
+            "time": "Just Now",
+            "val": 100
+          }
         ]
       },
       "bodyFlags": [
@@ -633,6 +536,12 @@
         "Heart"
       ],
       "clinicalPatterns": [
+        {
+          "type": "Data Ingest",
+          "time": "Just Now",
+          "description": "New clinical report ingested by AI.",
+          "severity": "LOW"
+        },
         {
           "type": "Lab Alert",
           "time": "2h ago",
