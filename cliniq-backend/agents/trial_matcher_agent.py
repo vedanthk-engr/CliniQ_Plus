@@ -169,8 +169,7 @@ Return ONLY a JSON array. Each object must have: nctId, briefTitle, phases, elig
             prompt,
             generation_config=genai.types.GenerationConfig(
                 response_mime_type="application/json",
-                temperature=0.1,
-                thinking_config=genai.types.ThinkingConfig(thinking_budget=0)
+                temperature=0.1
             )
         )
 
