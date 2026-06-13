@@ -42,6 +42,8 @@ app.add_middleware(CORSMiddleware,
     allow_origins=['http://localhost:5173'],  # Vite dev server
     allow_methods=['*'], allow_headers=['*'])
 
+from routers import forecast, comorbidity, alerts, pillguard, patients, export
+
 class QueryRequest(BaseModel):
     query: str
     patient_id: str
@@ -117,44 +119,14 @@ def query_agent(req: QueryRequest):
     response = run_nl_query(req.query, req.patient_id)
     return {"response": response}
 
-@app.post('/api/second-opinion')
-def second_opinion(req: SecondOpinionRequest):
-    """
-    Rigorously corroborates or contradicts a proposed diagnosis.
-    """
-    prompt = (
-        f"Hypothesis: {req.diagnosis}. "
-        "Review patient history, labs, and medications. "
-        "Return a JSON object with: "
-        "{'verdict': 'CORROBORATED'|'CONTRADICTED'|'INCONCLUSIVE', "
-        "'support': ['evidence 1', ...], "
-        "'contradict': ['finding 1', ...], "
-        "'summary': 'brief clinical rationale'}"
-    )
-    response_text = run_nl_query(prompt, req.patient_id)
-    
-    try:
-        # Attempt to parse JSON from the agent's NL response if it followed instructions
-        import json
-        import re
-        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-        if json_match:
-            data = json.loads(json_match.group(0))
-            return {
-                "verdict": data.get("verdict", "ANALYZED"),
-                "raw_agent_response": response_text,
-                "support": data.get("support", ["Analysis completed"]),
-                "contradict": data.get("contradict", [])
-            }
-    except:
-        pass
+# Mount new routers
+app.include_router(forecast.router)
+app.include_router(comorbidity.router)
+app.include_router(alerts.router)
+app.include_router(pillguard.router)
+app.include_router(patients.router)
+app.include_router(export.router)
 
-    return {
-        "verdict": "ANALYZED",
-        "raw_agent_response": response_text,
-        "support": ["Comprehensive clinical analysis provided in agent response"],
-        "contradict": []
-    }
 
 @app.post('/api/pill/verify')
 def pill_verify(req: PillVerifyRequest):

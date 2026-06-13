@@ -1,14 +1,10 @@
 import React from 'react';
-import { T } from '../../tokens';
-import GlassPanel from '../GlassPanel';
 
 // Helper to reliably generate a pseudo-random looking calendar based on the patient's ID and adherence score
 const generateGridData = (patient) => {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  // Provide a base template. For each day, 3 doses (Morning, Afternoon, Evening)
-  const score = patient.adherenceScore;
+  const score = patient.adherenceScore || 85;
   
-  // Create a seeded random function based on patient ID to keep it consistent
   let seed = patient.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const random = () => {
     const x = Math.sin(seed++) * 10000;
@@ -18,27 +14,19 @@ const generateGridData = (patient) => {
   const grid = [];
   
   days.forEach((day, dayIdx) => {
-    // If patient adherence is low, force more misses
-    // If adherence is high, force more confirmed
     const targetRate = score / 100;
-    
-    // We also use patient.adherenceCalendar array (which has 7 bools) as a primary hint for that day's main mood
-    const dayHint = patient.adherenceCalendar[dayIdx];
+    const dayHint = patient.adherenceCalendar?.[dayIdx] ?? true;
     
     const row = { day, doses: [] };
     for (let i = 0; i < 3; i++) {
       let status = 'missed';
       const r = random();
       
-      // If it's the future (say Sunday evening), maybe leave it unconfirmed or missed
-      
       if (dayHint) {
-        // Good day
         if (r < 0.8) status = 'confirmed';
         else if (r < 0.9) status = 'unconfirmed';
         else status = 'missed';
       } else {
-        // Bad day
         if (r < targetRate) status = 'confirmed';
         else if (r < targetRate + 0.1) status = 'wrong';
         else status = 'missed';
@@ -52,108 +40,136 @@ const generateGridData = (patient) => {
   return grid;
 };
 
-const AdherenceCalendar = ({ patient }) => {
+const AdherenceCalendar = ({ patient, onSelectMissedCell }) => {
   if (!patient) return null;
 
   const gridData = generateGridData(patient);
-  
-  let scoreColor = T.green;
-  if (patient.adherenceScore < 75) scoreColor = T.amber;
-  if (patient.adherenceScore < 50) scoreColor = T.red;
+
+  const handleCellClick = (status) => {
+    // Select the first active medication to simulate missed dose impact
+    const primaryDrug = patient.medications?.[0]?.name || 'Lisinopril';
+    if (onSelectMissedCell) {
+      onSelectMissedCell(primaryDrug);
+    }
+  };
 
   const renderCell = (status, idx) => {
-    let bg = 'rgba(255, 255, 255, 0.5)';
-    let border = 'rgba(115, 65, 234, 0.05)';
-    let text = '—';
-    let color = T.textMuted;
+    let content = null;
+    let cellStyle = "bg-white/30 border border-brand-sidebar/10 rounded-lg aspect-square flex items-center justify-center transition-all";
 
     if (status === 'confirmed') {
-      bg = 'rgba(16, 185, 129, 0.1)';
-      border = 'rgba(16, 185, 129, 0.3)';
-      text = '✓';
-      color = T.green;
+      cellStyle = "bg-white rounded-lg aspect-square flex items-center justify-center shadow-sm text-brand-pink";
+      content = <span className="material-symbols-outlined text-[18px] font-black fill-icon">check</span>;
     } else if (status === 'wrong') {
-      bg = 'rgba(239, 68, 68, 0.1)';
-      border = 'rgba(239, 68, 68, 0.3)';
-      text = '⚠';
-      color = T.red;
+      cellStyle = "bg-white rounded-lg aspect-square flex items-center justify-center shadow-sm text-red-500 cursor-pointer hover:scale-105";
+      content = <span className="material-symbols-outlined text-[18px] font-bold">warning</span>;
     } else if (status === 'unconfirmed') {
-      bg = 'rgba(245, 158, 11, 0.08)';
-      border = 'rgba(245, 158, 11, 0.2)';
-      text = '?';
-      color = T.amber;
+      cellStyle = "bg-white/60 rounded-lg aspect-square flex items-center justify-center text-brand-pink font-extrabold";
+      content = "?";
+    }
+
+    const isClickable = status === 'missed' || status === 'wrong';
+    if (isClickable) {
+      cellStyle = "border-2 border-dashed border-brand-sidebar/20 hover:border-brand-sidebar hover:bg-white/20 rounded-lg aspect-square flex items-center justify-center transition-all cursor-pointer";
     }
 
     return (
-      <div key={idx} style={{
-        height: '34px', borderRadius: '8px', background: bg, border: `1px solid ${border}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: color, fontSize: '13px', fontWeight: '800', fontFamily: T.fontMono,
-        boxShadow: status === 'confirmed' ? `0 0 8px ${T.green}11` : 'none'
-      }}>
-        {text}
+      <div 
+        key={idx} 
+        onClick={() => isClickable && handleCellClick(status)}
+        className={cellStyle}
+      >
+        {content}
       </div>
     );
   };
 
   return (
-    <GlassPanel style={{ padding: '24px 20px', background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(115, 65, 234, 0.08)' }}>
-      
-      <div style={{
-        fontSize: '10px', fontWeight: '800', color: T.teal, letterSpacing: '0.15em',
-        textTransform: 'uppercase', marginBottom: '20px', fontFamily: T.fontMono
-      }}>
-        7-DAY ADHERENCE LOG
-      </div>
+    <div className="bg-brand-pink rounded-[24px] p-6 relative overflow-hidden h-[450px] flex flex-col justify-between shadow-sm">
+      {/* Decorative Blob */}
+      <svg className="absolute -right-10 -bottom-10 w-48 h-48 text-brand-sidebar opacity-10 pointer-events-none" fill="currentColor" viewBox="0 0 100 100">
+        <path d="M51.9,-75.4C66,-66.4,75.2,-50.2,81.1,-33.1C87,-16,89.6,2,85.2,18.4C80.8,34.8,69.4,49.6,55.5,60.8C41.6,72,25.2,79.6,7.6,83.1C-10,86.6,-28.8,86,-44.6,78.2C-60.4,70.4,-73.2,55.4,-81.4,38.6C-89.6,21.8,-93.2,3.2,-89.6,-13.7C-86,-30.6,-75.2,-45.8,-61.4,-55.1C-47.6,-64.4,-30.8,-67.8,-15.1,-72C0.6,-76.2,16.2,-81.2,37.8,-84.4Z" transform="translate(100 100)" />
+      </svg>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr 1fr', gap: '8px', marginBottom: '24px' }}>
-        <div />
-        <div style={{ fontSize: '9px', color: T.textSecondary, textAlign: 'center', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Morning</div>
-        <div style={{ fontSize: '9px', color: T.textSecondary, textAlign: 'center', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Afternoon</div>
-        <div style={{ fontSize: '9px', color: T.textSecondary, textAlign: 'center', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Evening</div>
-
-        {gridData.map((row, i) => (
-          <React.Fragment key={i}>
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', color: T.textSecondary, fontWeight: '700', textTransform: 'uppercase' }}>
-              {row.day}
-            </div>
-            {row.doses.map((status, idx) => renderCell(status, idx))}
-          </React.Fragment>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `1px solid rgba(115, 65, 234, 0.1)`, paddingTop: '20px' }}>
-        <div style={{ flex: 1, marginRight: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <div style={{ fontSize: '10px', fontWeight: '800', color: T.textSecondary, letterSpacing: '0.08em', textTransform: 'uppercase' }}>WEEKLY SCORE</div>
-            <div style={{ fontSize: '24px', fontWeight: '800', color: scoreColor, lineHeight: 1, fontFamily: T.fontDisplay, textShadow: `0 0 10px ${scoreColor}33` }}>{patient.adherenceScore}%</div>
-          </div>
-          <div style={{ width: '100%', height: '6px', background: 'rgba(255, 255, 255, 0.5)', borderRadius: '3px', overflow: 'hidden' }}>
-             <div style={{ width: `${patient.adherenceScore}%`, height: '100%', background: scoreColor, borderRadius: '3px', boxShadow: `0 0 8px ${scoreColor}` }} />
+      <div className="relative z-10 flex-1 flex flex-col justify-between">
+        
+        {/* Header with Adherence Metric */}
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="font-extrabold text-lg text-brand-sidebar flex items-center gap-2">
+            <span className="material-symbols-outlined">calendar_today</span>
+            7-day adherence
+          </h3>
+          <div className="text-right">
+            <span className="text-3xl font-black text-brand-sidebar block leading-none">
+              {patient.adherenceScore || 85}%
+            </span>
+            <span className="text-[9px] font-black text-brand-sidebar/70 uppercase tracking-wider">
+              Overall Score
+            </span>
           </div>
         </div>
 
-        <button 
-          onClick={() => console.log('Generating PDF...')}
-          style={{
-            padding: '10px 16px', background: 'rgba(115, 65, 234, 0.05)', border: `1px solid rgba(115, 65, 234, 0.2)`,
-            color: T.teal, borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer',
-            transition: 'all 0.3s', textTransform: 'uppercase', letterSpacing: '0.05em'
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(115, 65, 234, 0.1)';
-            e.currentTarget.style.boxShadow = '0 0 15px rgba(115, 65, 234, 0.1)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(115, 65, 234, 0.05)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          Export Report
-        </button>
-      </div>
+        {/* Adherence grid container */}
+        <div className="flex-grow bg-white/20 rounded-xl p-3 border border-brand-sidebar/10 flex flex-col justify-center">
+          <div className="grid grid-cols-8 gap-2.5">
+            {/* Y Axis Labels */}
+            <div className="col-span-1 flex flex-col justify-around text-[10px] font-black text-brand-sidebar/70 h-[80%] mt-auto pr-1">
+              <span>Morn</span>
+              <span>Aft</span>
+              <span>Eve</span>
+            </div>
+            
+            {/* Days Grid */}
+            <div className="col-span-7 grid grid-cols-7 gap-2.5">
+              {/* Day Headers */}
+              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                <div key={i} className="text-center font-black text-[10px] text-brand-sidebar/70 mb-1">{d}</div>
+              ))}
+              {/* morning cells */}
+              {gridData.map((row) => renderCell(row.doses[0], `m-${row.day}`))}
+              {/* afternoon cells */}
+              {gridData.map((row) => renderCell(row.doses[1], `a-${row.day}`))}
+              {/* evening cells */}
+              {gridData.map((row) => renderCell(row.doses[2], `e-${row.day}`))}
+            </div>
+          </div>
+        </div>
 
-    </GlassPanel>
+        {/* Bottom Actions */}
+        <div className="mt-4 pt-3 border-t border-brand-sidebar/15 flex items-center justify-between">
+          <span className="text-[9px] font-black text-brand-sidebar/60 uppercase tracking-wider max-w-[150px]">
+            Click missed cell to stream forecast
+          </span>
+          <button 
+            onClick={() => {
+              fetch('http://localhost:8000/api/export/comprehensive-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patient_id: patient.id })
+              })
+              .then(res => {
+                if (res.ok) return res.blob();
+                throw new Error('Export failed');
+              })
+              .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ClinIQ_Report_${patient.id}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+              })
+              .catch(err => alert("Report export failed. Check server log."));
+            }}
+            className="px-4 py-2 bg-brand-sidebar text-white font-bold text-[10px] uppercase rounded-full hover:bg-gray-800 transition-colors shadow-sm cursor-pointer"
+          >
+            Export Report
+          </button>
+        </div>
+
+      </div>
+    </div>
   );
 };
 

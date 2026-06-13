@@ -1,221 +1,163 @@
 import React from 'react';
-import { T } from '../../tokens';
-import GlassPanel from '../GlassPanel';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
-const LAB_COLORS = {
-  HbA1c: T.teal,
-  Creatinine: T.purple,
-  BP_Systolic: T.amber,
-};
+const CARD_THEMES = [
+  {
+    bg: 'bg-brand-yellow',
+    text: 'text-[#584400]',
+    subText: 'text-[#715800]',
+    badge: 'bg-white/50 text-[#584400] border-[#584400]/20',
+    sparkColor: '#755b00',
+    adherenceBar: 'bg-[#755b00]',
+    blobColor: 'text-[#715800]'
+  },
+  {
+    bg: 'bg-brand-pink',
+    text: 'text-[#39071f]',
+    subText: 'text-[#b56f89]',
+    badge: 'bg-white/50 text-[#39071f] border-[#39071f]/20',
+    sparkColor: '#39071f',
+    adherenceBar: 'bg-[#39071f]',
+    blobColor: 'text-[#b56f89]'
+  },
+  {
+    bg: 'bg-brand-green',
+    text: 'text-brand-sidebar',
+    subText: 'text-brand-sidebar/70',
+    badge: 'bg-white/50 text-brand-sidebar border-brand-sidebar/20',
+    sparkColor: '#1b1c1a',
+    adherenceBar: 'bg-brand-sidebar',
+    blobColor: 'text-brand-sidebar/10'
+  },
+  {
+    bg: 'bg-brand-blue',
+    text: 'text-[#0a314d]',
+    subText: 'text-[#205072]',
+    badge: 'bg-white/50 text-[#0a314d] border-[#0a314d]/20',
+    sparkColor: '#0a314d',
+    adherenceBar: 'bg-[#0a314d]',
+    blobColor: 'text-[#205072]/20'
+  }
+];
 
-const PatientAnalyticsCard = ({ patient }) => {
-  // Sparkline builder
-  const LabSparkline = ({ title, dataKey, history }) => {
-    // Robust fallback: if patient doesn't have this lab, don't render or crash
-    if (!history || !Array.isArray(history) || history.length === 0) return null;
-    const color = LAB_COLORS[dataKey] || T.teal;
-    const first = history[0].val;
-    const last = history[history.length - 1].val;
-    // Assume higher is worse for simplicity, though depends on lab.
-    const isWorsening = last > first;
-    const arrow = isWorsening ? '↑' : '↓';
-    const arrowColor = isWorsening ? T.red : T.green;
+const PatientAnalyticsCard = ({ patient, index = 0 }) => {
+  const theme = CARD_THEMES[index % CARD_THEMES.length];
 
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={{ width: '80px', fontSize: '11px', color: T.textMuted, fontWeight: '600' }}>
-          {title.toUpperCase()}
-        </div>
-        <div style={{ width: '60px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '13px', fontWeight: '700', color: T.textPrimary }}>{last}</span>
-          <span style={{ fontSize: '12px', fontWeight: '700', color: arrowColor }}>{arrow}</span>
-        </div>
-        <div style={{ flex: 1, height: '40px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={history}>
-              <defs>
-                <linearGradient id={`spark-${dataKey}-${patient.id}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="val"
-                stroke={color}
-                strokeWidth={2}
-                fillOpacity={1}
-                fill={`url(#spark-${dataKey}-${patient.id})`}
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    );
+  // Get the display label for a lab
+  const getLabLabel = (key) => {
+    if (key === 'BP_Systolic') return 'Blood Pressure';
+    if (key === 'HbA1c') return 'HbA1c';
+    if (key === 'Creatinine') return 'Creatinine';
+    if (key === 'ESR') return 'ESR';
+    if (key === 'Hemoglobin') return 'Hemoglobin';
+    return key;
   };
 
-  // Adherence Bar Chart (SVG Inline)
-  const renderAdherenceBars = () => {
-    // mockData.js doesn't specifically have adherenceCalendar array on PATIENTS. We fallback completely.
-    const calendar = patient.adherenceCalendar || [true, true, true, false, true, true, false];
-    const width = 200;
-    const height = 40;
-    const barWidth = 14;
-    const gap = (width - (calendar.length * barWidth)) / (calendar.length - 1);
+  // Get the display unit for a lab
+  const getLabUnit = (key) => {
+    if (key === 'BP_Systolic') return ''; // displayed as value/85
+    if (key === 'HbA1c') return '%';
+    if (key === 'Creatinine') return ' mg/dL';
+    if (key === 'ESR') return ' mm/hr';
+    if (key === 'Hemoglobin') return ' g/dL';
+    return '';
+  };
 
-    return (
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-        {calendar.map((took, i) => {
-          const barHeight = took ? height : height * 0.15;
-          const y = height - barHeight;
-          const x = i * (barWidth + gap);
-          let color = T.green;
-          if (patient.adherenceScore < 75) color = T.amber;
-          if (patient.adherenceScore < 50) color = T.red;
-          if (!took) color = T.borderSubtle;
-
-          return (
-            <rect key={i} x={x} y={y} width={barWidth} height={barHeight} fill={color} rx="3" />
-          );
-        })}
-      </svg>
-    );
+  // Format value
+  const getLabValue = (key, val) => {
+    if (key === 'BP_Systolic') return `${val}/${Math.round(val * 0.6 + 10)}`; // mock diastolic
+    return val;
   };
 
   return (
-    <GlassPanel style={{
-      padding: '24px',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      background: 'transparent',
-      border: 'none'
-    }}>
+    <div className={`${theme.bg} rounded-[24px] p-6 relative overflow-hidden group shadow-sm transition-all hover:shadow-md`}>
+      {/* Decorative Blob */}
+      <svg className={`absolute -right-6 -bottom-6 w-32 h-32 ${theme.blobColor} opacity-20 pointer-events-none`} fill="currentColor" viewBox="0 0 100 100">
+        <path d="M40 20 h20 v20 h20 v20 h-20 v20 h-20 v-20 h-20 v-20 h20 z" rx="4" ry="4"></path>
+      </svg>
 
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '24px',
-        paddingBottom: '20px',
-        borderBottom: `1px solid rgba(115, 65, 234, 0.1)`
-      }}>
-        <div>
-          <div style={{
-            fontSize: '20px',
-            fontWeight: '800',
-            color: T.textPrimary,
-            marginBottom: '8px',
-            fontFamily: T.fontDisplay,
-            letterSpacing: '-0.02em'
-          }}>
-            {patient.name}
+      <div className="relative z-10 flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between">
+        
+        {/* Patient Info */}
+        <div className="min-w-[220px]">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <h3 className={`text-2xl font-black ${theme.text}`}>{patient.name}</h3>
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${theme.badge}`}>
+              {patient.riskScore >= 70 ? 'Elevated Risk' : patient.riskScore >= 50 ? 'Review Required' : 'Stable'}
+            </span>
           </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {(patient.diagnosis || patient.diagnoses || []).map((d, i) => (
-              <span key={i} style={{
-                fontSize: '10px',
-                background: 'rgba(115, 65, 234, 0.05)',
-                border: `1px solid rgba(157, 0, 255, 0.15)`,
-                color: T.teal,
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontWeight: '800',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                fontFamily: T.fontMono
-              }}>
-                {d}
-              </span>
-            ))}
-          </div>
+          <p className={`text-xs font-bold ${theme.subText}`}>
+            ID: {patient.id} • Age: {patient.age} • {patient.diagnosis?.[0] || 'Cardiac'}
+          </p>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '10px', fontWeight: '500', color: T.textSecondary, letterSpacing: '0.08em', marginBottom: '4px', textTransform: 'uppercase', fontFamily: T.fontUi }}>RISK SCORE</div>
-          <div style={{
-            fontSize: '36px',
-            fontWeight: '700',
-            color: T.statValue,
-            lineHeight: 1,
-            fontFamily: T.fontDisplay,
-            textShadow: 'none'
-          }}>
-            {patient.riskScore}
-          </div>
+        {/* Biometrics Grid */}
+        <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 w-full xl:w-auto">
+          {Object.keys(patient.labs).slice(0, 3).map((labKey) => {
+            const history = patient.labs[labKey];
+            if (!history || history.length === 0) return null;
+            const latestVal = history[history.length - 1].val;
+            const displayVal = getLabValue(labKey, latestVal);
+            const unit = getLabUnit(labKey);
+
+            return (
+              <div key={labKey} className="flex flex-col">
+                <span className={`text-[11px] font-bold uppercase tracking-wider ${theme.subText}`}>
+                  {getLabLabel(labKey)}
+                </span>
+                <div className="flex items-baseline gap-1.5 mt-1">
+                  <span className={`text-2xl font-black ${theme.text}`}>
+                    {displayVal}
+                  </span>
+                  <span className={`text-[11px] font-bold ${theme.subText}`}>
+                    {unit}
+                  </span>
+                </div>
+                {/* Sparkline */}
+                <div className="w-full h-8 mt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={history} margin={{ top: 2, bottom: 2, left: 2, right: 2 }}>
+                      <defs>
+                        <linearGradient id={`grad-${patient.id}-${labKey}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={theme.sparkColor} stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor={theme.sparkColor} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <Area 
+                        type="monotone" 
+                        dataKey="val" 
+                        stroke={theme.sparkColor} 
+                        strokeWidth={2} 
+                        fill={`url(#grad-${patient.id}-${labKey})`}
+                        dot={false}
+                        isAnimationActive={false}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </div>
-
-      {/* Lab Trends */}
-      <div style={{ marginBottom: '32px' }}>
-        <div style={{
-          fontSize: '10px',
-          fontWeight: '800',
-          color: T.textSecondary,
-          letterSpacing: '0.15em',
-          marginBottom: '20px',
-          textTransform: 'uppercase',
-          fontFamily: T.fontMono,
-          opacity: 0.8
-        }}>
-          BIOMETRIC STREAM
-        </div>
-
-        {patient.labs.HbA1c && <LabSparkline title="HbA1c" dataKey="HbA1c" history={patient.labs.HbA1c} />}
-        {patient.labs.Creatinine && <LabSparkline title="Creatinine" dataKey="Creatinine" history={patient.labs.Creatinine} />}
-        {patient.labs.BP_Systolic && <LabSparkline title="Systolic BP" dataKey="BP_Systolic" history={patient.labs.BP_Systolic} />}
-        {patient.labs.ESR && <LabSparkline title="ESR" dataKey="ESR" history={patient.labs.ESR} />}
-        {patient.labs.Hemoglobin && <LabSparkline title="Hemoglobin" dataKey="Hemoglobin" history={patient.labs.Hemoglobin} />}
-      </div>
-
-      {/* Trajectories Bottom Block */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '24px',
-        marginTop: 'auto',
-        paddingTop: '24px',
-        borderTop: `1px solid rgba(115, 65, 234, 0.1)`
-      }}>
 
         {/* Adherence */}
-        <div>
-          <div style={{ fontSize: '10px', fontWeight: '800', color: T.textSecondary, letterSpacing: '0.1em', marginBottom: '14px', textTransform: 'uppercase', fontFamily: T.fontMono }}>
-            ADHERENCE (7D)
+        <div className="min-w-[150px] w-full xl:w-auto">
+          <span className={`text-[11px] font-bold uppercase tracking-wider block mb-2 ${theme.subText}`}>
+            Med Adherence
+          </span>
+          <div className="w-full h-2 bg-black/10 rounded-full overflow-hidden">
+            <div 
+              className={`h-full ${theme.adherenceBar} rounded-full`} 
+              style={{ width: `${patient.adherenceScore || 85}%` }}
+            />
           </div>
-          {renderAdherenceBars()}
-        </div>
-
-        {/* Risk Trajectory Scale */}
-        <div>
-          <div style={{ fontSize: '10px', fontWeight: '800', color: T.textSecondary, letterSpacing: '0.1em', marginBottom: '14px', textTransform: 'uppercase', fontFamily: T.fontMono }}>
-            RISK TRAJECTORY
-          </div>
-          <div style={{ position: 'relative', width: '100%', height: '40px' }}>
-            <div style={{
-              position: 'absolute', top: '16px', width: '100%', height: '8px', borderRadius: '4px',
-              background: `linear-gradient(90deg, ${T.green} 0%, ${T.amber} 50%, ${T.red} 100%)`,
-              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)',
-              opacity: 0.8
-            }} />
-            <div style={{
-              position: 'absolute', top: '4px', left: `calc(${patient.riskScore}% - 8px)`,
-              width: '16px', height: '16px',
-              background: '#FFFFFF',
-              borderRadius: '50%',
-              boxShadow: '0 0 15px rgba(255, 255, 255, 0.5)',
-              border: `3px solid ${patient.riskScore > 60 ? T.red : patient.riskScore > 30 ? T.amber : T.green}`,
-              transition: 'left 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-            }} />
+          <div className={`text-right mt-1 text-xs font-black ${theme.text}`}>
+            {patient.adherenceScore || 85}%
           </div>
         </div>
 
       </div>
-
-    </GlassPanel>
+    </div>
   );
 };
 

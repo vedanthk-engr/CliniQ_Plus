@@ -1,37 +1,38 @@
 export const T = {
   // Backgrounds
-  bgDeep: 'var(--bg-page)',
-  bgPanel: 'var(--bg-card)',
-  bgPanelHover: 'var(--bg-card-hover)',
-  bgSidebar: 'var(--bg-card)',
-  bgCard: 'var(--bg-card)',
+  bgMain: '#FAF9F5',
+  bgDeep: '#FAF9F5',
+  bgPanel: '#F5F4F0',
+  bgPanelHover: '#E9E8E4',
+  bgSidebar: '#1A1A1A',
+  bgCard: '#FFFFFF',
 
-  // Accents mapped to match Mindo
-  teal: '#8A56E2', // Primary vibrant purple
-  tealDim: '#e6dbfb', // Soft lavender background
-  tealBorder: 'rgba(138, 86, 226, 0.2)',
-  indigo: '#aba5f5', // Secondary distinct purple
-  green: '#34D399',
-  amber: '#F59E0B',
-  red: '#EF4444',
-  purple: '#8A56E2',
-  accentElectric: '#8A56E2',
-  neonLine: '#8A56E2',
+  // Accents
+  teal: '#F7A8C4', 
+  tealDim: '#FFDCE6', 
+  tealBorder: '#C4C7C7',
+  indigo: '#A8D4F5', 
+  green: '#B5C43A',
+  amber: '#F5C842',
+  red: '#BA1A1A',
+  purple: '#F7A8C4',
+  accentElectric: '#B5C43A',
+  neonLine: '#F7A8C4',
 
-  // Typography - Mindo
-  textPrimary: '#1E1E2D', // Deep charcoal
-  textSecondary: '#6B6A78', // Soft slate
-  textMuted: '#A09FAD',
-  textAccent: '#8A56E2',
-  statValue: '#1E1E2D',
+  // Typography
+  textPrimary: '#1B1C1A', 
+  textSecondary: '#444748', 
+  textMuted: '#747878',
+  textAccent: '#F7A8C4',
+  statValue: '#1B1C1A',
 
   // Borders
-  borderSubtle: 'rgba(255, 255, 255, 0.5)',
-  borderTeal: 'rgba(138, 86, 226, 0.2)',
+  borderSubtle: '#C4C7C7',
+  borderTeal: '#C4C7C7',
 
   // Fonts
-  fontDisplay: "'Space Grotesk', sans-serif",
-  fontMono: "'Space Grotesk', sans-serif",
-  fontUi: "'Space Grotesk', sans-serif",
-  fontBody: "'Space Grotesk', sans-serif",
+  fontDisplay: "'DM Sans', sans-serif",
+  fontMono: "'DM Sans', sans-serif",
+  fontUi: "'DM Sans', sans-serif",
+  fontBody: "'DM Sans', sans-serif",
 };

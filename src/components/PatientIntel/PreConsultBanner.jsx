@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { T } from '../../tokens';
 
 const PreConsultBanner = ({ patient, setCurrentView }) => {
+  const navigate = useNavigate();
   if (!patient) return null;
 
   const riskColor = patient.riskScore > 60 ? T.red : T.green;
@@ -27,7 +29,7 @@ const PreConsultBanner = ({ patient, setCurrentView }) => {
       borderRadius: '20px',
       padding: '24px 32px',
       marginBottom: '24px',
-      boxShadow: '0 10px 30px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(115, 65, 234, 0.05)'
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(115, 65, 234, 0.05)'
     }}>
       {/* Top Section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
@@ -63,7 +65,7 @@ const PreConsultBanner = ({ patient, setCurrentView }) => {
         </div>
 
         {/* RIGHT */}
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <button
             onClick={() => setCurrentView('intake')}
             style={{
@@ -94,6 +96,32 @@ const PreConsultBanner = ({ patient, setCurrentView }) => {
           >
             <span>↑</span> INTEL INGESTION
           </button>
+
+          {/* Comorbidity Interaction Score Badge */}
+          <div 
+            onClick={() => navigate('/comorbidity')}
+            style={{ 
+              textAlign: 'right', 
+              cursor: 'pointer',
+              background: 'rgba(168, 85, 247, 0.15)',
+              border: '1px solid rgba(168, 85, 247, 0.3)',
+              borderRadius: '10px',
+              padding: '6px 14px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={e => e.currentTarget.style.background = 'rgba(168, 85, 247, 0.25)'}
+            onMouseOut={e => e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)'}
+          >
+            <div style={{ fontSize: '8px', color: '#A855F7', fontWeight: '800', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: T.fontMono }}>
+              COMORBIDITY
+            </div>
+            <div style={{ fontSize: '18px', fontWeight: '800', color: '#A855F7', fontFamily: T.fontDisplay }}>
+              {patient.id === 'P-00142' ? '3' : patient.id === 'P-00399' ? '5' : '1'} <span style={{ fontSize: '10px', fontWeight: '500', opacity: 0.8 }}>pairs</span>
+            </div>
+          </div>
 
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '9px', color: T.textSecondary, fontWeight: '800', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '4px', fontFamily: T.fontMono }}>

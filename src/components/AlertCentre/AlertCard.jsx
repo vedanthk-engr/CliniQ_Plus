@@ -1,102 +1,142 @@
-import React from 'react';
-import { T } from '../../tokens';
-import GlassPanel from '../GlassPanel';
+import React, { useState } from 'react';
+import useSSEStream from '../../hooks/useSSEStream';
+import StreamingText from '../ui/StreamingText';
 
 const AlertCard = ({ alert, isAcknowledged, onAck }) => {
-  let severityColor = T.green;
-  let bgTint = 'rgba(52,211,153,0.06)';
+  const { data, loading, startStream } = useSSEStream();
+  const [showExplain, setShowExplain] = useState(false);
+
+  const handleExplain = async () => {
+    setShowExplain(true);
+    if (data) return;
+    
+    try {
+      await startStream('http://localhost:8000/api/alerts/explain', {
+        alert_id: alert.id,
+        patient_id: alert.patientId,
+        description: alert.description
+      });
+    } catch (err) {
+      console.error("Failed to fetch explanation:", err);
+    }
+  };
+
+  let severityColor = 'bg-[#B5C43A]'; 
+  let badgeStyle = 'bg-gray-100 text-gray-600 border-gray-200';
+  let borderStyle = 'border-gray-200/60';
+  let urgencyStyle = 'bg-gray-100 text-gray-700';
+  let textLight = 'text-gray-500';
+  let dotStyle = 'bg-gray-300';
+  let descBgStyle = 'bg-gray-50/50 border-gray-100';
+
   if (alert.severity === 'HIGH') {
-    severityColor = T.red;
-    bgTint = 'rgba(248,113,113,0.06)';
+    severityColor = 'bg-[#ba1a1a]';
+    badgeStyle = 'bg-red-50 text-red-650 border-red-100';
+    borderStyle = 'border-red-200/60';
+    urgencyStyle = 'bg-red-500 text-white shadow-sm';
+    textLight = 'text-red-500';
+    dotStyle = 'bg-red-500 shadow-[0_0_8px_rgba(186,26,26,0.4)]';
+    descBgStyle = 'bg-red-500/5 border-red-100/30';
   } else if (alert.severity === 'MEDIUM') {
-    severityColor = T.amber;
-    bgTint = 'rgba(251,191,36,0.06)';
+    severityColor = 'bg-[#F5C842]';
+    badgeStyle = 'bg-yellow-50 text-yellow-750 border-yellow-100';
+    borderStyle = 'border-yellow-250/60';
+    urgencyStyle = 'bg-brand-yellow text-brand-sidebar font-extrabold shadow-sm';
+    textLight = 'text-brand-yellow';
+    dotStyle = 'bg-brand-yellow shadow-[0_0_8px_rgba(253,207,73,0.5)]';
+    descBgStyle = 'bg-brand-yellow/10 border-brand-yellow/20';
   }
 
+  const urgency = alert.urgency_score || 5;
+
   return (
-    <div style={{
-      opacity: isAcknowledged ? 0.4 : 1,
-      transform: isAcknowledged ? 'scale(0.99)' : 'scale(1)',
-      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-      marginBottom: '16px'
-    }}>
-      <GlassPanel style={{
-        padding: '20px 24px',
-        borderLeft: `4px solid ${severityColor}`,
-        background: isAcknowledged ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.5)',
-        border: `1px solid ${isAcknowledged ? 'rgba(255, 255, 255, 0.5)' : 'rgba(115, 65, 234, 0.08)'}`,
-        borderLeftWidth: '4px',
-        display: 'flex',
-        gap: '20px',
-        alignItems: 'flex-start',
-        boxShadow: !isAcknowledged && alert.severity === 'HIGH' ? `0 0 20px ${T.red}11` : 'none'
-      }}>
-        
-        {/* Left Zone */}
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {!isAcknowledged && alert.severity === 'HIGH' && (
-                <div className="live-dot" style={{
-                  width: '8px', height: '8px', background: T.red,
-                  boxShadow: `0 0 10px ${T.red}`
-                }} />
-              )}
-              <span style={{ fontSize: '15px', fontWeight: '800', color: T.textPrimary, fontFamily: T.fontDisplay, letterSpacing: '-0.01em' }}>{alert.patientName}</span>
-              <span style={{ fontSize: '10px', color: T.textSecondary, fontWeight: '700', fontFamily: T.fontMono, opacity: 0.6 }}>• {alert.patientId}</span>
+    <div 
+      className={`transition-all duration-300 ${
+        isAcknowledged ? 'opacity-40 scale-[0.99]' : 'scale-100'
+      }`}
+    >
+      <div 
+        className={`bg-white/95 border rounded-[32px] p-6 relative overflow-hidden flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow ${borderStyle}`}
+      >
+        {/* Decorative Blob */}
+        <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full ${severityColor} opacity-5 pointer-events-none`} />
+
+        {/* Top Header Row */}
+        <div className="flex justify-between items-start gap-4">
+          
+          {/* Left info */}
+          <div className="flex items-start gap-3">
+            <div className={`w-3 h-3 rounded-full mt-1.5 shrink-0 ${dotStyle}`} />
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-xl font-extrabold text-brand-sidebar">{alert.patientName}</h3>
+                <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider font-mono ${badgeStyle}`}>
+                  {alert.type || 'Clinical'}
+                </span>
+              </div>
+              <p className="text-[11px] font-bold text-gray-400 mt-1">
+                ID: {alert.patientId} • Outpatient
+              </p>
             </div>
-            <div style={{ fontSize: '11px', color: T.textSecondary, fontWeight: '600', fontFamily: T.fontMono }}>{alert.time}</div>
           </div>
-          
-          <div style={{
-            fontSize: '10px', fontWeight: '800', color: severityColor, letterSpacing: '0.1em',
-            textTransform: 'uppercase', marginBottom: '8px', fontFamily: T.fontMono
-          }}>
-            {alert.type}
+
+          {/* Right urgency score */}
+          <div className="flex flex-col items-end">
+            <span className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-black ${urgencyStyle}`}>
+              {urgency}
+            </span>
+            <span className={`text-[9px] font-black uppercase tracking-wider mt-1 ${textLight}`}>
+              Urgency
+            </span>
           </div>
-          
-          <div style={{ fontSize: '13px', color: T.textSecondary, lineHeight: 1.6, fontWeight: '500' }}>
-            {alert.description}
-          </div>
+
         </div>
 
-        {/* Right Zone */}
-        <div style={{ width: '120px', flexShrink: 0, textAlign: 'right', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', alignSelf: 'center' }}>
-          {isAcknowledged ? (
-            <div style={{ fontSize: '10px', fontWeight: '800', color: T.green, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: T.fontMono }}>
-              ✓ ARCHIVED
-            </div>
-          ) : (
+        {/* Description Box */}
+        <div className={`rounded-2xl p-4 border text-xs leading-relaxed font-bold text-brand-sidebar ${descBgStyle}`}>
+          {alert.description}
+        </div>
+
+        {/* Action Buttons */}
+        {!isAcknowledged && (
+          <div className="flex gap-3 mt-1">
             <button
               onClick={() => onAck(alert.id)}
-              style={{
-                background: 'rgba(157, 0, 255, 0.03)',
-                border: `1px solid rgba(115, 65, 234, 0.2)`,
-                color: T.teal,
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '10px',
-                fontWeight: '800',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(115, 65, 234, 0.1)';
-                e.currentTarget.style.boxShadow = '0 0 15px rgba(157, 0, 255, 0.15)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(157, 0, 255, 0.03)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              className="px-6 py-2.5 bg-black text-white font-bold text-xs rounded-full hover:bg-gray-800 transition-colors flex-1 shadow-sm flat-look cursor-pointer"
             >
-              ACKNOWLEDGE
+              Acknowledge
             </button>
-          )}
-        </div>
+            <button
+              onClick={handleExplain}
+              className="px-6 py-2.5 bg-gray-100 text-brand-sidebar border border-gray-200/50 font-bold text-xs rounded-full hover:bg-gray-200 transition-colors flex-1 shadow-sm cursor-pointer"
+            >
+              {loading ? 'Analyzing...' : 'Explain AI Reasoning'}
+            </button>
+          </div>
+        )}
 
-      </GlassPanel>
+        {isAcknowledged && (
+          <div className="text-[10px] font-black text-brand-green tracking-wider uppercase font-mono mt-1 flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm font-bold">check_circle</span>
+            Archived Clinical Event
+          </div>
+        )}
+
+        {/* Explain text drawer */}
+        {showExplain && (
+          <div className="bg-brand-pink-light/35 border border-brand-pink/20 rounded-2xl p-4 text-xs text-brand-sidebar leading-relaxed animate-fade-in-up mt-1">
+            <div className="text-[9px] font-black text-brand-pink tracking-wider uppercase font-mono mb-1.5">
+              ClinIQ+ Diagnostic Inference
+            </div>
+            {data ? (
+              <StreamingText text={data} active={loading} />
+            ) : (
+              <span className="text-brand-pink animate-pulse font-bold">Querying clinical decision model...</span>
+            )}
+          </div>
+        )}
+
+      </div>
     </div>
   );
 };
