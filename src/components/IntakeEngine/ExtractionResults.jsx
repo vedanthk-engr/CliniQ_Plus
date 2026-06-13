@@ -66,7 +66,7 @@ const ExtractionResults = ({ data, onApprove, onEdit }) => {
   const matchUI = getMatchUI();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflowY: 'auto', paddingRight: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ fontSize: '10px', fontWeight: '800', color: T.teal, letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: T.fontMono }}>

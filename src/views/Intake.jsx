@@ -65,7 +65,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
         const newPatient = updatedPatients.find(p => p.id === result.patient_id);
         if (newPatient) {
           setCurrentPatient(newPatient);
-          setCurrentView('patient'); // Navigate to the new patient's profile
+          setCurrentView('patient');
         }
       }
 
@@ -125,21 +125,20 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
                         View History
                       </button>
                     </div>
-                    {/* Drag & Drop Zone */}
                     <FileUpload onUpload={handleUpload} loading={loading} />
                   </div>
                 </div>
 
                 {/* Settings Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Target Patient select (Yellow card) */}
+                  {/* Target Patient */}
                   <div className="bg-[#FFECA1] border border-[#F8D664] rounded-[24px] p-6 relative overflow-hidden flex flex-col justify-center min-h-[120px] shadow-sm">
                     <div className="absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] bg-brand-yellow rounded-full blur-2xl opacity-15 pointer-events-none" />
                     <div className="relative z-10">
                       <label className="text-[10px] text-gray-700 font-extrabold mb-2.5 block uppercase tracking-wider">Target Patient</label>
                       <div className="relative">
-                        <select 
-                          value={patient ? patient.id : 'NEW'} 
+                        <select
+                          value={patient ? patient.id : 'NEW'}
                           onChange={(e) => {
                             if (e.target.value === 'NEW') {
                               setCurrentPatient(null);
@@ -159,14 +158,14 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Document Type Override select (High-surface card) */}
+
+                  {/* Document Type Override */}
                   <div className="bg-[#efeeea] border border-[#c4c7c7] rounded-[24px] p-6 relative overflow-hidden flex flex-col justify-center min-h-[120px] shadow-sm">
                     <div className="relative z-10">
                       <label className="text-[10px] text-gray-650 font-extrabold mb-2.5 block uppercase tracking-wider">Document Type Override</label>
                       <div className="relative">
-                        <select 
-                          value={documentType} 
+                        <select
+                          value={documentType}
                           onChange={(e) => setDocumentType(e.target.value)}
                           className="w-full bg-white border border-gray-250 rounded-xl py-2.5 pl-3 pr-10 text-sm font-bold text-black appearance-none focus:ring-2 focus:ring-black cursor-pointer"
                         >
@@ -186,7 +185,6 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
                 <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex-grow flex flex-col shadow-sm">
                   <h3 className="text-xl font-extrabold text-black mb-6">Processing Queue</h3>
                   <div className="space-y-4 flex-grow overflow-y-auto pr-1">
-                    {/* Queue Item 1 */}
                     <div className="bg-[#FAF9F5] border border-gray-150 p-4 rounded-xl flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-[#FFDCE6] flex items-center justify-center text-[#b56f89] shrink-0">
                         <span className="material-symbols-outlined">description</span>
@@ -199,8 +197,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
                       </div>
                       <span className="text-[10px] font-extrabold text-gray-500 shrink-0">75%</span>
                     </div>
-                    
-                    {/* Queue Item 2 */}
+
                     <div className="bg-[#FAF9F5] border border-gray-150 p-4 rounded-xl flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-[#FFECA1] flex items-center justify-center text-[#8C6D14] shrink-0">
                         <span className="material-symbols-outlined">check_circle</span>
@@ -214,12 +211,12 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
                       </button>
                     </div>
                   </div>
-                  
+
                   <button className="w-full mt-6 bg-[#efeeea] hover:bg-gray-200 transition-colors text-black font-extrabold py-3.5 rounded-full text-xs cursor-pointer">
                     View All Tasks
                   </button>
                 </div>
-                
+
                 {/* AI Insights Snippet (Dark Card) */}
                 <div className="bg-brand-sidebar text-white rounded-[24px] p-6 relative overflow-hidden h-48 shadow-sm flex flex-col justify-between shrink-0">
                   <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
@@ -248,9 +245,9 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
             </div>
           </div>
         ) : (
-          <div className="flex-grow flex flex-col">
+          <div className="flex-grow flex flex-col min-h-0">
             {/* Header when file is active */}
-            <div className="mb-6 flex justify-between items-center">
+            <div className="mb-4 flex justify-between items-center shrink-0">
               <div>
                 <h1 className="text-2xl font-extrabold text-brand-sidebar tracking-tight">
                   Multimodal AI Intake Review
@@ -268,8 +265,8 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
             </div>
 
             {loading && fileData && (
-              <div className="flex-grow flex gap-6 min-h-[500px]">
-                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-4 flex">
+              <div className="flex-grow flex gap-6" style={{ height: 'calc(100vh - 200px)' }}>
+                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-4 flex overflow-hidden">
                   <PdfViewer fileData={fileData} />
                 </div>
                 <div className="flex-1 flex items-center justify-center bg-white border border-gray-200 rounded-[24px] p-6 shadow-sm">
@@ -282,11 +279,13 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
             )}
 
             {extraction && (
-              <div className="flex-grow flex gap-6 overflow-hidden min-h-[500px]">
-                <div className="flex-[1.2] bg-white border border-gray-200 rounded-[24px] p-4 flex">
+              <div className="flex gap-6 min-h-0 flex-grow" style={{ height: 'calc(100vh - 200px)' }}>
+                {/* Left: PDF Viewer */}
+                <div className="flex-[1.2] bg-white border border-gray-200 rounded-[24px] p-4 flex min-h-0 overflow-hidden">
                   <PdfViewer fileData={fileData} />
                 </div>
-                <div className="flex-1 flex flex-col bg-white border border-gray-200 rounded-[24px] p-6 overflow-y-auto max-h-[calc(100vh-220px)] shadow-sm">
+                {/* Right: Extraction results - scrolls internally */}
+                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-6 min-h-0 overflow-y-auto shadow-sm">
                   <ExtractionResults
                     data={extraction}
                     onApprove={handleApprove}
