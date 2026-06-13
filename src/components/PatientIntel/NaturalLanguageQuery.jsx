@@ -50,110 +50,41 @@ const NaturalLanguageQuery = ({ patient }) => {
   };
 
   return (
-    <GlassPanel style={{ 
-      padding: '20px', 
-      marginTop: '20px', 
-      flexShrink: 0,
-      background: 'rgba(255, 255, 255, 0.5)',
-      border: '1px solid rgba(115, 65, 234, 0.08)'
-    }}>
-      <div style={{
-        fontSize: '10px',
-        fontWeight: '800',
-        color: T.teal,
-        letterSpacing: '0.15em',
-        textTransform: 'uppercase',
-        marginBottom: '12px',
-        fontFamily: T.fontMono,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
-      }}>
-        <div className="live-dot" style={{ width: '6px', height: '6px' }} /> CLINICAL QUERY INTERFACE
+    <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex flex-col shadow-sm">
+      <div className="flex items-center gap-2 text-[11px] font-extrabold text-[#F278A1] tracking-wider mb-4 font-mono uppercase">
+        <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
+        Clinical Query Interface
       </div>
 
-      <div style={{ display: 'flex', gap: '12px' }}>
+      <div className="flex gap-3">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
           placeholder="QUERY PATIENT LONG-TERM HISTORY..."
-          style={{
-            flex: 1,
-            background: 'rgba(255, 255, 255, 0.5)',
-            border: `1px solid rgba(157, 0, 255, 0.15)`,
-            borderRadius: '10px',
-            color: T.textPrimary,
-            padding: '12px 18px',
-            fontSize: '13px',
-            outline: 'none',
-            transition: 'all 0.3s ease',
-            fontFamily: T.fontMono,
-            fontWeight: '600'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = T.teal;
-            e.target.style.background = 'rgba(157, 0, 255, 0.03)';
-            e.target.style.boxShadow = `0 0 15px rgba(115, 65, 234, 0.1)`;
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(157, 0, 255, 0.15)';
-            e.target.style.background = 'rgba(255, 255, 255, 0.5)';
-            e.target.style.boxShadow = 'none';
-          }}
+          className="flex-1 bg-white border border-[#FFDCE6] rounded-xl text-black py-3 px-4 text-xs font-bold font-mono placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-brand-pink/30 focus:border-brand-pink transition-all"
         />
         <button
           onClick={handleAsk}
           disabled={isLoading || !query.trim()}
-          style={{
-            background: isLoading || !query.trim() ? 'rgba(115, 65, 234, 0.05)' : 'rgba(115, 65, 234, 0.1)',
-            color: T.teal,
-            border: `1px solid ${isLoading || !query.trim() ? 'rgba(115, 65, 234, 0.1)' : T.teal}`,
-            borderRadius: '10px',
-            padding: '0 24px',
-            fontSize: '11px',
-            fontWeight: '800',
-            cursor: isLoading || !query.trim() ? 'not-allowed' : 'pointer',
-            transition: 'all 0.3s',
-            minWidth: '100px',
-            fontFamily: T.fontMono,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em'
-          }}
-          onMouseEnter={e => {
-            if (!isLoading && query.trim()) {
-              e.currentTarget.style.background = 'rgba(115, 65, 234, 0.2)';
-              e.currentTarget.style.boxShadow = '0 0 15px rgba(115, 65, 234, 0.2)';
-            }
-          }}
-          onMouseLeave={e => {
-            if (!isLoading && query.trim()) {
-              e.currentTarget.style.background = 'rgba(115, 65, 234, 0.1)';
-              e.currentTarget.style.boxShadow = 'none';
-            }
-          }}
+          className={`border rounded-xl px-6 py-3 text-xs font-extrabold transition-all uppercase tracking-wider ${
+            isLoading || !query.trim()
+              ? 'bg-gray-50 border-gray-250 text-gray-400 cursor-not-allowed'
+              : 'bg-white border-[#F8A1C4] text-[#912D55] hover:bg-[#FFDCE6]/25 cursor-pointer shadow-sm'
+          }`}
         >
-          {isLoading ? <span style={{ animation: 'blink 1.5s infinite' }}>CONSULTING</span> : 'ASK AI'}
+          {isLoading ? 'Consulting' : 'Ask AI'}
         </button>
       </div>
 
       {answer && !isLoading && (
-        <div className="fadeIn" style={{
-          background: 'rgba(157, 0, 255, 0.03)',
-          border: '1px solid rgba(115, 65, 234, 0.1)',
-          borderRadius: '10px',
-          padding: '16px 20px',
-          marginTop: '16px',
-          fontSize: '13px',
-          lineHeight: 1.7,
-          boxShadow: 'inset 0 0 20px rgba(157, 0, 255, 0.02)'
-        }}>
-          <span style={{ fontWeight: '800', color: T.teal, marginRight: '8px', fontFamily: T.fontMono, fontSize: '11px' }}>AI RESPOND:</span>
-          <span style={{ color: T.textPrimary, fontWeight: '500' }}>{answer}</span>
+        <div className="fadeIn bg-[#FFDCE6]/10 border border-[#F8A1C4]/20 rounded-xl p-4 mt-4 text-xs font-medium text-black leading-relaxed">
+          <span className="font-extrabold text-[#912D55] mr-2 tracking-wider font-mono">AI RESPOND:</span>
+          <span>{answer}</span>
         </div>
       )}
-    </GlassPanel>
+    </div>
   );
 };
 

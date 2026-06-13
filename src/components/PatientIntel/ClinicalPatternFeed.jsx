@@ -6,76 +6,45 @@ const ClinicalPatternFeed = ({ patient }) => {
   if (!patient || !patient.clinicalPatterns || !patient.clinicalPatterns.length) return null;
 
   return (
-    <GlassPanel style={{ 
-      padding: '24px 20px', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      flex: 1, 
-      overflowY: 'auto',
-      background: 'rgba(255, 255, 255, 0.5)',
-      border: '1px solid rgba(115, 65, 234, 0.08)'
-    }}>
-      <div style={{
-        fontSize: '10px',
-        fontWeight: '800',
-        color: T.teal,
-        letterSpacing: '0.15em',
-        textTransform: 'uppercase',
-        marginBottom: '20px',
-        borderBottom: '1px solid rgba(115, 65, 234, 0.1)',
-        paddingBottom: '12px',
-        fontFamily: T.fontMono
-      }}>
-        ANOMALY DETECTION FEED
+    <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex flex-col shadow-sm flex-1 overflow-y-auto">
+      <div className="text-[11px] font-extrabold text-[#F278A1] tracking-wider mb-5 font-mono uppercase">
+        Anomaly Detection Feed
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div className="flex flex-col gap-4">
         {patient.clinicalPatterns.map((pattern, idx) => {
-          let color = T.green;
-          let borderColor = 'rgba(16, 185, 129, 0.2)';
+          let badgeStyles = 'border-[#ffe08f] bg-[#ffe08f]/10 text-[#755b00]';
+          let dotColor = 'bg-[#755b00]';
 
           if (pattern.severity === 'HIGH') {
-            color = T.red;
-            borderColor = 'rgba(239, 68, 68, 0.2)';
-          } else if (pattern.severity === 'MEDIUM') {
-            color = T.amber;
-            borderColor = 'rgba(245, 158, 11, 0.2)';
+            badgeStyles = 'border-[#ffdad6] bg-[#ffdad6]/10 text-[#ba1a1a]';
+            dotColor = 'bg-[#ba1a1a]';
           }
 
           return (
-            <div key={idx} className="fadeIn" style={{
-              borderRadius: '12px',
-              padding: '16px',
-              borderLeft: `4px solid ${color}`,
-              background: 'rgba(255, 255, 255, 0.5)',
-              border: `1px solid ${borderColor}`,
-              borderLeftWidth: '4px',
-              animationDelay: `${0.15 * idx}s`,
-              boxShadow: pattern.severity === 'HIGH' ? `0 0 15px ${T.red}11` : 'none'
-            }}>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div className="live-dot" style={{
-                    width: '6px', height: '6px', backgroundColor: color,
-                    boxShadow: `0 0 8px ${color}`
-                  }}></div>
-                  <span style={{ fontSize: '10px', fontWeight: '800', color: color, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: T.fontMono }}>
+            <div 
+              key={idx} 
+              className={`fadeIn border rounded-xl p-4 flex flex-col gap-2 transition-all duration-300 ${badgeStyles}`}
+              style={{ animationDelay: `${0.12 * idx}s` }}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${dotColor} animate-pulse`} />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider font-mono">
                     {pattern.type}
                   </span>
                 </div>
-                <div style={{ fontSize: '10px', color: T.textSecondary, fontFamily: T.fontMono, fontWeight: '700' }}>{pattern.time}</div>
+                <div className="text-[10px] opacity-75 font-bold font-mono">{pattern.time}</div>
               </div>
 
-              <div style={{ fontSize: '13px', color: T.textSecondary, lineHeight: 1.6, fontWeight: '500' }}>
+              <div className="text-xs font-semibold leading-relaxed opacity-90">
                 {pattern.description}
               </div>
-
             </div>
           );
         })}
       </div>
-    </GlassPanel>
+    </div>
   );
 };
 

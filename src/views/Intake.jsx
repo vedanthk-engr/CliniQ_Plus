@@ -85,150 +85,216 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="flex flex-col min-h-screen bg-transparent">
       <TopHeader />
 
-      <div className="fadeIn" style={{ padding: '0 32px 32px 32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Patient Target Selector */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '12px 16px',
-          background: 'rgba(34, 211, 238, 0.05)',
-          border: `1px solid ${T.tealBorder}`,
-          borderRadius: '12px',
-          marginBottom: '20px'
-        }}>
-          <div style={{ fontSize: '20px' }}>{patient ? '👤' : '✨'}</div>
-          <div>
-            <div style={{ fontSize: '10px', fontWeight: '700', color: T.teal, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Intake Target
-            </div>
-            {fileData || extraction ? (
-              <div style={{ fontSize: '14px', fontWeight: '600', color: T.textPrimary, marginTop: '4px' }}>
-                {patient ? `${patient.name} (${patient.id})` : 'New Patient Profile'}
-              </div>
-            ) : (
-                <select
-                  value={patient ? patient.id : 'NEW'}
-                  onChange={(e) => {
-                    if (e.target.value === 'NEW') {
-                      setCurrentPatient(null);
-                    } else {
-                      const selected = patients.find(p => p.id === e.target.value);
-                      setCurrentPatient(selected);
-                    }
-                  }}
-                  className="glass-tier-2"
-                  style={{
-                    color: T.textPrimary,
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontFamily: T.fontBody,
-                    outline: 'none',
-                    cursor: 'pointer',
-                    marginTop: '8px',
-                    transition: 'all 0.3s'
-                  }}
-                >
-                  <option value="NEW" style={{background: '#FAFAFF'}}>✨ Create New Patient Profile</option>
-                  {patients.map(p => (
-                    <option key={p.id} value={p.id} style={{background: '#FAFAFF'}}>{p.name} ({p.id})</option>
-                  ))}
-                </select>
-              )}
-            </div>
-            <div style={{ marginLeft: 'auto', fontSize: '11px', color: T.textSecondary, textAlign: 'right', maxWidth: '300px' }}>
-              {patient ? 'Records will be mapped and validated against this existing patient.' : 'A new medical profile will be generated upon extraction across all modules.'}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: '700', color: T.textPrimary, marginBottom: '4px' }}>
-              Multimodal AI Intake Engine
-            </h1>
-            <p style={{ fontSize: '14px', color: T.textSecondary }}>
-              Upload discharge summaries or imaging scans to automatically extract structured clinical data.
-            </p>
-          </div>
-
-          {!fileData && !extraction && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: T.textSecondary, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Select Document Type:
-                </div>
-                <select
-                  value={documentType}
-                  onChange={(e) => setDocumentType(e.target.value)}
-                  className="glass-tier-2"
-                  style={{
-                    color: T.textPrimary,
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontFamily: T.fontBody,
-                    outline: 'none',
-                    cursor: 'pointer',
-                    minWidth: '250px',
-                    transition: 'all 0.3s'
-                  }}
-                >
-                  <option value="discharge_summary" style={{background: '#FAFAFF'}}>📄 Prescription / Discharge Summary</option>
-                  <option value="imaging" style={{background: '#FAFAFF'}}>☢️ Imaging (X-Ray / MRI / CT)</option>
-              </select>
-            </div>
-
-            <FileUpload onUpload={handleUpload} loading={loading} />
-          </div>
-        )}
-
+      <div className="fadeIn px-8 pb-8 flex-grow flex flex-col max-w-[1400px] mx-auto w-full">
         {error && (
-          <div style={{
-            padding: '16px',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            border: `1px solid ${T.red}`,
-            borderRadius: '8px',
-            color: T.red,
-            fontSize: '14px',
-            marginBottom: '24px'
-          }}>
-            Error: {error}
+          <div className="p-4 bg-red-50 border border-red-200 rounded-[16px] text-red-600 text-sm mb-6 flex justify-between items-center shadow-sm animate-fade-in-up">
+            <span className="font-bold">Error: {error}</span>
             <button
               onClick={() => { setFileData(null); setError(null); }}
-              style={{ marginLeft: '16px', background: 'none', border: 'none', color: T.red, cursor: 'pointer', textDecoration: 'underline' }}
+              className="text-red-700 font-extrabold underline hover:no-underline cursor-pointer"
             >
               Try Again
             </button>
           </div>
         )}
 
-        {loading && fileData && (
-          <div style={{ flex: 1, display: 'flex', gap: '24px' }}>
-            <PdfViewer fileData={fileData} />
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div className="spinner" style={{ marginBottom: '16px' }}>◈</div>
-                <div style={{ color: T.teal, fontWeight: '600' }}>AI ANALYZING DOCUMENT...</div>
+        {!fileData && !extraction ? (
+          <div className="flex-grow flex flex-col">
+            {/* Page Header */}
+            <div className="mb-8 animate-fade-in-up">
+              <h2 className="text-[32px] text-brand-sidebar font-extrabold tracking-tight mb-2">AI Intake Engine</h2>
+              <p className="text-gray-500 max-w-3xl text-base">
+                Upload unstructured clinical notes, lab results, or imaging reports. Our AI will automatically parse, structure, and route the data.
+              </p>
+            </div>
+
+            {/* Bento Grid */}
+            <div className="grid grid-cols-12 gap-6 pb-8 flex-grow animate-fade-in-up">
+              {/* Left Column (8/12) */}
+              <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
+                {/* Document Upload Container */}
+                <div className="bg-white rounded-[24px] p-8 border border-gray-200/80 shadow-sm relative overflow-hidden flex-grow flex flex-col min-h-[360px]">
+                  <div className="absolute bottom-[-30px] right-[-30px] w-[180px] h-[180px] bg-brand-pink/10 rounded-full blur-3xl opacity-40 pointer-events-none" />
+                  <div className="relative z-10 flex-grow flex flex-col justify-between h-full">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-xl font-extrabold text-black">Document Upload</h3>
+                      <button className="text-gray-400 hover:text-black font-extrabold text-xs transition-colors cursor-pointer">
+                        View History
+                      </button>
+                    </div>
+                    {/* Drag & Drop Zone */}
+                    <FileUpload onUpload={handleUpload} loading={loading} />
+                  </div>
+                </div>
+
+                {/* Settings Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Target Patient select (Yellow card) */}
+                  <div className="bg-[#FFECA1] border border-[#F8D664] rounded-[24px] p-6 relative overflow-hidden flex flex-col justify-center min-h-[120px] shadow-sm">
+                    <div className="absolute bottom-[-20px] right-[-20px] w-[120px] h-[120px] bg-brand-yellow rounded-full blur-2xl opacity-15 pointer-events-none" />
+                    <div className="relative z-10">
+                      <label className="text-[10px] text-gray-700 font-extrabold mb-2.5 block uppercase tracking-wider">Target Patient</label>
+                      <div className="relative">
+                        <select 
+                          value={patient ? patient.id : 'NEW'} 
+                          onChange={(e) => {
+                            if (e.target.value === 'NEW') {
+                              setCurrentPatient(null);
+                            } else {
+                              const selected = patients.find(p => p.id === e.target.value);
+                              setCurrentPatient(selected);
+                            }
+                          }}
+                          className="w-full bg-white/60 border border-gray-200/40 rounded-xl py-2.5 pl-3 pr-10 text-sm font-bold text-black appearance-none focus:ring-2 focus:ring-brand-yellow cursor-pointer"
+                        >
+                          <option value="NEW">✨ Create New Patient Profile</option>
+                          {patients.map(p => (
+                            <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-black font-bold">expand_more</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Document Type Override select (High-surface card) */}
+                  <div className="bg-[#efeeea] border border-[#c4c7c7] rounded-[24px] p-6 relative overflow-hidden flex flex-col justify-center min-h-[120px] shadow-sm">
+                    <div className="relative z-10">
+                      <label className="text-[10px] text-gray-650 font-extrabold mb-2.5 block uppercase tracking-wider">Document Type Override</label>
+                      <div className="relative">
+                        <select 
+                          value={documentType} 
+                          onChange={(e) => setDocumentType(e.target.value)}
+                          className="w-full bg-white border border-gray-250 rounded-xl py-2.5 pl-3 pr-10 text-sm font-bold text-black appearance-none focus:ring-2 focus:ring-black cursor-pointer"
+                        >
+                          <option value="discharge_summary">📄 Prescription / Discharge Summary</option>
+                          <option value="imaging">☢️ Imaging (X-Ray / MRI / CT)</option>
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600 font-bold">expand_more</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column (4/12) */}
+              <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
+                {/* Processing Queue */}
+                <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex-grow flex flex-col shadow-sm">
+                  <h3 className="text-xl font-extrabold text-black mb-6">Processing Queue</h3>
+                  <div className="space-y-4 flex-grow overflow-y-auto pr-1">
+                    {/* Queue Item 1 */}
+                    <div className="bg-[#FAF9F5] border border-gray-150 p-4 rounded-xl flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#FFDCE6] flex items-center justify-center text-[#b56f89] shrink-0">
+                        <span className="material-symbols-outlined">description</span>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <p className="text-xs font-bold text-black truncate">Smith_Bloodwork_Q2.pdf</p>
+                        <div className="w-full bg-gray-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                          <div className="bg-[#b56f89] h-full rounded-full" style={{ width: '75%' }}></div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-extrabold text-gray-500 shrink-0">75%</span>
+                    </div>
+                    
+                    {/* Queue Item 2 */}
+                    <div className="bg-[#FAF9F5] border border-gray-150 p-4 rounded-xl flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#FFECA1] flex items-center justify-center text-[#8C6D14] shrink-0">
+                        <span className="material-symbols-outlined">check_circle</span>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <p className="text-xs font-bold text-black truncate">Initial_Consult_Notes.docx</p>
+                        <p className="text-[10px] font-extrabold text-brand-green mt-1">Parsed &amp; Structured</p>
+                      </div>
+                      <button className="text-gray-400 hover:text-black cursor-pointer">
+                        <span className="material-symbols-outlined text-lg">more_vert</span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <button className="w-full mt-6 bg-[#efeeea] hover:bg-gray-200 transition-colors text-black font-extrabold py-3.5 rounded-full text-xs cursor-pointer">
+                    View All Tasks
+                  </button>
+                </div>
+                
+                {/* AI Insights Snippet (Dark Card) */}
+                <div className="bg-brand-sidebar text-white rounded-[24px] p-6 relative overflow-hidden h-48 shadow-sm flex flex-col justify-between shrink-0">
+                  <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+                  <div className="relative z-10 flex flex-col h-full justify-between">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="material-symbols-outlined text-[#FBE46A] fill-icon">psychology</span>
+                      <h4 className="text-sm font-extrabold">Engine Status</h4>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      The intake engine is currently running at peak efficiency. Last 50 documents parsed with 99.2% confidence.
+                    </p>
+                    <div className="flex justify-between items-end mt-2">
+                      <div>
+                        <span className="block text-[9px] text-gray-500 uppercase tracking-wider mb-0.5 font-bold">Today's Intake</span>
+                        <span className="text-2xl font-black text-white">124</span>
+                      </div>
+                      <div className="w-16 h-8 bg-white/10 rounded-full flex items-center justify-center px-1">
+                        <svg className="w-12 h-4" fill="none" viewBox="0 0 48 16">
+                          <path d="M2 14L12 8L22 12L34 4L46 10" stroke="#FBE46A" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        )}
+        ) : (
+          <div className="flex-grow flex flex-col">
+            {/* Header when file is active */}
+            <div className="mb-6 flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-extrabold text-brand-sidebar tracking-tight">
+                  Multimodal AI Intake Review
+                </h1>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Target: {patient ? `${patient.name} (${patient.id})` : 'New Patient Profile'}
+                </p>
+              </div>
+              <button
+                onClick={() => { setFileData(null); setExtraction(null); }}
+                className="text-xs font-bold text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+              >
+                Cancel Review
+              </button>
+            </div>
 
-        {extraction && (
-          <div style={{ flex: 1, display: 'flex', gap: '24px', overflow: 'hidden' }}>
-            <div style={{ flex: 1.2, display: 'flex' }}>
-              <PdfViewer fileData={fileData} />
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <ExtractionResults
-                data={extraction}
-                onApprove={handleApprove}
-                onEdit={handleEdit}
-              />
-            </div>
+            {loading && fileData && (
+              <div className="flex-grow flex gap-6 min-h-[500px]">
+                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-4 flex">
+                  <PdfViewer fileData={fileData} />
+                </div>
+                <div className="flex-1 flex items-center justify-center bg-white border border-gray-200 rounded-[24px] p-6 shadow-sm">
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-full border-4 border-brand-pink border-t-transparent animate-spin mb-4 mx-auto"></div>
+                    <div className="text-brand-pink font-extrabold tracking-wider text-sm">AI ANALYZING DOCUMENT...</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {extraction && (
+              <div className="flex-grow flex gap-6 overflow-hidden min-h-[500px]">
+                <div className="flex-[1.2] bg-white border border-gray-200 rounded-[24px] p-4 flex">
+                  <PdfViewer fileData={fileData} />
+                </div>
+                <div className="flex-1 flex flex-col bg-white border border-gray-200 rounded-[24px] p-6 overflow-y-auto max-h-[calc(100vh-220px)] shadow-sm">
+                  <ExtractionResults
+                    data={extraction}
+                    onApprove={handleApprove}
+                    onEdit={handleEdit}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

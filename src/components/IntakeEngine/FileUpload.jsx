@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { T } from '../../tokens';
-import GlassPanel from '../GlassPanel';
 
 const FileUpload = ({ onUpload, loading }) => {
   const [dragActive, setDragActive] = useState(false);
@@ -45,24 +43,17 @@ const FileUpload = ({ onUpload, loading }) => {
   };
 
   return (
-    <GlassPanel 
-      style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        padding: '60px',
-        border: dragActive ? `2px dashed ${T.teal}` : `1px dashed rgba(115, 65, 234, 0.2)`,
-        background: dragActive ? 'rgba(115, 65, 234, 0.05)' : 'rgba(255, 255, 255, 0.5)',
-        boxShadow: dragActive ? '0 0 30px rgba(115, 65, 234, 0.1)' : 'none',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        cursor: loading ? 'wait' : 'pointer'
-      }}
+    <div
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
+      className={`upload-zone rounded-[16px] border-2 border-dashed flex flex-col items-center justify-center p-12 text-center cursor-pointer relative group transition-all duration-300 ${
+        dragActive 
+          ? 'border-[#b56f89] bg-[#FFDCE6]/20' 
+          : 'border-[#ffb0cc] hover:border-[#b56f89] hover:bg-[#FFDCE6]/10'
+      }`}
+      style={{ flex: 1, minHeight: '300px' }}
     >
       <input 
         type="file" 
@@ -73,47 +64,31 @@ const FileUpload = ({ onUpload, loading }) => {
         accept="application/pdf,image/*"
         disabled={loading}
       />
-      <label htmlFor="input-file-upload" style={{ textAlign: 'center', cursor: 'pointer', width: '100%' }}>
-        <div style={{ 
-          fontSize: '56px', 
-          marginBottom: '24px', 
-          color: T.teal,
-          filter: `drop-shadow(0 0 10px ${T.teal}44)`
-        }}>
+      <label htmlFor="input-file-upload" className="w-full flex flex-col items-center justify-center cursor-pointer">
+        <div className={`w-20 h-20 bg-[#FFDCE6] rounded-full flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${
+          loading ? 'animate-pulse' : ''
+        }`}>
           {loading ? (
-            <div className="live-dot" style={{ width: '20px', height: '20px', margin: '0 auto' }} />
+            <div className="w-4 h-4 rounded-full bg-[#b56f89] animate-ping" />
           ) : (
-            <span style={{ opacity: 0.8 }}>↑</span>
+            <span className="material-symbols-outlined text-4xl text-[#b56f89]">cloud_upload</span>
           )}
         </div>
-        <div style={{ fontSize: '20px', fontWeight: '800', color: T.textPrimary, marginBottom: '12px', fontFamily: T.fontDisplay }}>
-          {loading ? 'AI IS ANALYZING...' : 'Upload Clinical Record'}
-        </div>
-        <div style={{ fontSize: '14px', color: T.textSecondary, fontWeight: '500' }}>
-          {loading ? 'Performing multimodal extraction & cross-validation' : 'Drag and drop PDF, X-ray, or CT scan'}
-        </div>
         
-        {loading && (
-          <div style={{ 
-            marginTop: '32px', 
-            width: '240px', 
-            height: '2px', 
-            backgroundColor: 'rgba(255, 255, 255, 0.5)', 
-            borderRadius: '1px', 
-            overflow: 'hidden', 
-            margin: '32px auto 0 auto' 
-          }}>
-            <div style={{ 
-              width: '100%', 
-              height: '100%', 
-              backgroundColor: T.teal,
-              boxShadow: `0 0 15px ${T.teal}`,
-              animation: 'shimmer 2s infinite linear' 
-            }} />
-          </div>
+        <h4 className="text-lg font-bold mb-2 text-black">
+          {loading ? 'AI IS ANALYZING DOCUMENT...' : 'Drag & drop files here'}
+        </h4>
+        <p className="text-sm text-gray-500 mb-6 font-medium">
+          {loading ? 'Performing multimodal extraction & cross-validation' : 'Supports PDF, DOCX, JPG, PNG (Max 50MB)'}
+        </p>
+        
+        {!loading && (
+          <span className="bg-black text-white px-6 py-3 rounded-full font-bold text-xs hover:bg-gray-800 transition-colors shadow-sm">
+            Browse Files
+          </span>
         )}
       </label>
-    </GlassPanel>
+    </div>
   );
 };
 

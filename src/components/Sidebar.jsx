@@ -24,15 +24,11 @@ const Sidebar = () => {
 
   return (
     <nav className="fixed left-6 top-6 bottom-6 w-[220px] bg-brand-sidebar flex flex-col py-8 px-4 z-50 text-white rounded-card shadow-lg flat-look">
-      {/* Brand Logo */}
-      <div className="mb-8 px-2 flex items-center gap-3">
-        <div className="w-8 h-8 bg-brand-pink/20 rounded-lg flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-brand-pink fill-icon text-xl">medical_services</span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-lg font-black tracking-tight leading-none text-white">ClinIQ+</span>
-          <span className="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-0.5">Clinical Intel</span>
-        </div>
+      {/* Brand Header */}
+      <div className="mb-8 px-4 py-2 flex items-center justify-start border-b border-white/10 pb-4">
+        <span className="text-2xl font-black tracking-tight text-white">
+          CliniQ
+        </span>
       </div>
 
       {/* Navigation Groups */}

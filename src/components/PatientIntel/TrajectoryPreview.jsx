@@ -85,49 +85,34 @@ const TrajectoryPreview = ({ patient }) => {
   const interventions = getInterventions();
 
   return (
-    <GlassPanel 
-      style={{ 
-        padding: '20px', 
-        background: 'rgba(255, 255, 255, 0.04)',
-        border: '1px solid rgba(255, 255, 255, 0.08)'
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+    <div className="bg-white border border-gray-200 rounded-[24px] p-6 flex flex-col shadow-sm">
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <div style={{ fontSize: '10px', color: '#7C3AED', fontWeight: '800', letterSpacing: '0.1em', fontFamily: T.fontMono, textTransform: 'uppercase' }}>
+          <div className="text-[11px] font-extrabold text-[#7C3AED] tracking-wider mb-1 font-mono uppercase">
             6-Month Trajectory Forecast Preview
           </div>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: T.textPrimary, marginTop: '2px' }}>
+          <div className="text-[13px] font-extrabold text-black mt-0.5">
             Condition: {primaryCondition}
           </div>
         </div>
         <button 
           onClick={() => navigate('/forecast')}
-          style={{ 
-            background: 'rgba(124, 58, 237, 0.1)', 
-            border: '1px solid rgba(124, 58, 237, 0.3)', 
-            color: '#A855F7', 
-            fontSize: '10px', 
-            padding: '4px 8px', 
-            borderRadius: '6px', 
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
+          className="bg-[#7C3AED]/10 border border-[#7C3AED]/30 text-[#7C3AED] hover:bg-[#7C3AED]/20 text-[10px] py-1 px-3 rounded-lg cursor-pointer font-extrabold transition-all tracking-wider uppercase font-mono shadow-sm"
         >
           EXPAND FORECAST →
         </button>
       </div>
 
       {/* Recharts compact chart */}
-      <div style={{ width: '100%', height: '140px', marginBottom: '16px' }}>
+      <div className="w-full h-[140px] mb-4">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 10, left: -25, bottom: -5 }}>
             <XAxis dataKey="month" stroke="#64748B" fontSize={9} tickLine={false} />
             <YAxis stroke="#64748B" fontSize={9} domain={[0, 100]} tickLine={false} />
             <Tooltip 
-              contentStyle={{ background: '#0D1224', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-              labelStyle={{ color: '#F1F5F9', fontSize: '10px' }}
-              itemStyle={{ fontSize: '10px' }}
+              contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+              labelStyle={{ color: '#0f172a', fontWeight: 'bold', fontSize: '10px' }}
+              itemStyle={{ fontSize: '10px', color: '#0f172a' }}
             />
             <Line 
               name="Baseline" 
@@ -155,46 +140,34 @@ const TrajectoryPreview = ({ patient }) => {
 
       {/* Intervention Switches */}
       <div>
-        <div style={{ fontSize: '9px', color: T.textSecondary, fontWeight: '700', letterSpacing: '0.05em', marginBottom: '8px', fontFamily: T.fontMono, textTransform: 'uppercase' }}>
+        <div className="text-[9px] text-gray-500 font-extrabold tracking-wider mb-2 font-mono uppercase">
           Intervention Simulator Toggles
         </div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="flex gap-2.5 flex-wrap">
           {interventions.map((item, idx) => {
             const isSelected = activeIntervention?.label === item.label;
             return (
               <button
                 key={idx}
                 onClick={() => handleToggle(item)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  border: isSelected ? '1px solid rgba(168, 85, 247, 0.5)' : '1px solid rgba(255,255,255,0.08)',
-                  background: isSelected ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255,255,255,0.02)',
-                  color: isSelected ? '#A855F7' : T.textSecondary,
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  transition: 'all 0.2s'
-                }}
+                className={`px-4 py-2 rounded-xl border text-[11px] font-extrabold uppercase tracking-wider font-mono flex items-center gap-2 cursor-pointer transition-all duration-200 shadow-sm ${
+                  isSelected 
+                    ? 'bg-[#7C3AED]/10 border-[#7C3AED]/40 text-[#7C3AED]' 
+                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
               >
-                <span style={{ 
-                  width: '6px', 
-                  height: '6px', 
-                  borderRadius: '50%', 
-                  background: isSelected ? '#A855F7' : 'transparent',
-                  border: isSelected ? 'none' : '1px solid rgba(255,255,255,0.3)',
-                  display: 'inline-block' 
-                }} />
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${
+                  isSelected 
+                    ? 'bg-[#7C3AED]' 
+                    : 'border border-gray-300 bg-transparent'
+                }`} />
                 {item.label}
               </button>
             );
           })}
         </div>
       </div>
-    </GlassPanel>
+    </div>
   );
 };
 
