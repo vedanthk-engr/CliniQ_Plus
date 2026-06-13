@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
-const TrialMatcherPanel = ({ patient }) => {
-  const [trials, setTrials] = useState([]);
-  const [loading, setLoading] = useState(true);
+const TrialMatcherPanel = ({ patient, cachedTrials, setCachedTrials }) => {
+  const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState('Fetching trials from ClinicalTrials.gov...');
   const [error, setError] = useState(null);
-  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-    if (hasFetched || !patient?.id) return;
+    // If parent already has cached results, do nothing — no Gemini call
+    if (cachedTrials !== null || !patient?.id) return;
 
     const fetchTrials = async () => {
       setLoading(true);
@@ -28,20 +27,17 @@ const TrialMatcherPanel = ({ patient }) => {
           headers: { 'Accept': 'application/json' }
         });
 
-        if (!ctRes.ok) {
-          throw new Error(`ClinicalTrials.gov returned ${ctRes.status}`);
-        }
+        if (!ctRes.ok) throw new Error(`ClinicalTrials.gov returned ${ctRes.status}`);
 
         const ctData = await ctRes.json();
         const studies = ctData.studies || [];
 
         if (studies.length === 0) {
-          setTrials([]);
-          setHasFetched(true);
+          setCachedTrials([]);
           return;
         }
 
-        // Step 2: Send raw studies to backend for Gemini AI screening
+        // Step 2: Send raw studies to backend for Gemini AI screening (only called ONCE)
         setLoadingMsg(`AI screening ${studies.length} trials against patient profile...`);
         const res = await fetch(`http://localhost:8000/api/trials/match/${patient.id}`, {
           method: 'POST',
@@ -55,8 +51,8 @@ const TrialMatcherPanel = ({ patient }) => {
         }
 
         const data = await res.json();
-        setTrials(data.matches || []);
-        setHasFetched(true);
+        // Store in parent cache — survives tab switching forever
+        setCachedTrials(data.matches || []);
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -66,7 +62,9 @@ const TrialMatcherPanel = ({ patient }) => {
     };
 
     fetchTrials();
-  }, [patient?.id, hasFetched]);
+  }, [patient?.id, cachedTrials]);
+
+  const trials = cachedTrials || [];
 
   if (loading) {
     return (

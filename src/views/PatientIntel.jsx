@@ -18,6 +18,8 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
   const [activeTab, setActiveTab] = useState('dashboard');
+  // Trial cache lives here so it survives tab switching (component unmount/remount)
+  const [cachedTrials, setCachedTrials] = useState(null);
 
   // Voice & Patient Mode states
   const [patientLang, setPatientLang] = useState('hi-IN');
@@ -656,7 +658,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
         {activeTab === 'trials' && (
           <div className="flex flex-col gap-6 flex-1 w-full max-w-[1600px] mx-auto px-14">
-            <TrialMatcherPanel patient={patient} />
+            <TrialMatcherPanel patient={patient} cachedTrials={cachedTrials} setCachedTrials={setCachedTrials} />
           </div>
         )}
 
