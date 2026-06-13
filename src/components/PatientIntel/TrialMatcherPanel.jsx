@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const TrialMatcherPanel = ({ patient }) => {
   const [trials, setTrials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMsg, setLoadingMsg] = useState('Fetching trials from ClinicalTrials.gov...');
   const [error, setError] = useState(null);
   const [hasFetched, setHasFetched] = useState(false);
 
@@ -13,13 +14,44 @@ const TrialMatcherPanel = ({ patient }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8000/api/trials/match/${patient.id}`, {
-          method: 'POST'
+        // Step 1: Browser fetches from ClinicalTrials.gov directly (no IP block on browsers)
+        const diagnoses = patient.diagnosis || [];
+        const query = diagnoses.join(' OR ');
+        const ctUrl = new URL('https://clinicaltrials.gov/api/v2/studies');
+        ctUrl.searchParams.set('query.cond', query);
+        ctUrl.searchParams.set('filter.overallStatus', 'RECRUITING');
+        ctUrl.searchParams.set('pageSize', '15');
+        ctUrl.searchParams.set('format', 'json');
+
+        setLoadingMsg('Fetching trials from ClinicalTrials.gov...');
+        const ctRes = await fetch(ctUrl.toString(), {
+          headers: { 'Accept': 'application/json' }
         });
-        
+
+        if (!ctRes.ok) {
+          throw new Error(`ClinicalTrials.gov returned ${ctRes.status}`);
+        }
+
+        const ctData = await ctRes.json();
+        const studies = ctData.studies || [];
+
+        if (studies.length === 0) {
+          setTrials([]);
+          setHasFetched(true);
+          return;
+        }
+
+        // Step 2: Send raw studies to backend for Gemini AI screening
+        setLoadingMsg(`AI screening ${studies.length} trials against patient profile...`);
+        const res = await fetch(`http://localhost:8000/api/trials/match/${patient.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studies })
+        });
+
         if (!res.ok) {
           const errData = await res.json();
-          throw new Error(errData.detail || 'Failed to fetch trials');
+          throw new Error(errData.detail || 'Gemini screening failed');
         }
 
         const data = await res.json();
@@ -41,7 +73,7 @@ const TrialMatcherPanel = ({ patient }) => {
       <div className="flex flex-col items-center justify-center p-12 bg-white rounded-[32px] border border-gray-150 animate-fade-in-up">
         <span className="material-symbols-outlined text-4xl text-brand-blue animate-spin">sync</span>
         <h3 className="mt-4 text-lg font-bold text-gray-700">Scanning ClinicalTrials.gov...</h3>
-        <p className="text-sm text-gray-500">AI is screening eligibility criteria against patient profile</p>
+        <p className="text-sm text-gray-500 text-center max-w-xs">{loadingMsg}</p>
       </div>
     );
   }
