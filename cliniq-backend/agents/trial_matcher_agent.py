@@ -1,4 +1,6 @@
 import re
+import os
+import json
 
 def extract_trials_from_studies(studies: list) -> list:
     """Extract relevant fields from raw ClinicalTrials.gov study objects."""

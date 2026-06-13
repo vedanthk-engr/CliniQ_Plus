@@ -1952,18 +1952,10 @@
       "sex": "Unknown",
       "dob": "01 Jan 1980",
       "diagnosis": [
-        "Paroxysmal Atrial Fibrillatio",
-        "(ICD-10: I48.11)",
+        "Paroxysmal Atrial Fibrillation (ICD-10: I48.11)",
         "Type 2 Diabetes Mellitus with hyperglycaemia (ICD-10: E11.65)",
-        "Esse",
-        "tial Hyperte",
-        "sio",
-        "(u",
-        "co",
-        "trolled",
-        "ICD-10: I10)",
-        "Familial Hypercholesterolaemia (Pure",
-        "ICD-10: E78.01)"
+        "Essential Hypertension (uncontrolled, ICD-10: I10)",
+        "Familial Hypercholesterolaemia (Pure, ICD-10: E78.01)"
       ],
       "doctor": "Dr. AI Agent",
       "ward": "General",
