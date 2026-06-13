@@ -20,7 +20,7 @@ const TrialMatcherPanel = ({ patient }) => {
         const ctUrl = new URL('https://clinicaltrials.gov/api/v2/studies');
         ctUrl.searchParams.set('query.cond', query);
         ctUrl.searchParams.set('filter.overallStatus', 'RECRUITING');
-        ctUrl.searchParams.set('pageSize', '15');
+        ctUrl.searchParams.set('pageSize', '5');
         ctUrl.searchParams.set('format', 'json');
 
         setLoadingMsg('Fetching trials from ClinicalTrials.gov...');

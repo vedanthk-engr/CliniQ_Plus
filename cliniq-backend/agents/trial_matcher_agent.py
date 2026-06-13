@@ -13,21 +13,25 @@ genai.configure(api_key=api_key)
 def extract_trials_from_studies(studies: list) -> list:
     """Extract relevant fields from raw ClinicalTrials.gov study objects."""
     extracted = []
-    for study in studies:
+    for study in studies[:5]:  # cap at 5 for speed
         protocol = study.get("protocolSection", {})
         ident = protocol.get("identificationModule", {})
         eligibility = protocol.get("eligibilityModule", {})
         desc = protocol.get("descriptionModule", {})
         design = protocol.get("designModule", {})
 
+        # Truncate heavy text fields to keep Gemini prompt small & fast
+        raw_eligibility = eligibility.get("eligibilityCriteria", "Not specified")
+        raw_summary = desc.get("briefSummary", "No summary available.")
+
         extracted.append({
             "nctId": ident.get("nctId", "Unknown"),
             "briefTitle": ident.get("briefTitle", "Unknown Title"),
-            "eligibilityCriteria": eligibility.get("eligibilityCriteria", "Not specified"),
+            "eligibilityCriteria": raw_eligibility[:600] + ("..." if len(raw_eligibility) > 600 else ""),
             "minimumAge": eligibility.get("minimumAge", "Not specified"),
             "maximumAge": eligibility.get("maximumAge", "Not specified"),
             "sex": eligibility.get("sex", "Not specified"),
-            "briefSummary": desc.get("briefSummary", "No summary available."),
+            "briefSummary": raw_summary[:300] + ("..." if len(raw_summary) > 300 else ""),
             "phases": design.get("phases", [])
         })
     return extracted
@@ -48,7 +52,7 @@ async def screen_trials_with_gemini(patient: dict, studies: list) -> dict:
 
         extracted_trials = extract_trials_from_studies(studies)
 
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
 
         prompt = f"""
 You are an expert clinical trial matching AI. Your task is to evaluate the following patient against a list of recruiting clinical trials.
