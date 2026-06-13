@@ -1,0 +1,360 @@
+{
+  "patients": [
+    {
+      "id": "P-00142",
+      "name": "Arjun Mehta",
+      "age": 58,
+      "sex": "Male",
+      "dob": "12 Mar 1967",
+      "diagnosis": [
+        "Paroxysmal Atrial Fibrillation (I48.11)",
+        "Type 2 Diabetes Mellitus With Hyperglycaemia (E11.65)",
+        "Essential Hypertension (Uncontrolled) (I10)",
+        "Familial Hypercholesterolaemia (E78.01)"
+      ],
+      "doctor": "Dr. Priya Nair",
+      "ward": "Endocrinology",
+      "riskScore": 78,
+      "adherenceScore": 61,
+      "medications": [
+        {
+          "name": "1. Apixaban 5mg",
+          "dose": "Standard",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "Twice Daily (Ongoing); 2.",
+          "dose": " Metoprolol Succinate XR 100mg",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "Once Daily in the morning",
+          "dose": " (90 Days); 3. Amlodipine Besylate 5mg",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "Once Daily in the morning",
+          "dose": " (90 Days); 4. Atorvastatin Calcium 80mg",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "Once Daily at bedtime (90",
+          "dose": " Days).",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        }
+      ],
+      "labs": {
+        "HbA1c": [
+          {
+            "date": "Sep 24",
+            "val": 7.1
+          },
+          {
+            "date": "Nov 24",
+            "val": 7.8
+          },
+          {
+            "date": "Jan 25",
+            "val": 8.3
+          },
+          {
+            "date": "Mar 25",
+            "val": 8.9
+          },
+          {
+            "date": "May 25",
+            "val": 9.2
+          },
+          {
+            "date": "Jul 25",
+            "val": 8.6
+          }
+        ],
+        "Creatinine": [
+          {
+            "date": "Sep 24",
+            "val": 1.1
+          },
+          {
+            "date": "Nov 24",
+            "val": 1.2
+          },
+          {
+            "date": "Jan 25",
+            "val": 1.4
+          },
+          {
+            "date": "Mar 25",
+            "val": 1.6
+          },
+          {
+            "date": "May 25",
+            "val": 1.7
+          },
+          {
+            "date": "Jul 25",
+            "val": 1.9
+          }
+        ],
+        "BP_Systolic": [
+          {
+            "time": "Just Now",
+            "val": 158
+          }
+        ],
+        "HeartRate": [
+          {
+            "time": "Just Now",
+            "val": 92
+          }
+        ],
+        "Glucose": [
+          {
+            "time": "Just Now",
+            "val": 212
+          }
+        ]
+      },
+      "bodyFlags": [
+        "Kidney",
+        "Heart"
+      ],
+      "clinicalPatterns": [
+        {
+          "type": "Data Ingest",
+          "time": "Just Now",
+          "description": "New clinical report ingested by AI.",
+          "severity": "LOW"
+        },
+        {
+          "type": "Lab Alert",
+          "time": "2h ago",
+          "description": "HbA1c increased to 8.6% over 6 months.",
+          "severity": "HIGH"
+        },
+        {
+          "type": "Vitals",
+          "time": "5h ago",
+          "description": "Blood pressure remains elevated despite medication.",
+          "severity": "MEDIUM"
+        },
+        {
+          "type": "Adherence",
+          "time": "1d ago",
+          "description": "Missed 3 doses of Lisinopril this week.",
+          "severity": "MEDIUM"
+        },
+        {
+          "type": "Renal",
+          "time": "2d ago",
+          "description": "Creatinine showing steady upward trend.",
+          "severity": "HIGH"
+        }
+      ],
+      "adherenceCalendar": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "consultBrief": "Non-compliant with meds. BP elevated."
+    },
+    {
+      "id": "P-00284",
+      "name": "Kavitha Rajan",
+      "age": 45,
+      "sex": "Female",
+      "dob": "05 Aug 1980",
+      "diagnosis": [
+        "Rheumatoid Arthritis",
+        "Anaemia"
+      ],
+      "doctor": "Dr. Ananya Sharma",
+      "ward": "Rheumatology",
+      "riskScore": 45,
+      "adherenceScore": 92,
+      "medications": [
+        {
+          "name": "Methotrexate",
+          "dose": "15mg",
+          "freq": "Once weekly",
+          "color": "#818CF8",
+          "shape": "Capsule",
+          "markings": "MTX15"
+        },
+        {
+          "name": "Folic Acid",
+          "dose": "5mg",
+          "freq": "Once daily",
+          "color": "#34D399",
+          "shape": "Round",
+          "markings": "FA5"
+        }
+      ],
+      "labs": {
+        "ESR": [
+          {
+            "date": "Sep 24",
+            "val": 45
+          },
+          {
+            "date": "Nov 24",
+            "val": 38
+          },
+          {
+            "date": "Jan 25",
+            "val": 30
+          },
+          {
+            "date": "Mar 25",
+            "val": 28
+          },
+          {
+            "date": "May 25",
+            "val": 22
+          },
+          {
+            "date": "Jul 25",
+            "val": 18
+          }
+        ],
+        "Hemoglobin": [
+          {
+            "date": "Sep 24",
+            "val": 9.5
+          },
+          {
+            "date": "Nov 24",
+            "val": 10.2
+          },
+          {
+            "date": "Jan 25",
+            "val": 11
+          },
+          {
+            "date": "Mar 25",
+            "val": 11.5
+          },
+          {
+            "date": "May 25",
+            "val": 12.1
+          },
+          {
+            "date": "Jul 25",
+            "val": 12.5
+          }
+        ]
+      },
+      "bodyFlags": [
+        "Joints"
+      ],
+      "clinicalPatterns": [
+        {
+          "type": "Lab Good",
+          "time": "12h ago",
+          "description": "ESR steadily decreasing, reduced inflammation.",
+          "severity": "LOW"
+        },
+        {
+          "type": "Lab Good",
+          "time": "1d ago",
+          "description": "Hemoglobin levels returning to normal range.",
+          "severity": "LOW"
+        }
+      ],
+      "adherenceCalendar": [
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "consultBrief": "Responding well to therapy. Continue current regimen."
+    }
+  ],
+  "pill_events": [
+    {
+      "id": 1,
+      "status": "confirmed",
+      "drug": "Metformin",
+      "time": "08:00 AM"
+    },
+    {
+      "id": 2,
+      "status": "wrong",
+      "drug": "Lisinopril",
+      "time": "08:05 AM",
+      "expected": "Amlodipine"
+    },
+    {
+      "id": 3,
+      "status": "unconfirmed",
+      "drug": "Unknown",
+      "time": "12:00 PM"
+    },
+    {
+      "id": 4,
+      "status": "confirmed",
+      "drug": "Amlodipine",
+      "time": "08:00 PM"
+    }
+  ],
+  "interactions": [
+    {
+      "drug_a": "Lisinopril",
+      "drug_b": "Amlodipine",
+      "severity": "low",
+      "desc": "Monitor blood pressure."
+    },
+    {
+      "drug_a": "Metformin",
+      "drug_b": "Amlodipine",
+      "severity": "none",
+      "desc": "No known interaction."
+    },
+    {
+      "drug_a": "Methotrexate",
+      "drug_b": "Folic Acid",
+      "severity": "none",
+      "desc": "Beneficial interaction."
+    },
+    {
+      "drug_a": "Metformin",
+      "drug_b": "Lisinopril",
+      "severity": "none",
+      "desc": "No known interaction."
+    },
+    {
+      "drug_a": "Methotrexate",
+      "drug_b": "NSAID",
+      "severity": "high",
+      "desc": "Increased methotrexate toxicity risk."
+    },
+    {
+      "drug_a": "Lisinopril",
+      "drug_b": "NSAID",
+      "severity": "medium",
+      "desc": "Reduced antihypertensive effect."
+    }
+  ]
+}
