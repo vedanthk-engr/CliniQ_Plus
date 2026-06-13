@@ -17,7 +17,7 @@ const PillGuard = ({ patient }) => {
       <div className="flex flex-col min-h-screen bg-transparent text-on-surface">
         <TopHeader />
         <div className="flex-grow flex items-center justify-center min-h-[500px] font-sans">
-          <div className="text-center p-8 bg-white border border-gray-250 rounded-card max-w-sm shadow-sm">
+          <div className="text-center p-8 bg-white border border-gray-200 rounded-card max-w-sm shadow-sm">
             <span className="material-symbols-outlined text-4xl text-brand-pink mb-4 animate-pulse">medication</span>
             <h3 className="text-lg font-bold text-brand-sidebar">PillGuard Scanner</h3>
             <p className="text-xs text-gray-500 font-medium mt-1">
@@ -60,7 +60,7 @@ const PillGuard = ({ patient }) => {
             <h2 className="font-headline-lg text-[32px] font-semibold text-on-surface mb-2 tracking-tight leading-[40px]">
               PillGuard Analysis
             </h2>
-            <p className="font-body-md text-base text-[#444748] max-w-2xl leading-[24px]">
+            <p className="font-body-md text-base text-[#444748] max-w-3xl leading-[24px]">
               Intelligent medication verification and adherence tracking for Dr. Yuthika's current patient load. Real-time scanning ensures accurate dosage and prevents interaction risks.
             </p>
           </div>
@@ -70,10 +70,10 @@ const PillGuard = ({ patient }) => {
             
             {/* Left Bento Column */}
             <div className="flex flex-col gap-6">
-              {/* PillGuard Scanner Card (Olive) */}
+              {/* PillGuard Scanner Card */}
               <VisionScanner patient={patient} onScanResult={handleNewScanResult} />
               
-              {/* Drug Interactions Card (Blue) */}
+              {/* Drug Interactions Card (Blue background) */}
               <div className="bg-blue rounded-2xl p-6 relative overflow-hidden h-[300px] flex flex-col shadow-sm">
                 {/* Decorative Blob */}
                 <svg className="absolute -right-8 -bottom-8 w-44 h-44 fill-white opacity-20 pointer-events-none" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -81,7 +81,7 @@ const PillGuard = ({ patient }) => {
                 </svg>
 
                 <div className="relative z-10 flex-grow flex flex-col justify-between h-full">
-                  <h3 className="font-headline-card text-headline-card text-on-surface mb-4 flex items-center gap-2 font-bold text-xl">
+                  <h3 className="font-headline-card text-on-surface mb-4 flex items-center gap-2.5 font-bold text-lg">
                     <span className="material-symbols-outlined">hub</span>
                     Drug interactions
                   </h3>
@@ -96,10 +96,10 @@ const PillGuard = ({ patient }) => {
 
             {/* Right Bento Column */}
             <div className="flex flex-col gap-6">
-              {/* Adherence Calendar Card (Pink) */}
+              {/* Adherence Calendar Card */}
               <AdherenceCalendar patient={patient} onSelectMissedCell={handleSelectMissedCell} />
               
-              {/* Missed Dose Impact Card (Yellow) */}
+              {/* Missed Dose Impact Card (Yellow background) */}
               <div className="bg-yellow rounded-2xl p-6 relative overflow-hidden h-[250px] flex flex-col shadow-sm">
                 {/* Decorative Blob */}
                 <svg className="absolute -right-8 -bottom-8 w-44 h-44 fill-white opacity-20 pointer-events-none" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -107,28 +107,28 @@ const PillGuard = ({ patient }) => {
                 </svg>
 
                 <div className="relative z-10 flex-grow flex flex-col justify-between h-full">
-                  <h3 className="font-headline-card text-headline-card text-on-surface mb-4 flex items-center gap-2 font-bold text-xl">
+                  <h3 className="font-headline-card text-on-surface mb-4 flex items-center gap-2.5 font-bold text-lg">
                     <span className="material-symbols-outlined">auto_awesome</span>
                     Missed dose impact
                   </h3>
                   
                   {/* Forecast Text Grid */}
-                  <div className="bg-white/40 border border-white/20 rounded-xl p-4 backdrop-blur-sm flex-1 flex flex-col">
+                  <div className="bg-on-primary/40 rounded-xl p-4 backdrop-blur-sm flex-1 flex flex-col">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                       <span className="font-label-bold text-label-sm text-on-surface/70 uppercase tracking-wider font-mono">
                         AI Streaming Analysis
                       </span>
                     </div>
-                    <p className="font-body-sm text-body-sm text-on-surface flex-1 leading-relaxed font-medium">
+                    <p className="font-body-sm text-body-sm text-on-surface flex-1 leading-relaxed font-bold">
                       {missedSSE.data || (missedSSE.loading ? (
-                        <span>Simulating missed dose pharmacological impact...</span>
+                        <span className="animate-pulse">Analyzing simulated pharmacology impact...</span>
                       ) : (
                         <span>
                           Missing the Thursday morning dose of {missedCellInfo?.drugName || 'Lisinopril'} temporarily elevated blood pressure markers. However, normal baseline was re-established within 24 hours of the subsequent dose. No long-term vascular impact projected. Patient reminded via SMS.
                         </span>
                       ))}
-                      {missedSSE.loading && <span className="inline-block w-1.5 h-4 bg-on-surface align-middle animate-pulse ml-1"></span>}
+                      <span className="inline-block w-1.5 h-4 bg-on-surface align-middle animate-pulse ml-1"></span>
                     </p>
                   </div>
                 </div>

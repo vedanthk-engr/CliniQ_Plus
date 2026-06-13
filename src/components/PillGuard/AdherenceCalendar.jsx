@@ -3,7 +3,7 @@ import React from 'react';
 // Helper to reliably generate a pseudo-random looking calendar based on the patient's ID and adherence score
 const generateGridData = (patient) => {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const score = patient.adherenceScore || 92;
+  const score = patient.adherenceScore || 61;
   
   let seed = patient.id ? patient.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 123;
   const random = () => {
@@ -20,13 +20,15 @@ const generateGridData = (patient) => {
       let status = 'missed';
       const r = random();
       
-      // Seed specific missed doses for visual match
+      // Seed specific missed doses for visual match (e.g. Thursday morning, Wednesday evening)
       if (day === 'Thu' && i === 0) {
-        status = 'missed'; // Thursday Morning missed dose
+        status = 'missed'; 
       } else if (day === 'Wed' && i === 2) {
-        status = 'missed'; // Wednesday Evening missed dose
+        status = 'missed';
+      } else if (day === 'Mon' && i === 2) {
+        status = 'missed';
       } else {
-        if (r < 0.85) status = 'confirmed';
+        if (r < 0.8) status = 'confirmed';
         else status = 'missed';
       }
       
@@ -44,7 +46,6 @@ const AdherenceCalendar = ({ patient, onSelectMissedCell }) => {
   const gridData = generateGridData(patient);
 
   const handleCellClick = (dayName, timeIndex) => {
-    const times = ['morning', 'afternoon', 'evening'];
     const drugName = patient.medications?.[0]?.name || 'Lisinopril';
     if (onSelectMissedCell) {
       onSelectMissedCell(drugName);
@@ -53,14 +54,14 @@ const AdherenceCalendar = ({ patient, onSelectMissedCell }) => {
 
   const renderCell = (status, dayName, timeIndex, key) => {
     let content = null;
-    let cellStyle = "bg-white/30 border border-on-surface/20 rounded-md aspect-square flex items-center justify-center transition-all";
+    let cellStyle = "bg-on-primary/30 border border-on-surface/20 rounded-md aspect-square flex items-center justify-center transition-all";
 
     if (status === 'confirmed') {
-      cellStyle = "bg-white rounded-md aspect-square flex items-center justify-center shadow-sm text-pink";
+      cellStyle = "bg-white rounded-md aspect-square flex items-center justify-center text-pink shadow-sm";
       content = <span className="material-symbols-outlined text-[16px] font-bold">check</span>;
     } else {
       // Missed / dashed cell style
-      cellStyle = "bg-white/50 border border-on-surface/20 rounded-md aspect-square flex items-center justify-center hover:bg-white/20 transition-all cursor-pointer border-dashed border-2";
+      cellStyle = "bg-on-primary/50 border border-on-surface/20 rounded-md aspect-square flex items-center justify-center hover:bg-white/20 transition-all cursor-pointer border-dashed border-2";
     }
 
     return (
@@ -85,13 +86,13 @@ const AdherenceCalendar = ({ patient, onSelectMissedCell }) => {
         
         {/* Header with Adherence Metric */}
         <div className="flex justify-between items-start mb-6">
-          <h3 className="font-headline-card text-headline-card text-on-surface flex items-center gap-2 font-bold text-xl">
+          <h3 className="font-headline-card text-headline-card text-on-surface flex items-center gap-2.5 font-bold text-xl">
             <span className="material-symbols-outlined">calendar_today</span>
             7-day adherence
           </h3>
           <div className="text-right">
             <span className="font-display-metric text-3xl font-extrabold text-on-surface block leading-none">
-              {patient.adherenceScore || 92}%
+              {patient.adherenceScore || 61}%
             </span>
             <span className="font-label-bold text-[10px] font-bold text-on-surface/70 uppercase tracking-wider block mt-0.5">
               Overall Score
@@ -100,7 +101,7 @@ const AdherenceCalendar = ({ patient, onSelectMissedCell }) => {
         </div>
 
         {/* Adherence grid container */}
-        <div className="flex-grow bg-white/30 rounded-xl p-4 backdrop-blur-sm border border-white/20 flex flex-col justify-center">
+        <div className="flex-grow bg-on-primary/30 rounded-xl p-4 border border-white/20 flex flex-col justify-center">
           <div className="grid grid-cols-8 gap-2.5 h-full">
             {/* Y Axis Labels */}
             <div className="col-span-1 flex flex-col justify-around text-xs font-bold text-on-surface/70 h-[80%] mt-auto pr-1">
@@ -110,7 +111,7 @@ const AdherenceCalendar = ({ patient, onSelectMissedCell }) => {
             </div>
             
             {/* Days Grid */}
-            <div className="col-span-7 grid grid-cols-7 gap-2">
+            <div className="col-span-7 grid grid-cols-7 gap-2.5">
               {/* Day Headers */}
               {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
                 <div key={i} className="text-center font-bold text-xs text-on-surface/70 mb-2">{d}</div>

@@ -27,6 +27,14 @@ module.exports = {
         "brand-blue": "#A8D4F5",
         "brand-pill-bg": "#FFFFFF",
         "brand-pink-light": "#FFDCE6",
+        // Direct colors from Stitch mockups
+        "olive": "#B5C43A",
+        "blue": "#A8D4F5",
+        "pink": "#F7A8C4",
+        "yellow": "#F5C842",
+        "on-primary": "#FFFFFF",
+        "on-surface": "#1B1C1A",
+        "primary": "#1B1C1A",
       },
       borderRadius: {
         card: "24px",

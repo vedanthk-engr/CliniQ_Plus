@@ -44,7 +44,6 @@ const VisionScanner = ({ patient, onScanResult }) => {
       if (data.error) {
         setError(data.error);
       } else {
-        // Update mock display too
         setMockResult({
           drugName: data.pill_name || 'Lisinopril',
           dose: data.dosage || '20mg',
@@ -57,7 +56,6 @@ const VisionScanner = ({ patient, onScanResult }) => {
       }
     } catch (err) {
       console.error(err);
-      // Fallback in demo mode
       const primaryMed = patient.medications?.[0] || { name: 'Lisinopril', dose: '20mg' };
       const fallbackData = {
         pill_name: primaryMed.name,
@@ -95,7 +93,7 @@ const VisionScanner = ({ patient, onScanResult }) => {
 
       <div className="relative z-10 flex-1 flex flex-col justify-between">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="font-headline-card text-headline-card text-on-surface flex items-center gap-2 font-bold">
+          <h3 className="font-headline-card text-headline-card text-on-surface flex items-center gap-2 font-bold text-xl">
             <span className="material-symbols-outlined">document_scanner</span>
             PillGuard scanner
           </h3>
@@ -146,15 +144,15 @@ const VisionScanner = ({ patient, onScanResult }) => {
         )}
 
         {/* Scan Results (at bottom) */}
-        <div className="mt-auto bg-white/40 rounded-xl p-4 backdrop-blur-sm border border-white/20">
+        <div className="mt-auto bg-on-primary/40 rounded-xl p-4 backdrop-blur-sm border border-white/20">
           <div className="flex justify-between items-center mb-2">
             <span className="font-label-bold text-label-bold text-on-surface font-bold text-xs">Scan Results</span>
-            <span className="bg-white/50 text-on-surface px-2 py-0.5 rounded text-[10px] font-extrabold font-mono">
+            <span className="bg-surface-container-low text-on-surface px-2 py-0.5 rounded text-[10px] font-extrabold font-mono border border-black/10">
               MATCH: {mockResult.matchPct}%
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center shrink-0 border border-black/10">
               <span className="material-symbols-outlined text-olive">medication</span>
             </div>
             <div>
@@ -172,8 +170,8 @@ const ImageUploadBox = ({ label, file, onChange }) => {
   return (
     <div className={`flex-1 border-2 border-dashed rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden ${
       file 
-        ? 'border-on-surface bg-white/40' 
-        : 'border-on-surface/30 bg-white/20 hover:bg-white/30'
+        ? 'border-on-surface bg-on-primary/20' 
+        : 'border-on-surface/30 bg-on-primary/20 hover:bg-on-primary/30'
     }`}>
       <input
         type="file"
@@ -190,8 +188,8 @@ const ImageUploadBox = ({ label, file, onChange }) => {
         </div>
       ) : (
         <div className="flex flex-col items-center p-2 text-center text-on-surface">
-          <span className="material-symbols-outlined mb-2 text-on-surface">upload_file</span>
-          <span className="font-label-bold text-label-bold text-on-surface font-bold text-xs">{label}</span>
+          <span className="material-symbols-outlined mb-2">upload_file</span>
+          <span className="font-label-bold text-label-bold font-bold text-xs">{label}</span>
         </div>
       )}
     </div>

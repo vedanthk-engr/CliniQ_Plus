@@ -32,68 +32,44 @@
       "adherenceScore": 61,
       "medications": [
         {
-          "name": "1. Apixaban 5 mg orally t",
-          "dose": "wice daily",
-          "freq": "As Directed",
+          "name": "Apixaban",
+          "dose": "5 mg",
+          "freq": "Twice daily",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "ongoing (Note: Avoid NSAI",
-          "dose": "Ds",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
+          "markings": "AP5"
         },
         {
           "name": "Aspirin",
-          "dose": "Standard",
-          "freq": "As Directed",
+          "dose": "81 mg",
+          "freq": "Once daily",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "-"
+          "markings": "ASP81"
         },
         {
-          "name": "other anticoagulants",
-          "dose": "Standard",
-          "freq": "As Directed",
+          "name": "Metoprolol Succinate XR",
+          "dose": "100 mg",
+          "freq": "Once daily",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "-"
+          "markings": "MET100"
         },
         {
-          "name": "and grapefruit). 2. Metop",
-          "dose": "rolol Succinate XR 100 mg orally once daily in the morning",
-          "freq": "As Directed",
+          "name": "Amlodipine Besylate",
+          "dose": "5 mg",
+          "freq": "Once daily",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "-"
+          "markings": "AML5"
         },
         {
-          "name": "for 90 days. 3. Amlodipin",
-          "dose": "e Besylate 5 mg orally once daily in the morning",
-          "freq": "As Directed",
+          "name": "Atorvastatin Calcium",
+          "dose": "80 mg",
+          "freq": "Once daily",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "for 90 days (Note: Avoid ",
-          "dose": "grapefruit juice). 4. Atorvastatin Calcium 80 mg orally once daily at bedtime",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "for 90 days (Note: Avoid ",
-          "dose": "Clarithromycin/Erythromycin).",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
+          "markings": "ATO80"
         }
       ],
       "labs": {
