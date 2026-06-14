@@ -30,7 +30,7 @@ const BodyMapContext = ({ patient }) => {
     organSSE.setLoading(true);
 
     try {
-      await organSSE.startStream(`https://unlucky-lion-86.loca.lt/api/patient/${patient.id}/organ-assessment`, {
+      await organSSE.startStream(`https://dry-frog-85.loca.lt/api/patient/${patient.id}/organ-assessment`, {
         organ: organ.id
       });
     } catch (err) {

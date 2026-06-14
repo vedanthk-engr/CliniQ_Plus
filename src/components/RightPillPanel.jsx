@@ -9,7 +9,7 @@ const RightPillPanel = () => {
 
   useEffect(() => {
     // We will fetch patients, then extract all their recent clinical patterns
-    fetch('https://unlucky-lion-86.loca.lt/api/patients')
+    fetch('https://dry-frog-85.loca.lt/api/patients')
       .then(r => r.json())
       .then(patients => {
         let allPatterns = [];

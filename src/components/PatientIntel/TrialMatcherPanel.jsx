@@ -43,7 +43,7 @@ const TrialMatcherPanel = ({ patient, cachedTrials, setCachedTrials, isStandalon
 
         // Step 2: Send raw studies to backend for Gemini AI screening (only called ONCE)
         setLoadingMsg(`AI screening ${studies.length} trials against patient profile...`);
-        const res = await fetch(`https://unlucky-lion-86.loca.lt/api/trials/match/${patient.id}`, {
+        const res = await fetch(`https://dry-frog-85.loca.lt/api/trials/match/${patient.id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ studies })

@@ -7,11 +7,16 @@
       "sex": "Male",
       "dob": "12 Mar 1967",
       "diagnosis": [
-        "Lupus Nephritis",
-        "Chronic Kidney Disease Stage 3a",
-        "Anaemia of Chronic Disease",
-        "Osteoporosis",
-        "Secondary Hypertension"
+        "Paroxysmal Atrial Fibrillatio",
+        "(ICD-10: I48.11)",
+        "Type 2 Diabetes Mellitus with hyperglycaemia (ICD-10: E11.65)",
+        "Esse",
+        "tial Hyperte",
+        "sio",
+        "(u",
+        "co",
+        "trolled) (ICD-10: I10)",
+        "Familial Hypercholesterolaemia (Pure) (ICD-10: E78.01)."
       ],
       "doctor": "Dr. Priya Nair",
       "ward": "Endocrinology",
@@ -19,48 +24,32 @@
       "adherenceScore": 61,
       "medications": [
         {
-          "name": "1. Hydroxychloroquine Sul",
-          "dose": "phate 200 mg Twice Daily (Ongoing)",
+          "name": "1. Apixaban 5 mg, Twice D",
+          "dose": "aily, Duration: Ongoing (Take with or without food. Do NOT combine with NSAIDs, Aspirin, or other anticoagulants. Avoid grapefruit).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
           "markings": "-"
         },
         {
-          "name": "2. Prednisolone (Tapering",
-          "dose": " Schedule) 40 mg Once Daily in the morning with food (90 days taper: 40mg x 4 wks -> 30mg x 2 wks -> 20mg as directed)",
+          "name": "2. Metoprolol Succinate X",
+          "dose": "R 100 mg, Once Daily (morning), Duration: 90 Days (Do not crush, chew or split. Do NOT stop abruptly).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
           "markings": "-"
         },
         {
-          "name": "3. Mycophenolate Mofetil ",
-          "dose": "(MMF) 750 mg Twice Daily on an empty stomach (Ongoing)",
+          "name": "3. Amlodipine Besylate 5 ",
+          "dose": "mg, Once Daily (morning), Duration: 90 Days (Take at fixed morning time. Monitor lower limbs for peripheral oedema. Avoid grapefruit juice).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
           "markings": "-"
         },
         {
-          "name": "4. Losartan Potassium 50 ",
-          "dose": "mg Once Daily in the morning (Ongoing)",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "5. Calcium Carbonate + Vi",
-          "dose": "tamin D3 500mg / 400 IU Twice Daily with meals (Ongoing)",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "6. Ferrous Sulphate 200 m",
-          "dose": "g Once Daily between meals (90 Days)",
+          "name": "4. Atorvastatin Calcium 8",
+          "dose": "0 mg, Once Daily (night - bedtime), Duration: 90 Days (Take at bedtime. Report unexplained muscle pain or dark urine immediately. Avoid Clarithromycin/Erythromycin).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
@@ -363,7 +352,7 @@
         "BP_Systolic": [
           {
             "time": "Just Now",
-            "val": 148
+            "val": 158
           }
         ],
         "LDL": [
@@ -515,13 +504,13 @@
         "HeartRate": [
           {
             "time": "Just Now",
-            "val": 78
+            "val": 92
           }
         ],
         "Glucose": [
           {
             "time": "Just Now",
-            "val": 100
+            "val": 212
           }
         ]
       },
@@ -530,6 +519,18 @@
         "Heart"
       ],
       "clinicalPatterns": [
+        {
+          "type": "Data Ingest",
+          "time": "Just Now",
+          "description": "New clinical report ingested by AI.",
+          "severity": "LOW"
+        },
+        {
+          "type": "Data Ingest",
+          "time": "Just Now",
+          "description": "New clinical report ingested by AI.",
+          "severity": "LOW"
+        },
         {
           "type": "Data Ingest",
           "time": "Just Now",
@@ -1115,6 +1116,104 @@
         true
       ],
       "consultBrief": "RA stable. Mild asthma symptoms reported. Bone density scan recommended."
+    },
+    {
+      "id": "P-56700",
+      "name": "Rajan Iyer",
+      "age": 41,
+      "sex": "Unknown",
+      "dob": "01 Jan 1980",
+      "diagnosis": [
+        "Paroxysmal Atrial Fibrillatio",
+        "(ICD-10: I48.11)",
+        "Type 2 Diabetes Mellitus with hyperglycaemia (ICD-10: E11.65)",
+        "Esse",
+        "tial Hyperte",
+        "sio",
+        "u",
+        "co",
+        "trolled (ICD-10: I10)",
+        "Familial Hypercholesterolaemia (Pure) (ICD-10: E78.01)"
+      ],
+      "doctor": "Dr. AI Agent",
+      "ward": "General",
+      "riskScore": 74,
+      "adherenceScore": 65,
+      "medications": [
+        {
+          "name": "1. Apixaban 5 mg twice da",
+          "dose": "ily, ongoing.",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "2. Metoprolol Succinate X",
+          "dose": "R 100 mg once daily (morning), 90 days.",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "3. Amlodipine Besylate 5 ",
+          "dose": "mg once daily (morning), 90 days.",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        },
+        {
+          "name": "4. Atorvastatin Calcium 8",
+          "dose": "0 mg once daily (night - bedtime), 90 days.",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
+        }
+      ],
+      "labs": {
+        "BP_Systolic": [
+          {
+            "time": "Just Now",
+            "val": 158
+          }
+        ],
+        "HeartRate": [
+          {
+            "time": "Just Now",
+            "val": 92
+          }
+        ],
+        "Glucose": [
+          {
+            "time": "Just Now",
+            "val": 212
+          }
+        ]
+      },
+      "bodyFlags": [
+        "Heart"
+      ],
+      "clinicalPatterns": [
+        {
+          "type": "Intake Note",
+          "time": "Just Now",
+          "description": "Patient file initialized via AI.",
+          "severity": "LOW"
+        }
+      ],
+      "adherenceCalendar": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "consultBrief": "Intake completed. Primary focus: Paroxysmal Atrial Fibrillatio."
     }
   ],
   "pill_events": [
