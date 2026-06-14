@@ -41,6 +41,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
   const [patientResponse, setPatientResponse] = useState('');
   const [patientTranscript, setPatientTranscript] = useState('');
   const [patientInteractions, setPatientInteractions] = useState([]);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [patientAnalyser, setPatientAnalyser] = useState(null);
 
   const patientMediaRecorderRef = useRef(null);
@@ -198,7 +199,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           'ml-IN': "നിങ്ങൾക്ക് നെഞ്ചുവേദനയുള്ളതിൽ ഞാൻ ഖേദിക്കുന്നു. ഞാൻ ഉടൻ തന്നെ നിങ്ങളുടെ ഡോക്ടർ ഡോ. യുതികയെ അറിയിച്ചിട്ടുണ്ട്. നിങ്ങളുടെ പ്രധാന ലക്ഷണങ്ങൾ പരിശോധിക്കുന്നത് വരെ ദയവായി വിശ്രമിക്കുക.",
           'bn-IN': "আপনার বুকে ব্যথার কথা শুনে আমি দুঃখিত। আমি অবিলম্বে আপনার ডাক্তার ডঃ ইউথিকাকে জানিয়েছি। আমরা আপনার ভাইটাল পরীক্ষা করা পর্যন্ত অনুগ্রহ করে বিশ্রাম নিন।",
           'mr-IN': "तुमच्या छातीत दुखत असल्याबद्दल मला खेद वाटतो. मी तात्काळ तुमचे डॉक्टर, डॉ. युथिका यांना कळवले आहे. आम्ही तुमच्या शरीरातील महत्त्वाच्या खुणा तपासत असताना कृपया विश्रांती घ्या.",
-          'en-US': "I am sorry to hear you have chest pain. I have flagged this for your doctor, Dr. Vedanth, immediately. Please rest while we check your vitals."
+          'en-US': "I am sorry to hear you have chest pain. I have flagged this for your doctor, Dr. Keerthi, immediately. Please rest while we check your vitals."
         };
         reassuranceText = langMap[patientLang] || langMap['en-US'];
       } else if (text.includes("forgot")) {
@@ -215,7 +216,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           'ml-IN': "അറിയിച്ചതിന് നന്ദി. ഞാൻ വിട്ടുപോയ മെറ്റ്ഫോർമിൻ ഡോസ് രേഖപ്പെടുത്തിയിട്ടുണ്ട്. ദയവായി ഇപ്പോൾ എടുക്കുക.",
           'bn-IN': "জানানোর জন্য ধন্যবাদ। আমি বাদ পড়া মেটফর্মিন ডোজটি রেকর্ড করেছি। অনুগ্রহ করে এখন এটি নিন।",
           'mr-IN': "कळवल्याबद्दल धन्यवाद. मी चुकलेला मेटफॉर्मिन डोस नोंदवला आहे. कृपया आता घ्या.",
-          'en-US': "Thank you for letting me know. I have logged the missed dose of Metformin and updated your adherence profile. Please take it now if it's within the window, or consult Dr. Vedanth."
+          'en-US': "Thank you for letting me know. I have logged the missed dose of Metformin and updated your adherence profile. Please take it now if it's within the window, or consult Dr. Keerthi."
         };
         reassuranceText = langMap[patientLang] || langMap['en-US'];
       } else if (text.includes("Metformin") || text.includes("medicine")) {
@@ -248,7 +249,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           'ml-IN': "തലകറക്കവും തലവേദനയും രേഖപ്പെടുത്തിയിട്ടുണ്ട്. ഞാൻ നിങ്ങളുടെ ഡോക്ടറെ അറിയിക്കാം.",
           'bn-IN': "মাথা ঘোরা এবং মাথাব্যথা রেকর্ড করা হয়েছে। আমি আপনার ডাক্তারকে সতর্ক করছি।",
           'mr-IN': "चक्कर येणे आणि डोकेदुखी नोंदवली गेली आहे. मी तुमच्या डॉक्टरांना सतर्क करत आहे.",
-          'en-US': "Dizziness and headaches have been logged. I am cross-referencing this with your current medications for side effects and alerting Dr. Vedanth."
+          'en-US': "Dizziness and headaches have been logged. I am cross-referencing this with your current medications for side effects and alerting Dr. Keerthi."
         };
         reassuranceText = langMap[patientLang] || langMap['en-US'];
       }
@@ -275,6 +276,25 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     } finally {
       setPatientIsProcessing(false);
     }
+  };
+
+  const handleDownloadPDF = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (isDownloadingPDF) return;
+    setIsDownloadingPDF(true);
+
+    // Open the PDF endpoint directly in a new tab — the browser will read
+    // the Content-Disposition: attachment header and save it as a .pdf file.
+    const url = `http://localhost:8000/api/patient/${patient.id}/summary-pdf`;
+    window.open(url, '_blank');
+
+    // Reset loading state after a short delay
+    setTimeout(() => {
+      setIsDownloadingPDF(false);
+    }, 2000);
   };
 
   // If list view, show flat-designed registry list
@@ -617,6 +637,17 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
               patientId={patient.id}
               onResult={setVoiceResult}
             />
+            <button 
+              type="button"
+              onClick={(e) => handleDownloadPDF(e)}
+              disabled={isDownloadingPDF}
+              className="px-4 py-2 bg-white hover:bg-gray-50 text-brand-sidebar border border-gray-200 rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className={`material-symbols-outlined text-[16px] ${isDownloadingPDF ? 'animate-spin' : ''}`}>
+                {isDownloadingPDF ? 'sync' : 'download'}
+              </span>
+              <span>{isDownloadingPDF ? 'Generating...' : 'Download PDF Summary'}</span>
+            </button>
             <button
               onClick={() => setPatientMode(true)}
               className="px-4 py-2 bg-brand-sidebar hover:bg-brand-sidebar/90 text-white rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm"
