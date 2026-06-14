@@ -1,4 +1,4 @@
-# 🏥 ClinIQ+ Clinical Intelligence Platform
+# 🏥 ClinIQ+: Clinical Intelligence Platform
 
 [![Frontend Deployed](https://img.shields.io/badge/Frontend-Vercel-blueviolet?style=flat-square&logo=vercel)](https://vercel.com)
 [![Backend Deployed](https://img.shields.io/badge/Backend-Render-brightgreen?style=flat-square&logo=render)](https://render.com)
@@ -6,27 +6,63 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-Python-blue?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-red?style=flat-square&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
 
-ClinIQ+ is an advanced, AI-powered physician co-pilot and clinical decision support system. It integrates intelligent medical document processing, PillGuard safety analysis, patient voice assistant in local Indian languages, clinical trial eligibility screening, and interactive comorbidity visualizations to empower doctors and improve patient adherence.
+ClinIQ+ is a state-of-the-art, AI-powered physician co-pilot, patient engagement agent, and clinical decision support system (CDSS). It integrates advanced multimodal language models, visual pill scanners, real-time multilingual voice command systems, deterministic safety gates, and dynamic graph visualizations to streamline clinical workflows and improve patient safety.
 
 ---
 
-## 🚀 Key Features
+## 🖥️ Primary Dashboard Overview
+
+The ClinIQ+ Physician Dashboard serves as the command center for clinicians, providing real-time telemetry on patient queues, risk indices, alerts, scheduling timelines, and acute case tracking.
+
+<p align="center">
+  <img src="docs/screenshots/primary_dashboard.png" alt="ClinIQ+ Primary Dashboard" width="95%">
+</p>
+
+---
+
+## ⚡ Technical Innovation & Hackathon Highlights
+
+ClinIQ+ represents an innovative integration of **probabilistic AI reasoning** and **deterministic safety frameworks** to solve core healthcare challenges:
+
+### 1. Hybrid Deterministic-Probabilistic Safety Gate
+* **The Problem**: LLMs in healthcare can suffer from hallucinations, which pose critical risks to patient safety.
+* **The Innovation**: ClinIQ+ separates clinical reasoning from pharmacological validation. Vitals and drug-drug interactions are audited using a **rule-based, deterministic database engine** and standard medical dictionaries. The LLM acts as the orchestrator to parse unstructured inputs, but the safety check is mathematically verified against the database before any recommendation is rendered.
+
+### 2. Multi-Agent LLM Orchestration
+* Powered by **Google Gemini 2.5 Flash** using native **Function Calling (Tool Use)**.
+* Deconstructs complex, multi-intent queries (e.g., *"Check Patient Arjun's lab history, look for metformin contraindications, and print a summary"*) into a sequence of micro-actions, resolving dependencies dynamically.
+* Implements robust error handling (e.g., missing vitals, invalid dosage maps, out-of-context requests) to gracefully degrade without crashing.
+
+### 3. Server-Sent Events (SSE) Streaming Telemetry
+* Implements real-time asynchronous streaming using **FastAPI EventSourceResponse**.
+* Streams clinical reasoning logs and missed dose impact simulations line-by-line, creating a highly responsive interface with sub-100ms latency.
+
+### 4. Multilingual Vocal Translation Pipeline
+* Translates local dialects (including Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, and Marathi) into clinical English on the fly.
+* Generates localized audio playback using template-based voice engines, ensuring low latency and accessibility for regional demographics.
+
+### 5. D3.js Force-Directed Comorbidity Web
+* Implements dynamic disease-symptom relation graphs using **D3.js**.
+* Translates patient diagnosis profiles into visual nodes, allowing clinicians to trace secondary risks and systemic connections interactively.
+
+---
+
+## 🚀 Key Feature Modules
 
 ### 1. Multimodal AI Intake Engine
-Instantly parse unstructured clinical notes, discharge summaries, and lab reports (PDF/Images) into structured patient profiles. The intake agent automatically extracts and streams patient demographics, vital signs, primary diagnoses, and medication regimens.
+Converts unstructured medical documentation (discharge summaries, laboratory reports, handwritten-style clinical notes) in PDF or image format into fully structured patient records. Vitals, demographics, active medications, and chronic conditions are parsed, validated, and instantly synchronized with the patient database.
 
-| Document Upload | Structured AI Review |
+| Document Upload Interface | Structured AI Case Review & Analytics |
 | :---: | :---: |
 | ![Intake Upload](docs/screenshots/intake_upload.png) | ![Intake Review](docs/screenshots/intake_review.png) |
 
 ---
 
-### 2. PillGuard Scanner & Adherence Tracker
-Verify patient medication, track compliance, and prevent adverse events using vision AI.
-* **Adherence Logs**: A 7-day morning/afternoon/evening schedule tracking compliance.
-* **Drug Interaction Graph**: Real-time visual graphing of active medications and identified contraindications.
-* **Missed Dose Impact**: SSE-streamed clinical risk profile calculations for missed medication.
-* **Mock Tylenol Scanner**: Dialog showcasing active ingredients, dosage rules, and drug side-effects.
+### 2. PillGuard Scanner & Adherence Telemetry
+Provides real-time validation of patient medication packages using vision AI.
+* **Active Ingredient Extraction**: Identifies the chemical compounds of scanned packages.
+* **Interaction Verification**: Automatically crosses the scanned chemical structure against the patient's existing regimen to identify contraindications.
+* **Adherence Visualization**: Renders compliance calendars and streams clinical warnings on missed doses.
 
 | PillGuard Dashboard | AI Ingredient & Adherence Analysis |
 | :---: | :---: |
@@ -35,7 +71,10 @@ Verify patient medication, track compliance, and prevent adverse events using vi
 ---
 
 ### 3. Patient Voice Assistant (Multilingual)
-A multilingual voice assistant built for patients to speak symptoms, check drug queries, or log missed doses in their local language. Supports 7 Indian languages: **Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, and Marathi**, with real-time audio playback reassurance.
+Allows patients to interact with their health records hands-free using natural vocal commands in regional Indian languages.
+* **Symptom Logging**: Automatically converts spoken local language complaints into structured clinical alerts.
+* **Medication Queries**: Explains drug purposes, side effects, and precautions in regional dialects.
+* **Audio Feedback**: Generates real-time audio playback in the patient's language of choice.
 
 <p align="center">
   <img src="docs/screenshots/patient_mode.png" alt="Patient Voice Assistant" width="85%">
@@ -43,29 +82,59 @@ A multilingual voice assistant built for patients to speak symptoms, check drug 
 
 ---
 
-### 4. Advanced Clinical Features
-* **Clinical Trial Matcher**: Match patients automatically against database trials using Gemini AI to evaluate complex eligibility (inclusion/exclusion) parameters.
-* **Comorbidity Network Graph**: Dynamic interactive network web of patient health conditions, showing risk levels and condition links.
-* **Professional PDF Case Sheet Export**: Download beautifully formatted PDF clinical summary sheets directly from the patient profile page.
+### 4. Professional PDF Case Sheet Generator
+* Dynamically compiles patient profiles, biometric streams, adherence metrics, and clinical forecasts on the server side using the Python **ReportLab** library.
+* Outputs publication-grade, multi-page PDF case summary files in real time for inter-departmental transfers or insurance verification.
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Architecture & Tech Stack
 
-### Frontend
-* **Core**: React 19, React Router, Vite, Zustand (State Management)
-* **Styling**: Vanilla CSS + TailwindCSS, Glassmorphism, Responsive Bento Grids
-* **Visualizations**: D3.js, Recharts, Three.js (3D Assets), GSAP (Micro-animations)
-* **Integration**: Capacitor (Android/Mobile builds ready)
+```mermaid
+graph TD
+    subgraph Client [React 19 Frontend]
+        UI[Bento Grid UI] --> Store[Zustand Stores]
+        UI --> Voice[Voice Recorder Component]
+        UI --> Graph[D3.js Comorbidity Web]
+        UI --> Vision[Vision Scanner Upload]
+    end
 
-### Backend
-* **Core**: FastAPI (Python), SQLite (Patient & Config database)
-* **AI & LLM**: Google GenAI SDK (`gemini-2.5-flash`)
-* **Utilities**: SSE (Server-Sent Events) streaming, ReportLab (PDF generator), Matplotlib (clinical forecasting charts)
+    subgraph Server [FastAPI Python Backend]
+        API[API Router] --> Auth[Router Security]
+        API --> SSE[SSE Stream Service]
+        API --> PDF[ReportLab PDF Engine]
+        
+        subgraph AI Agent System [Gemini Multi-Agent Orchestrator]
+            Intake[Intake Agent]
+            Pill[Pill & Interaction Agent]
+            VoiceQuery[Voice Translate Agent]
+            TrialMatch[Clinical Trial Agent]
+        end
+        
+        API --> AI Agent System
+    end
+    
+    subgraph Storage [Database Layer]
+        SQLite[(SQLite DB)]
+        JSONDB[(JSON File DB)]
+    end
+
+    Store <--> API
+    Voice <--> VoiceQuery
+    Vision <--> Pill
+    AI Agent System <--> SQLite
+    AI Agent System <--> JSONDB
+    PDF --> JSONDB
+```
+
+### Stack Details
+* **Frontend**: React 19, Vite, TailwindCSS (Vanilla Custom Styling), Zustand, Recharts, D3.js, GSAP (micro-animations), Three.js (3D assets), Capacitor.
+* **Backend**: FastAPI, Uvicorn, Python, SQLite, ReportLab, Matplotlib.
+* **AI Engine**: Google GenAI SDK (`gemini-2.5-flash`), Function Calling API.
 
 ---
 
-## ⚙️ Setup & Installation
+## ⚙️ Quick Start
 
 ### Prerequisites
 * Node.js (v18+)
@@ -73,7 +142,7 @@ A multilingual voice assistant built for patients to speak symptoms, check drug 
 * Gemini API Key
 
 ### Backend Setup (FastAPI)
-1. Navigate to the backend folder:
+1. Navigate to the backend directory:
    ```bash
    cd cliniq-backend
    ```
@@ -104,11 +173,6 @@ A multilingual voice assistant built for patients to speak symptoms, check drug 
 
 ---
 
-## 🤖 AI Agent Architecture
-ClinIQ+ uses specific specialized agents powered by Gemini function calling to run clinical tasks:
-1. **Intake Agent (`intake_agent.py`)**: Extract and structure patient clinical metrics from documents.
-2. **Pill Agent (`pill_agent.py`, `pill_analyzer_agent.py`)**: Analyze pill images, identify chemicals, and calculate drug-drug interactions.
-3. **Voice Query Agent (`voice_query_agent.py`)**: Parse multilingual voice inputs, categorize medical complaints, and return localized audio reassurance.
-4. **Trial Matcher Agent (`trial_matcher_agent.py`)**: Compare structured patient case records against clinical trial protocols.
-
----
+## 👥 Authors & Team
+* **Dr. Vedanth** - Lead AI Developer & Healthcare Architect
+* **Keerthivasa** - Senior Systems & Integration Engineer
