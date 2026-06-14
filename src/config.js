@@ -1,7 +1,10 @@
 // src/config.js
 // Central API config.
 // In production (Vercel), set VITE_API_URL in Vercel's Environment Variables dashboard.
-// Locally, it falls back to the localtunnel URL — update this when the tunnel restarts.
+// In local dev, defaults to localhost:8000 unless VITE_API_URL is set.
 
-export const TUNNEL_URL = import.meta.env.VITE_API_URL || 'https://dry-frog-85.loca.lt';
+export const TUNNEL_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8000' : 'https://dry-frog-85.loca.lt');
+
 export const BASE_API = `${TUNNEL_URL}/api`;
