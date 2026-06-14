@@ -1,7 +1,0 @@
-### Sample Physician Clinical Queries
-
-1. "Generate a 60-second pre-consultation brief for Arjun Mehta."
-2. "What are the latest lab trends for patient P-00142 and are there any red flags?"
-3. "Has Arjun Mehta ever had an adverse reaction to penicillin or any significant drug interaction risks with his current meds?"
-4. "Scan Kavitha Rajan's history for any clinical patterns or anomalies in her inflammatory markers."
-5. "Provide a second opinion: Could Arjun Mehta's rising creatinine be indicative of progressing Diabetic Nephropathy?"

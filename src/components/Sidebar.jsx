@@ -34,7 +34,7 @@ const Sidebar = () => {
 
   const handleNameBlur = (val) => {
     setIsEditingName(false);
-    if (!val.trim()) setDoctorName('Dr. Keerthi');
+    if (!val.trim()) setDoctorName('Dr. Vedanth');
   };
 
   const handleNameKeyDown = (e) => {
