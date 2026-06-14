@@ -15,12 +15,15 @@ import { useVoice } from '../hooks/useVoice';
 import VoiceWaveform from '../components/voice/VoiceWaveform';
 import MicButton from '../components/voice/MicButton';
 import VoiceResultCard from '../components/voice/VoiceResultCard';
+import TrialMatcherPanel from '../components/PatientIntel/TrialMatcherPanel';
 
 const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentView, startInRegistry, onDeletePatient }) => {
   const navigate = useNavigate();
   const [voiceResult, setVoiceResult] = useState(null);
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
   const [activeTab, setActiveTab] = useState('triage');
+  // Trial cache lives here so it survives tab switching (component unmount/remount)
+  const [cachedTrials, setCachedTrials] = useState({});
 
   // Voice & Patient Mode states
   const [patientLang, setPatientLang] = useState('hi-IN');
@@ -664,8 +667,33 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           </div>
         )}
 
-        {/* Patient Voice interactions feed */}
-        {patientInteractions.length > 0 && (
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-6 border-b border-gray-200 mb-6 pl-14 w-full max-w-[1600px] mx-auto animate-fade-in-up">
+          <button 
+            onClick={() => setActiveTab('triage')}
+            className={`pb-3 font-extrabold text-sm border-b-[3px] transition-colors ${activeTab !== 'trials' ? 'border-brand-sidebar text-brand-sidebar' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+          >
+            Clinical Dashboard
+          </button>
+          <button 
+            onClick={() => setActiveTab('trials')}
+            className={`pb-3 font-extrabold text-sm border-b-[3px] transition-colors flex items-center gap-2 ${activeTab === 'trials' ? 'border-brand-blue text-brand-blue' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+          >
+            <span className="material-symbols-outlined text-[18px]">science</span>
+            Trial Matches
+          </button>
+        </div>
+
+        {activeTab === 'trials' && (
+          <div className="flex flex-col gap-6 flex-1 w-full max-w-[1600px] mx-auto px-14">
+            <TrialMatcherPanel patient={patient} cachedTrials={cachedTrials} setCachedTrials={setCachedTrials} />
+          </div>
+        )}
+
+        {activeTab !== 'trials' && (
+          <>
+            {/* Patient Voice interactions feed */}
+            {patientInteractions.length > 0 && (
           <div className="bg-brand-pink/10 border border-brand-pink/30 rounded-card p-6 mb-6 animate-fade-in-up w-full max-w-[1600px] mx-auto shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <span className="material-symbols-outlined text-brand-pink text-[24px]">contact_support</span>
@@ -712,7 +740,8 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             { id: 'triage', label: 'Triage Map', icon: 'health_and_safety' },
             { id: 'vitals', label: 'Vitals & Risks', icon: 'monitoring' },
             { id: 'meds', label: 'Meds & Scribe', icon: 'medication' },
-            { id: 'forecast', label: 'Forecast & Sim', icon: 'insights' }
+            { id: 'forecast', label: 'Forecast & Sim', icon: 'insights' },
+            { id: 'trials', label: 'Clinical Trials', icon: 'science' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -1054,7 +1083,15 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
               <TrajectoryPreview patient={patient} />
             </div>
           )}
+
+          {activeTab === 'trials' && (
+            <div className="flex flex-col gap-6 animate-fade-in-up">
+              <TrialMatcherPanel patient={patient} cachedTrials={cachedTrials} setCachedTrials={setCachedTrials} />
+            </div>
+          )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );

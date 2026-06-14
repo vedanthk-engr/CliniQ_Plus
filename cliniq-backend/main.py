@@ -16,6 +16,7 @@ from agents.query_agent import run_nl_query
 from agents.pill_agent import run_vision_agent
 from agents.pill_analyzer_agent import analyze_pill_images
 from agents.intake_agent import run_intake_extraction
+from agents.trial_matcher_agent import screen_trials_with_gemini
 
 import random
 import uuid
@@ -253,8 +254,27 @@ def intake_save(data: dict):
     save_db(db)
     return {"status": "success", "message": "Patient verified and saved successfully", "patient_id": new_id}
 
-def doc_str(data):
-    return str(data).lower()
+from pydantic import BaseModel
+from typing import List, Any
+
+class TrialScreenRequest(BaseModel):
+    studies: List[Any]
+
+from fastapi import HTTPException
+@app.post('/api/trials/match/{patient_id}')
+async def match_trials(patient_id: str, body: TrialScreenRequest):
+    patient = next((p for p in db["patients"] if p['id'] == patient_id), None)
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+    if not patient.get("diagnosis"):
+        raise HTTPException(status_code=400, detail="Patient has no conditions for trial matching")
+
+    result = await screen_trials_with_gemini(patient, body.studies)
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+
+    return result
 
 if __name__ == "__main__":
     import uvicorn

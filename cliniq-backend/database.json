@@ -7,24 +7,11 @@
       "sex": "Male",
       "dob": "12 Mar 1967",
       "diagnosis": [
-        "Paroxysmal Atrial Fibrillatio",
-        "(Active si",
-        "ce Mar 2023)",
-        "Type 2 Diabetes Mellitus with hyperglycaemia (Active si",
-        "ce Ja",
-        "2015)",
-        "Esse",
-        "tial Hyperte",
-        "sio",
-        "(u",
-        "co",
-        "trolled",
-        "Active si",
-        "ce Apr 2012)",
-        "Familial Hypercholesterolaemia (Pure",
-        "Active si",
-        "ce Ja",
-        "2015)"
+        "Lupus Nephritis",
+        "Chronic Kidney Disease Stage 3a",
+        "Anaemia of Chronic Disease",
+        "Osteoporosis",
+        "Secondary Hypertension"
       ],
       "doctor": "Dr. Priya Nair",
       "ward": "Endocrinology",
@@ -32,44 +19,52 @@
       "adherenceScore": 61,
       "medications": [
         {
-          "name": "Apixaban",
-          "dose": "5 mg",
-          "freq": "Twice daily",
+          "name": "1. Hydroxychloroquine Sul",
+          "dose": "phate 200 mg Twice Daily (Ongoing)",
+          "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "AP5"
+          "markings": "-"
         },
         {
-          "name": "Aspirin",
-          "dose": "81 mg",
-          "freq": "Once daily",
+          "name": "2. Prednisolone (Tapering",
+          "dose": " Schedule) 40 mg Once Daily in the morning with food (90 days taper: 40mg x 4 wks -> 30mg x 2 wks -> 20mg as directed)",
+          "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "ASP81"
+          "markings": "-"
         },
         {
-          "name": "Metoprolol Succinate XR",
-          "dose": "100 mg",
-          "freq": "Once daily",
+          "name": "3. Mycophenolate Mofetil ",
+          "dose": "(MMF) 750 mg Twice Daily on an empty stomach (Ongoing)",
+          "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "MET100"
+          "markings": "-"
         },
         {
-          "name": "Amlodipine Besylate",
-          "dose": "5 mg",
-          "freq": "Once daily",
+          "name": "4. Losartan Potassium 50 ",
+          "dose": "mg Once Daily in the morning (Ongoing)",
+          "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "AML5"
+          "markings": "-"
         },
         {
-          "name": "Atorvastatin Calcium",
-          "dose": "80 mg",
-          "freq": "Once daily",
+          "name": "5. Calcium Carbonate + Vi",
+          "dose": "tamin D3 500mg / 400 IU Twice Daily with meals (Ongoing)",
+          "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
-          "markings": "ATO80"
+          "markings": "-"
+        },
+        {
+          "name": "6. Ferrous Sulphate 200 m",
+          "dose": "g Once Daily between meals (90 Days)",
+          "freq": "As Directed",
+          "color": "#1a6bff",
+          "shape": "Round",
+          "markings": "-"
         }
       ],
       "labs": {
@@ -368,7 +363,7 @@
         "BP_Systolic": [
           {
             "time": "Just Now",
-            "val": 158
+            "val": 148
           }
         ],
         "LDL": [
@@ -520,13 +515,13 @@
         "HeartRate": [
           {
             "time": "Just Now",
-            "val": 92
+            "val": 78
           }
         ],
         "Glucose": [
           {
             "time": "Just Now",
-            "val": 212
+            "val": 100
           }
         ]
       },
@@ -1951,111 +1946,49 @@
       "consultBrief": "Advanced CHF and renal decline. High risk of hyperkalemia. Strict adherence counseling required."
     },
     {
-      "id": "P-37526",
+      "id": "P-50764",
       "name": "Rajan Iyer",
-      "age": 64,
+      "age": 43,
       "sex": "Unknown",
       "dob": "01 Jan 1980",
       "diagnosis": [
-        "Paroxysmal Atrial Fibrillatio",
-        "(ICD-10: I48.11)",
+        "Paroxysmal Atrial Fibrillation (ICD-10: I48.11)",
         "Type 2 Diabetes Mellitus with hyperglycaemia (ICD-10: E11.65)",
-        "Esse",
-        "tial Hyperte",
-        "sio",
-        "(u",
-        "co",
-        "trolled) (ICD-10: I10)",
-        "Familial Hypercholesterolaemia (Pure) (ICD-10: E78.01)"
+        "Essential Hypertension (uncontrolled, ICD-10: I10)",
+        "Familial Hypercholesterolaemia (Pure, ICD-10: E78.01)"
       ],
       "doctor": "Dr. AI Agent",
       "ward": "General",
-      "riskScore": 40,
-      "adherenceScore": 99,
+      "riskScore": 55,
+      "adherenceScore": 50,
       "medications": [
         {
-          "name": "1. Apixaban 5 mg",
-          "dose": "Standard",
+          "name": "1. Apixaban 5 mg, Twice D",
+          "dose": "aily, Duration: Ongoing (Warning: Do NOT combine with NSAIDs, Aspirin, or other anticoagulants. Avoid grapefruit).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
           "markings": "-"
         },
         {
-          "name": "Twice Daily",
-          "dose": "Standard",
+          "name": "2. Metoprolol Succinate X",
+          "dose": "R 100 mg, Once Daily (morning), Duration: 90 Days.",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
           "markings": "-"
         },
         {
-          "name": "Duration: Ongoing (Avoid ",
-          "dose": "grapefruit",
+          "name": "3. Amlodipine Besylate 5 ",
+          "dose": "mg, Once Daily (morning), Duration: 90 Days (Warning: Monitor lower limbs for peripheral oedema, avoid grapefruit juice).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
           "markings": "-"
         },
         {
-          "name": "NSAIDs",
-          "dose": "Standard",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "aspirin); 2. Metoprolol S",
-          "dose": "uccinate XR 100 mg",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "Once Daily (morning)",
-          "dose": "Standard",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "Duration: 90 Days; 3. Aml",
-          "dose": "odipine Besylate 5 mg",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "Once Daily (morning)",
-          "dose": "Standard",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "Duration: 90 Days (Avoid ",
-          "dose": "grapefruit juice); 4. Atorvastatin Calcium 80 mg",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "Once Daily (night/bedtime",
-          "dose": ")",
-          "freq": "As Directed",
-          "color": "#1a6bff",
-          "shape": "Round",
-          "markings": "-"
-        },
-        {
-          "name": "Duration: 90 Days",
-          "dose": "Standard",
+          "name": "4. Atorvastatin Calcium 8",
+          "dose": "0 mg, Once Daily (night - bedtime), Duration: 90 Days (Warning: Report myopathy symptoms immediately, avoid Clarithromycin/Erythromycin).",
           "freq": "As Directed",
           "color": "#1a6bff",
           "shape": "Round",
@@ -2086,12 +2019,6 @@
         "Heart"
       ],
       "clinicalPatterns": [
-        {
-          "type": "Data Ingest",
-          "time": "Just Now",
-          "description": "New clinical report ingested by AI.",
-          "severity": "LOW"
-        },
         {
           "type": "Intake Note",
           "time": "Just Now",
