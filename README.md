@@ -172,7 +172,3 @@ graph TD
    *The client will run on http://localhost:5173*
 
 ---
-
-## 👥 Authors & Team
-* **Dr. Vedanth** - Lead AI Developer & Healthcare Architect
-* **Keerthivasa** - Senior Systems & Integration Engineer
