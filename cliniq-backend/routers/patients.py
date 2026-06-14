@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Request, HTTPException
+from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel
 import json
 import asyncio
 import os
 from services.supabase_service import db_service
 from services.gemini_service import gemini_service
+from services.pdf_service import pdf_service
 
 router = APIRouter(prefix="/api/patient", tags=["patients"])
 
@@ -120,3 +121,35 @@ async def organ_assessment(id: str, req: OrganAssessmentRequest):
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(stream_live(), media_type="text/event-stream")
+
+@router.get("/{id}/summary-pdf")
+def get_patient_summary_pdf(id: str):
+    print(f"Exporting patient summary PDF for ID: {id}...")
+    try:
+        patient = get_patient_data(id)
+        if not patient:
+            raise HTTPException(status_code=404, detail="Patient not found.")
+
+        pdf_path = pdf_service.build_summary_pdf(id)
+        if not os.path.exists(pdf_path):
+            raise HTTPException(status_code=500, detail="Failed to generate patient summary PDF.")
+        
+        formatted_name = "".join(c if c.isalnum() else "_" for c in patient["name"].lower())
+        filename = f"patient_{formatted_name}_summary.pdf"
+        headers = {
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache"
+        }
+        return FileResponse(
+            path=pdf_path,
+            filename=filename,
+            media_type="application/pdf",
+            headers=headers
+        )
+    except HTTPException as http_ex:
+        raise http_ex
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as e:
+        print(f"Error exporting patient summary PDF: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -388,4 +388,162 @@ class PDFService:
         doc.build(story)
         return pdf_filename
 
+    def build_summary_pdf(self, patient_id: str) -> str:
+        patient = self._get_patient_data(patient_id)
+        if not patient:
+            raise ValueError(f"Patient {patient_id} not found.")
+
+        pdf_filename = os.path.join(TEMP_DIR, f"Patient_Summary_{patient_id}.pdf")
+        doc = SimpleDocTemplate(pdf_filename, pagesize=letter, leftMargin=30, rightMargin=30, topMargin=30, bottomMargin=30)
+        story = []
+
+        title_style = ParagraphStyle(
+            name='SummaryTitle',
+            parent=self.styles['ReportTitle'],
+            fontSize=20,
+            leading=24,
+            spaceAfter=8
+        )
+        
+        section_style = ParagraphStyle(
+            name='SummarySectionHeader',
+            parent=self.styles['SectionHeader'],
+            fontSize=13,
+            leading=16,
+            spaceBefore=10,
+            spaceAfter=6,
+            keepWithNext=True
+        )
+
+        table_text_style = ParagraphStyle(
+            name='SummaryTableText',
+            parent=self.styles['ClinicalText'],
+            fontSize=8.5,
+            leading=11,
+            spaceAfter=0
+        )
+
+        table_text_bold = ParagraphStyle(
+            name='SummaryTableTextBold',
+            parent=self.styles['ClinicalTextBold'],
+            fontSize=8.5,
+            leading=11,
+            spaceAfter=0
+        )
+
+        story.append(Paragraph(f"ClinIQ+ Patient Clinical Summary", title_style))
+        story.append(Paragraph(f"Generated at: {datetime.now().strftime('%d %b %Y, %H:%M')} | System: LOCAL NEURAL ENGINE", table_text_style))
+        story.append(Spacer(1, 8))
+
+        profile_data = [
+            [Paragraph("<b>Patient Name:</b>", table_text_style), Paragraph(patient["name"], table_text_style),
+             Paragraph("<b>Patient ID:</b>", table_text_style), Paragraph(patient["id"], table_text_style)],
+            [Paragraph("<b>Age / Sex:</b>", table_text_style), Paragraph(f"{patient['age']}Y / {patient['sex']}", table_text_style),
+             Paragraph("<b>DOB:</b>", table_text_style), Paragraph(patient["dob"], table_text_style)],
+            [Paragraph("<b>Ward / Dept:</b>", table_text_style), Paragraph(patient["ward"], table_text_style),
+             Paragraph("<b>Primary Provider:</b>", table_text_style), Paragraph(patient["doctor"], table_text_style)],
+            [Paragraph("<b>Risk Score:</b>", table_text_style), Paragraph(f"{patient['riskScore']}/100", table_text_bold),
+             Paragraph("<b>Adherence Score:</b>", table_text_style), Paragraph(f"{patient['adherenceScore']}%", table_text_bold)]
+        ]
+        
+        t_demographics = Table(profile_data, colWidths=[110, 165, 110, 165])
+        t_demographics.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), self.bg_light),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+            ('TOPPADDING', (0,0), (-1,-1), 3),
+            ('BOX', (0,0), (-1,-1), 0.5, colors.grey),
+            ('INNERGRID', (0,0), (-1,-1), 0.5, colors.lightgrey),
+        ]))
+        story.append(t_demographics)
+        story.append(Spacer(1, 10))
+
+        labs = patient.get("labs", {})
+        vital_rows = [[
+            Paragraph("<b>Biomarker / Test</b>", table_text_bold),
+            Paragraph("<b>Value</b>", table_text_bold),
+            Paragraph("<b>Date</b>", table_text_bold)
+        ]]
+        
+        if labs:
+            for test_name, readings in labs.items():
+                if readings:
+                    latest_reading = readings[-1]
+                    vital_rows.append([
+                        Paragraph(test_name, table_text_style),
+                        Paragraph(str(latest_reading["val"]), table_text_bold),
+                        Paragraph(latest_reading.get("date", "N/A"), table_text_style)
+                    ])
+        else:
+            vital_rows.append([
+                Paragraph("No biomarkers.", table_text_style),
+                Paragraph("-", table_text_style),
+                Paragraph("-", table_text_style)
+            ])
+            
+        t_vitals = Table(vital_rows, colWidths=[110, 75, 75])
+        t_vitals.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), self.bg_light),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.lightgrey),
+        ]))
+        
+        medications = patient.get("medications", [])
+        med_rows = [[
+            Paragraph("<b>Medication</b>", table_text_bold), 
+            Paragraph("<b>Dosage</b>", table_text_bold), 
+            Paragraph("<b>Frequency</b>", table_text_bold)
+        ]]
+        
+        if medications:
+            for med in medications:
+                med_rows.append([
+                    Paragraph(med["name"], table_text_style),
+                    Paragraph(med.get("dose", "As Directed"), table_text_style),
+                    Paragraph(med.get("freq", "As Directed"), table_text_style)
+                ])
+        else:
+            med_rows.append([
+                Paragraph("No active meds.", table_text_style),
+                Paragraph("-", table_text_style),
+                Paragraph("-", table_text_style)
+            ])
+            
+        t_med = Table(med_rows, colWidths=[110, 75, 75])
+        t_med.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), self.bg_light),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.lightgrey),
+        ]))
+
+        side_by_side_data = [
+            [
+                Paragraph("<b>Latest Lab & Vital Readings</b>", section_style),
+                "",
+                Paragraph("<b>Current Active Medications</b>", section_style)
+            ],
+            [
+                t_vitals,
+                "",
+                t_med
+            ]
+        ]
+        
+        t_layout = Table(side_by_side_data, colWidths=[260, 30, 260])
+        t_layout.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('LEFTPADDING', (0,0), (-1,-1), 0),
+            ('RIGHTPADDING', (0,0), (-1,-1), 0),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+            ('TOPPADDING', (0,0), (-1,-1), 0),
+        ]))
+        
+        story.append(t_layout)
+
+        doc.build(story)
+        return pdf_filename
+
 pdf_service = PDFService()
+

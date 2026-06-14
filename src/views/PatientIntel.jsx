@@ -41,6 +41,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
   const [patientResponse, setPatientResponse] = useState('');
   const [patientTranscript, setPatientTranscript] = useState('');
   const [patientInteractions, setPatientInteractions] = useState([]);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [patientAnalyser, setPatientAnalyser] = useState(null);
 
   const patientMediaRecorderRef = useRef(null);
@@ -275,6 +276,25 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     } finally {
       setPatientIsProcessing(false);
     }
+  };
+
+  const handleDownloadPDF = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (isDownloadingPDF) return;
+    setIsDownloadingPDF(true);
+
+    // Open the PDF endpoint directly in a new tab — the browser will read
+    // the Content-Disposition: attachment header and save it as a .pdf file.
+    const url = `http://localhost:8000/api/patient/${patient.id}/summary-pdf`;
+    window.open(url, '_blank');
+
+    // Reset loading state after a short delay
+    setTimeout(() => {
+      setIsDownloadingPDF(false);
+    }, 2000);
   };
 
   // If list view, show flat-designed registry list
@@ -617,6 +637,17 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
               patientId={patient.id}
               onResult={setVoiceResult}
             />
+            <button 
+              type="button"
+              onClick={(e) => handleDownloadPDF(e)}
+              disabled={isDownloadingPDF}
+              className="px-4 py-2 bg-white hover:bg-gray-50 text-brand-sidebar border border-gray-200 rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className={`material-symbols-outlined text-[16px] ${isDownloadingPDF ? 'animate-spin' : ''}`}>
+                {isDownloadingPDF ? 'sync' : 'download'}
+              </span>
+              <span>{isDownloadingPDF ? 'Generating...' : 'Download PDF Summary'}</span>
+            </button>
             <button
               onClick={() => setPatientMode(true)}
               className="px-4 py-2 bg-brand-sidebar hover:bg-brand-sidebar/90 text-white rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm"
