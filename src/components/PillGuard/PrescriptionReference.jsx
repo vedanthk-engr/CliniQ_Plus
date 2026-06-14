@@ -3,7 +3,7 @@ import React from 'react';
 const PrescriptionReference = ({ patient }) => {
   if (!patient || !patient.medications) {
     return (
-      <aside className="w-[320px] bg-white border border-gray-150 rounded-[24px] p-6 shadow-sm flex flex-col min-h-[450px] h-fit shrink-0 justify-center items-center text-center font-sans">
+      <aside className="w-full xl:w-[320px] bg-white border border-gray-150 rounded-[24px] p-6 shadow-sm flex flex-col min-h-[450px] h-fit shrink-0 justify-center items-center text-center font-sans">
         <span className="material-symbols-outlined text-gray-300 text-4xl mb-2">medication</span>
         <p className="text-xs text-gray-400 font-medium">No patient selected</p>
       </aside>
@@ -11,7 +11,7 @@ const PrescriptionReference = ({ patient }) => {
   }
 
   return (
-    <aside className="w-[320px] bg-white border border-gray-150 rounded-[24px] p-6 shadow-sm flex flex-col min-h-[450px] h-fit shrink-0 font-sans">
+    <aside className="w-full xl:w-[320px] bg-white border border-gray-150 rounded-[24px] p-6 shadow-sm flex flex-col min-h-[450px] h-fit shrink-0 font-sans">
       <div className="mb-6">
         <span className="text-[11px] font-black text-brand-pink tracking-wider uppercase font-mono block">
           PRESCRIPTION REFERENCE

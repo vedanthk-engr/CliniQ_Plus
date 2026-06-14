@@ -40,15 +40,15 @@ const Overview = () => {
     <div className="flex flex-col min-h-screen bg-transparent">
       <TopHeader />
 
-      <div className="flex-1 px-8 pb-8 overflow-y-auto">
+      <div className="flex-1 px-4 md:px-8 pb-8 overflow-y-auto">
         <div className="max-w-[1400px] mx-auto">
           
           {/* Hero Header */}
           <div className="mb-8 animate-fade-in-up">
-            <h1 className="text-[40px] font-extrabold text-brand-sidebar tracking-tight leading-none">
+            <h1 className="text-3xl md:text-[40px] font-extrabold text-brand-sidebar tracking-tight leading-tight md:leading-none">
               Good morning, {doctorName}
             </h1>
-            <p className="text-base text-gray-500 max-w-2xl mt-2 font-medium">
+            <p className="text-sm md:text-base text-gray-500 max-w-2xl mt-2 font-medium">
               ClinIQ+ wishes you a good and productive day. {totalPatients} patients waiting for your treatment today. You also have one live event in your calendar today.
             </p>
           </div>

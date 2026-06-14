@@ -47,7 +47,7 @@ const Sidebar = () => {
   };
 
   return (
-    <nav className="fixed left-6 top-6 bottom-6 w-[220px] bg-brand-sidebar flex flex-col py-8 px-4 z-50 text-white rounded-card shadow-lg flat-look">
+    <nav className="hidden md:flex fixed left-6 top-6 bottom-6 w-[220px] bg-brand-sidebar flex-col py-8 px-4 z-50 text-white rounded-card shadow-lg flat-look">
       {/* Brand Header */}
       <div className="mb-8 px-4 flex items-center justify-start border-b border-white/10 pb-5">
         <span className="text-[28px] font-black tracking-tight text-white leading-none">

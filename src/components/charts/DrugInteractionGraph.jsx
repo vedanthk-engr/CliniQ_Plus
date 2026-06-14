@@ -10,7 +10,7 @@ const DrugInteractionGraph = ({ patient }) => {
     if (!patient) return;
     
     // Fetch all drug interactions from the backend
-    fetch(`http://localhost:8000/api/patient/${patient.id}/interactions`)
+    fetch(`https://cliniq-copilot-dev.loca.lt/api/patient/${patient.id}/interactions`)
       .then(res => res.json())
       .then(data => {
         setInteractions(data);

@@ -38,7 +38,7 @@ const ComorbidityWeb = () => {
     
     try {
       webSSE.setData('');
-      await webSSE.startStream('http://localhost:8000/api/comorbidity/web', { patient_id: patientId });
+      await webSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/comorbidity/web', { patient_id: patientId });
     } catch (err) {
       console.error("Failed to load comorbidity web:", err);
     }
@@ -132,7 +132,7 @@ const ComorbidityWeb = () => {
         setActiveNode(d);
         nodeSSE.setData('');
         try {
-          await nodeSSE.startStream('http://localhost:8000/api/query', {
+          await nodeSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/query', {
             patient_id: currentPatient.id,
             query: `Describe the role of condition \"${d.condition}\" (ICD: ${d.icd_code}) for this patient. Give a 3-sentence clinical breakdown explaining its severity (${d.severity}) and potential complications.`
           });
@@ -208,7 +208,7 @@ const ComorbidityWeb = () => {
     try {
       opinionSSE.setData('');
       opinionSSE.setLoading(true);
-      await opinionSSE.startStream('http://localhost:8000/api/second-opinion', {
+      await opinionSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/second-opinion', {
         patient_id: currentPatient.id,
         hypothesis: hypothesis
       });
@@ -248,11 +248,11 @@ const ComorbidityWeb = () => {
     <div className="flex flex-col min-h-screen bg-transparent text-on-surface">
       <TopHeader />
       
-      <main className="px-8 pb-8 flex-grow flex gap-6 w-full max-w-[1500px] mx-auto relative">
+      <main className="px-4 md:px-8 pb-8 flex-grow flex flex-col lg:flex-row gap-6 w-full max-w-[1500px] mx-auto relative">
         {/* Left Column (60% width comorbidity force graph) */}
-        <div className="flex-[6] flex flex-col min-w-0">
+        <div className="flex-grow lg:flex-[6] flex flex-col min-w-0">
           <div className="mb-6">
-            <h2 className="text-3xl font-extrabold text-brand-sidebar tracking-tight">Comorbidity network:</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-sidebar tracking-tight">Comorbidity network:</h2>
             <p className="text-sm text-gray-500 font-medium mt-1">Interactive graph of interconnected chronic conditions and risk factors.</p>
           </div>
 
@@ -264,7 +264,7 @@ const ComorbidityWeb = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-gray-200/80 rounded-2xl flex-1 relative overflow-hidden flex flex-col p-4 min-h-[480px]">
+            <div className="bg-white border border-gray-200/80 rounded-2xl flex-1 relative overflow-hidden flex flex-col p-4 min-h-[350px] lg:min-h-[480px]">
               {/* Toolbox labels */}
               <div className="absolute top-4 left-4 z-10 flex gap-2">
                 <span className="bg-gray-100 px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-700 flex items-center gap-1.5 border border-gray-200">
@@ -287,8 +287,8 @@ const ComorbidityWeb = () => {
         </div>
 
         {/* Center Column: Details Cards (40% width) */}
-        <div className="flex-[4] flex flex-col gap-6 min-w-[340px] max-w-[480px]">
-          <div className="h-10 shrink-0"></div>
+        <div className="flex-grow lg:flex-[4] flex flex-col gap-6 w-full lg:max-w-[480px]">
+          <div className="hidden lg:block h-10 shrink-0"></div>
 
           {/* Condition Details Card (Yellow) */}
           <div className="bg-[#F5C842] rounded-2xl p-6 relative overflow-hidden flex-1 flex flex-col shadow-sm min-h-[220px]">

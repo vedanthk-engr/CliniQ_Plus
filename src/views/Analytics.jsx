@@ -70,9 +70,9 @@ const Analytics = ({ patients = [] }) => {
         <div className="flex-1 flex flex-col gap-6">
           
           {/* Page Header & Benchmarking Toggle */}
-          <div className="flex justify-between items-center flex-wrap gap-4 px-8 mb-2">
+          <div className="flex justify-between items-center flex-wrap gap-4 px-4 md:px-8 mb-2">
             <div>
-              <h1 className="text-3xl font-extrabold text-brand-sidebar tracking-tight">Clinical analytics:</h1>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-brand-sidebar tracking-tight">Clinical analytics:</h1>
               <p className="text-sm text-gray-500 font-medium mt-1">Detailed biometric tracking and correlative analysis across your active patient cohort.</p>
             </div>
 
@@ -95,13 +95,13 @@ const Analytics = ({ patients = [] }) => {
 
           {/* Cohort active info banner */}
           {cohortMode && (
-            <div className="mx-8 p-4 bg-brand-pink/10 border border-brand-pink/35 rounded-xl text-xs font-bold text-[#39071f] leading-normal animate-fade-in-up">
+            <div className="mx-4 md:mx-8 p-4 bg-brand-pink/10 border border-brand-pink/35 rounded-xl text-xs font-bold text-[#39071f] leading-normal animate-fade-in-up">
               Cohort Mode Active: Reference values show the 50th percentile (Median) and 90th percentile benchmarking lines based on matching Age, Gender, and BMI patient groups.
             </div>
           )}
 
           {/* Dynamic Patient Cards */}
-          <div className="flex flex-col gap-6 px-8">
+          <div className="flex flex-col gap-6 px-4 md:px-8">
             {patients.map((p, idx) => (
               <div key={p.id} className="flex flex-col">
                 <PatientAnalyticsCard patient={p} index={idx} />
@@ -139,7 +139,7 @@ const Analytics = ({ patients = [] }) => {
           </div>
 
           {/* Heatmap & Anomaly score timeline side-by-side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-8 mt-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 md:px-8 mt-2">
             
             {/* 1. Biometric Interaction Heatmap (Olive Card) */}
             <div className="bg-brand-green rounded-[32px] p-6 relative overflow-hidden flex flex-col h-[400px] shadow-sm">

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
+import BottomNav from './components/BottomNav';
 import Overview from './views/Overview';
 import PatientIntel from './views/PatientIntel';
 import PillGuard from './views/PillGuard';
@@ -52,7 +53,7 @@ function AppContent() {
 
   const handleDeletePatient = async (id) => {
     try {
-      await fetch(`http://localhost:8000/api/patient/${id}`, { method: 'DELETE' });
+      await fetch(`https://cliniq-copilot-dev.loca.lt/api/patient/${id}`, { method: 'DELETE' });
       await refreshPatients();
       navigate('/registry');
     } catch (err) {
@@ -129,7 +130,7 @@ function AppContent() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar />
 
-        <main className="pl-[268px]" style={{ flex: 1, position: 'relative', overflowY: 'auto', height: '100vh', background: 'transparent' }}>
+        <main className="pl-0 md:pl-[268px] pb-16 md:pb-0" style={{ flex: 1, position: 'relative', overflowY: 'auto', height: '100vh', background: 'transparent' }}>
           <Routes>
             <Route path="/" element={<Overview setCurrentView={setCurrentView} setCurrentPatient={setCurrentPatient} patients={patients} />} />
             <Route path="/intake" element={<Intake patient={currentPatient} patients={patients} setCurrentPatient={setCurrentPatient} refreshPatients={refreshPatients} setCurrentView={setCurrentView} />} />
@@ -143,6 +144,8 @@ function AppContent() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
+        
+        <BottomNav />
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ const RightPillPanel = () => {
 
   useEffect(() => {
     // We will fetch patients, then extract all their recent clinical patterns
-    fetch('http://localhost:8000/api/patients')
+    fetch('https://cliniq-copilot-dev.loca.lt/api/patients')
       .then(r => r.json())
       .then(patients => {
         let allPatterns = [];

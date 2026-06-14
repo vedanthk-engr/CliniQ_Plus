@@ -45,7 +45,7 @@ const Forecast = () => {
     setSimulatedData(null);
     try {
       baseSSE.setData('');
-      await baseSSE.startStream('http://localhost:8000/api/forecast/trajectory', { patient_id: patientId });
+      await baseSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/forecast/trajectory', { patient_id: patientId });
     } catch (err) {
       console.error("Failed to stream forecast:", err);
     }
@@ -92,7 +92,7 @@ const Forecast = () => {
     const runSimulation = async () => {
       try {
         simSSE.setData('');
-        await simSSE.startStream('http://localhost:8000/api/forecast/simulate', {
+        await simSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/forecast/simulate', {
           patient_id: currentPatient.id,
           interventions: activeList
         });
@@ -250,15 +250,15 @@ const Forecast = () => {
     <div className="flex flex-col min-h-screen bg-transparent text-on-surface">
       <TopHeader />
       
-      <main className="px-8 pb-8 flex-grow flex flex-col gap-8 w-full max-w-[1600px] mx-auto relative font-sans">
+      <main className="px-4 md:px-8 pb-8 flex-grow flex flex-col gap-8 w-full max-w-[1600px] mx-auto relative font-sans">
         
         {/* Header & Patient Selector */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-fade-in-up">
           <div>
-            <h1 className="text-[32px] font-semibold text-on-surface tracking-tight leading-[40px]">
+            <h1 className="text-2xl md:text-[32px] font-semibold text-on-surface tracking-tight leading-tight md:leading-[40px]">
               Predictive forecast:
             </h1>
-            <p className="text-base text-[#444748] mt-1 font-normal leading-[24px]">
+            <p className="text-sm md:text-base text-[#444748] mt-1 font-normal leading-relaxed md:leading-[24px]">
               Multi-cohort projection and risk analysis based on current patient data.
             </p>
           </div>

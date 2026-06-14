@@ -39,7 +39,7 @@ db = load_db()
 
 app = FastAPI(title='ClinIQ Backend')
 app.add_middleware(CORSMiddleware,
-    allow_origins=['http://localhost:5173'],  # Vite dev server
+    allow_origins=['*'],
     allow_methods=['*'], allow_headers=['*'])
 
 from routers import forecast, comorbidity, alerts, pillguard, patients, export, voice

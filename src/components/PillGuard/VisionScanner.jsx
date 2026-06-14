@@ -34,7 +34,7 @@ const VisionScanner = ({ patient, onScanResult }) => {
     formData.append("back_image", backImage);
 
     try {
-      const response = await fetch('http://localhost:8000/api/analyze-pill', {
+      const response = await fetch('https://cliniq-copilot-dev.loca.lt/api/analyze-pill', {
         method: 'POST',
         body: formData,
       });

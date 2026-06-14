@@ -17,6 +17,7 @@ import VoiceWaveform from '../components/voice/VoiceWaveform';
 const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentView, startInRegistry, onDeletePatient }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
+  const [activeTab, setActiveTab] = useState('triage');
 
   // Voice & Patient Mode states
   const [patientLang, setPatientLang] = useState('hi-IN');
@@ -97,7 +98,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         formData.append("patient_id", patient.id);
 
         try {
-          const res = await fetch("http://localhost:8000/api/voice/patient-symptom", {
+          const res = await fetch("https://cliniq-copilot-dev.loca.lt/api/voice/patient-symptom", {
             method: "POST",
             body: formData
           });
@@ -156,7 +157,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
       // Get English translation of the spoken text if not English
       if (patientLang !== 'en-US') {
-        const res = await fetch("http://localhost:8000/api/voice/translate", {
+        const res = await fetch("https://cliniq-copilot-dev.loca.lt/api/voice/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -267,19 +268,19 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     return (
       <div className="flex flex-col min-h-screen bg-transparent">
         <TopHeader />
-        <div className="fadeIn px-8 pb-8 max-w-[1400px] mx-auto w-full">
+        <div className="fadeIn px-4 md:px-8 pb-8 max-w-[1400px] mx-auto w-full">
           {/* Page Header */}
-          <div className="mb-10 animate-fade-in-up">
-            <div className="flex items-center space-x-4 mb-3">
-              <h2 className="font-sans text-[36px] text-brand-sidebar font-extrabold tracking-tight">
+          <div className="mb-8 md:mb-10 animate-fade-in-up">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3">
+              <h2 className="font-sans text-2xl md:text-[36px] text-brand-sidebar font-extrabold tracking-tight">
                 Patient Intelligence Registry
               </h2>
-              <div className="flex items-center space-x-2 bg-[#E8EDC8] text-[#5A631D] px-4 py-1.5 rounded-full border border-[#CFD96C]/30 shadow-sm">
+              <div className="flex items-center space-x-2 bg-[#E8EDC8] text-[#5A631D] px-4 py-1.5 rounded-full border border-[#CFD96C]/30 shadow-sm w-fit shrink-0">
                 <span className="w-2 h-2 bg-brand-green rounded-full"></span>
                 <span className="text-[11px] uppercase tracking-wider font-extrabold">System Status: Optimal</span>
               </div>
             </div>
-            <p className="text-lg text-gray-500 max-w-3xl">
+            <p className="text-sm md:text-lg text-gray-500 max-w-3xl">
               Select a patient file to initialize their comprehensive somatic and biometric insight dashboard.
             </p>
           </div>
@@ -575,35 +576,35 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     <div className="flex flex-col min-h-screen bg-transparent">
       <TopHeader />
 
-      <div className="fadeIn px-8 pb-8 flex-1 flex flex-col">
+      <div className="fadeIn px-4 md:px-8 pb-8 flex-1 flex flex-col">
         
         {/* Back navigation & Page Title Header */}
-        <div className="flex justify-between items-center mb-2 animate-fade-in-up">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-2 animate-fade-in-up">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => {
                 setViewMode('list');
                 setCurrentView('patient-registry');
               }}
-              className="bg-white border border-gray-200 w-10 h-10 rounded-full flex items-center justify-center text-brand-sidebar hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+              className="bg-white border border-gray-200 w-10 h-10 rounded-full flex items-center justify-center text-brand-sidebar hover:bg-gray-50 transition-colors shadow-sm cursor-pointer shrink-0"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
             </button>
-            <h2 className="text-[28px] font-extrabold text-brand-sidebar tracking-tight leading-none">
+            <h2 className="text-2xl md:text-[28px] font-extrabold text-brand-sidebar tracking-tight leading-none break-words">
               {patient.name}
             </h2>
-            <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 border ${riskBadgeClass} shadow-sm font-bold text-xs tracking-wide`}>
-              <span className="material-symbols-outlined text-[16px]">
+            <div className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 border ${riskBadgeClass} shadow-sm font-bold text-[11px] tracking-wide shrink-0`}>
+              <span className="material-symbols-outlined text-[14px]">
                 {isCritical ? 'warning' : 'check_circle'}
               </span>
               <span>Precision Risk: {patient.riskScore}</span>
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             <button 
               onClick={() => setPatientMode(true)}
-              className="px-4 py-2 bg-brand-sidebar hover:bg-brand-sidebar/90 text-white rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm mr-2"
+              className="px-4 py-2 bg-brand-sidebar hover:bg-brand-sidebar/90 text-white rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm"
             >
               <span className="material-symbols-outlined text-[16px]">account_box</span>
               <span>Patient Mode</span>
@@ -618,18 +619,18 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         </div>
 
         {/* Demographics Bar */}
-        <div className="flex items-center gap-4 text-gray-500 font-semibold mb-6 pl-14 animate-fade-in-up">
-          <span className="flex items-center gap-1.5 text-sm">
+        <div className="flex flex-wrap items-center gap-3 text-gray-500 font-semibold mb-6 pl-0 md:pl-14 animate-fade-in-up">
+          <span className="flex items-center gap-1.5 text-xs md:text-sm">
             <span className="material-symbols-outlined text-[18px] text-gray-400">cake</span>
             {patient.age} Years
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-          <span className="flex items-center gap-1.5 text-sm">
+          <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+          <span className="flex items-center gap-1.5 text-xs md:text-sm">
             <span className="material-symbols-outlined text-[18px] text-gray-400">badge</span>
             ID: {patient.id}
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-          <span className="flex items-center gap-1.5 text-sm">
+          <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+          <span className="flex items-center gap-1.5 text-xs md:text-sm">
             <span className="material-symbols-outlined text-[18px] text-gray-400">
               {patient.sex?.toLowerCase() === 'female' ? 'female' : 'male'}
             </span>
@@ -650,7 +651,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             <div className="flex flex-col gap-3">
               {patientInteractions.map((report, idx) => (
                 <div key={idx} className="bg-white border border-gray-150 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex-1">
+                  <div className="flex-grow min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-black text-gray-500 uppercase tracking-wider font-mono">Symptom Log</span>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
@@ -680,8 +681,31 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           </div>
         )}
 
-        {/* Layout Grid (Expanded - Full Width) */}
-        <div className="flex flex-col gap-6 flex-1 w-full max-w-[1600px] mx-auto">
+        {/* Mobile Tab Navigation */}
+        <div className="lg:hidden flex overflow-x-auto gap-2 p-1.5 bg-[#EAF0AD]/40 border border-[#CFD96C]/20 rounded-[20px] mb-6 backdrop-blur-md hide-scrollbar">
+          {[
+            { id: 'triage', label: 'Triage Map', icon: 'health_and_safety' },
+            { id: 'vitals', label: 'Vitals & Risks', icon: 'monitoring' },
+            { id: 'meds', label: 'Meds & Scribe', icon: 'medication' },
+            { id: 'forecast', label: 'Forecast & Sim', icon: 'insights' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-[14px] text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-305 ${
+                activeTab === tab.id
+                  ? 'bg-brand-sidebar text-white shadow-md scale-[1.02]'
+                  : 'text-brand-sidebar/70 hover:bg-white/40'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Desktop Layout - visible only on large screens */}
+        <div className="hidden lg:flex flex-col gap-6 flex-grow w-full max-w-[1600px] mx-auto">
           
           {/* AI Pre-consultation (Yellow Card - Full Width) */}
           <div className="bg-brand-yellow rounded-card p-6 relative overflow-hidden flat-look animate-fade-in-up">
@@ -862,6 +886,150 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Layout - visible only on mobile screens */}
+        <div className="lg:hidden flex flex-col gap-6 flex-1 w-full max-w-[1600px] mx-auto">
+          {activeTab === 'triage' && (
+            <div className="flex flex-col gap-6 animate-fade-in-up">
+              {/* AI Pre-consultation (Yellow Card) */}
+              <div className="bg-brand-yellow rounded-card p-6 relative overflow-hidden flat-look">
+                <div className="blob-bg blob-yellow"></div>
+                <div className="card-content">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-extrabold text-base text-brand-sidebar flex items-center gap-2 font-sans">
+                      <span className="material-symbols-outlined fill-icon text-lg">smart_toy</span>
+                      AI Pre-consultation
+                    </h3>
+                  </div>
+                  <p className="text-sm font-semibold text-brand-sidebar/85 leading-relaxed font-sans">
+                    {patient.consultBrief ? (
+                      `Patient reports increased fatigue and symptoms: ${patient.consultBrief}. Historical data suggests correlation with recent medication adherence gap. Recommend immediate review of current dosage and a localized somatic assessment to evaluate kidney/cardiac metrics.`
+                    ) : (
+                      'Patient records show normal parameters. Clinical metrics remain within acceptable bounds. Recommend standard routine check-ups.'
+                    )}
+                  </p>
+                </div>
+              </div>
+              {/* Somatic Map */}
+              <BodyMapContext patient={patient} />
+              {/* Alert Feed */}
+              <ClinicalPatternFeed patient={patient} />
+            </div>
+          )}
+
+          {activeTab === 'vitals' && (
+            <div className="flex flex-col gap-6 animate-fade-in-up">
+              {/* Biometrics Card */}
+              <LabTrendChart patient={patient} />
+
+              {/* Risk Assessment Card (Gauges) */}
+              <div className="bg-[#FFD646] rounded-[32px] p-6 flex flex-col relative overflow-hidden border border-[#FFD646]/30 text-black">
+                <div className="card-content flex flex-col w-full">
+                  <h3 className="font-headline-card text-[20px] font-bold text-black mb-4 tracking-tight flex items-center gap-2 font-sans">
+                    <span className="material-symbols-outlined text-[22px]">shield</span>
+                    Risk Assessment
+                  </h3>
+                  <div className="flex gap-4 items-center justify-around mt-2">
+                    {/* Gauge 1: Stroke Risk */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="relative w-20 h-20">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="4" />
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ba1a1a" strokeWidth="4"
+                            strokeDasharray={`${(patient.riskScore >= 70 ? 65 : 35)}, 100`}
+                            strokeLinecap="round" />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center font-black text-lg text-black">
+                          {patient.riskScore >= 70 ? '65' : '35'}%
+                        </div>
+                      </div>
+                      <span className="text-xs font-bold text-black/85 font-sans">Stroke Risk</span>
+                    </div>
+
+                    {/* Gauge 2: Renal Failure */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="relative w-20 h-20">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="4" />
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1b1c1a" strokeWidth="4"
+                            strokeDasharray={`${(patient.riskScore >= 70 ? 32 : 12)}, 100`}
+                            strokeLinecap="round" />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center font-black text-lg text-black">
+                          {patient.riskScore >= 70 ? '32' : '12'}%
+                        </div>
+                      </div>
+                      <span className="text-xs font-bold text-black/85 font-sans">Renal Failure</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dr. Insights Card */}
+              <div className="bg-white rounded-[32px] p-6 flex flex-col relative overflow-hidden border border-gray-150 shadow-sm h-[250px]">
+                <div className="card-content flex flex-col h-full">
+                  <h3 className="font-headline-card text-[20px] font-extrabold text-on-surface mb-3 tracking-tight flex items-center gap-2 font-sans">
+                    <span className="material-symbols-outlined text-[22px] text-brand-blue">lightbulb</span>
+                    Dr. Insights
+                  </h3>
+                  <ul className="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar">
+                    {patient.riskScore >= 70 ? (
+                      <>
+                        <li className="flex items-start gap-2 text-xs font-semibold text-on-surface/80 font-sans">
+                          <span className="material-symbols-outlined text-brand-blue text-[16px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Schedule echocardiogram to evaluate recent shortness of breath.</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs font-semibold text-on-surface/80 font-sans">
+                          <span className="material-symbols-outlined text-brand-yellow text-[16px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Discuss strategies for improving medication adherence immediately.</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs font-semibold text-on-surface/80 font-sans">
+                          <span className="material-symbols-outlined text-brand-pink text-[16px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Monitor renal markers (e.g. Creatinine) closely on next clinic visit.</span>
+                        </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="flex items-start gap-2 text-xs font-semibold text-on-surface/80 font-sans">
+                          <span className="material-symbols-outlined text-brand-blue text-[16px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Continue current treatment plan; patient is responding well.</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs font-semibold text-on-surface/80 font-sans">
+                          <span className="material-symbols-outlined text-brand-yellow text-[16px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Schedule routine clinical follow-up in 3 months.</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs font-semibold text-on-surface/80 font-sans">
+                          <span className="material-symbols-outlined text-brand-pink text-[16px] mt-0.5 shrink-0">check_circle</span>
+                          <span>Recommend standard lifestyle and dietary adjustments.</span>
+                        </li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'meds' && (
+            <div className="flex flex-col gap-6 animate-fade-in-up">
+              {/* Current Regimen */}
+              <MedicationsPanel patient={patient} />
+              {/* Scribe */}
+              <ConsultationRecorder patientId={patient.id} />
+              {/* Query Co-Pilot */}
+              <NaturalLanguageQuery patient={patient} />
+              {/* AI Opinion */}
+              <SecondOpinionPanel patient={patient} />
+            </div>
+          )}
+
+          {activeTab === 'forecast' && (
+            <div className="flex flex-col gap-6 animate-fade-in-up">
+              {/* Trajectory Forecast & Intervention Simulator */}
+              <TrajectoryPreview patient={patient} />
+            </div>
+          )}
         </div>
       </div>
     </div>

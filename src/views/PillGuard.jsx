@@ -37,7 +37,7 @@ const PillGuard = ({ patient }) => {
     setMissedCellInfo({ drugName });
     missedSSE.setData('');
     try {
-      await missedSSE.startStream('http://localhost:8000/api/pillguard/missed-dose-impact', {
+      await missedSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/pillguard/missed-dose-impact', {
         patient_id: patient.id,
         drug_name: drugName
       });
@@ -53,14 +53,14 @@ const PillGuard = ({ patient }) => {
       <div className="flex-grow flex flex-col xl:flex-row gap-6 w-full max-w-[1600px] mx-auto pb-8 relative font-sans">
         
         {/* Left & Center Content (Bento Grid) */}
-        <div className="flex-grow flex flex-col gap-8 px-8 min-w-0">
+        <div className="flex-grow flex flex-col gap-8 px-4 md:px-8 min-w-0">
           
           {/* Header */}
           <div>
-            <h2 className="font-headline-lg text-[32px] font-semibold text-on-surface mb-2 tracking-tight leading-[40px]">
+            <h2 className="font-headline-lg text-2xl md:text-[32px] font-semibold text-on-surface mb-2 tracking-tight leading-tight md:leading-[40px]">
               PillGuard Analysis
             </h2>
-            <p className="font-body-md text-base text-[#444748] max-w-3xl leading-[24px]">
+            <p className="font-body-md text-sm md:text-base text-[#444748] max-w-3xl leading-relaxed md:leading-[24px]">
               Intelligent medication verification and adherence tracking for Dr. Yuthika's current patient load. Real-time scanning ensures accurate dosage and prevents interaction risks.
             </p>
           </div>
@@ -139,8 +139,10 @@ const PillGuard = ({ patient }) => {
 
         </div>
 
-        {/* Right Sidebar Panel (Prescription Reference Sidebar - replaced Calendar) */}
-        <PrescriptionReference patient={patient} />
+        {/* Right Sidebar Panel (Prescription Reference Sidebar) */}
+        <div className="px-4 md:px-8 xl:px-0 xl:pr-8 shrink-0">
+          <PrescriptionReference patient={patient} />
+        </div>
 
       </div>
 

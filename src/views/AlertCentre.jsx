@@ -76,12 +76,12 @@ const AlertCentre = ({ patients = [] }) => {
       <div className="flex-grow flex flex-col xl:flex-row gap-6 w-full max-w-[1400px] mx-auto pb-8 relative">
         
         {/* Left Column (Alerts List) */}
-        <div className="flex-grow flex flex-col gap-6 px-8 min-w-0">
+        <div className="flex-grow flex flex-col gap-6 px-4 md:px-8 min-w-0">
           
           {/* Header & Filter Controls */}
           <div className="flex justify-between items-center flex-wrap gap-4 mb-2 animate-fade-in-up">
             <div>
-              <h2 className="text-[32px] font-extrabold text-brand-sidebar tracking-tight leading-none mb-2">Alert Centre</h2>
+              <h2 className="text-2xl md:text-[32px] font-extrabold text-brand-sidebar tracking-tight leading-none mb-2">Alert Centre</h2>
               <p className="text-sm text-gray-500 font-medium">Review urgent clinical notifications, anomalies, and AI pre-consultation reasoning.</p>
             </div>
 

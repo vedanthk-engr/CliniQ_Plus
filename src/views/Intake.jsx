@@ -19,7 +19,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
     setExtraction(null);
 
     try {
-      const response = await fetch('http://localhost:8000/api/intake/extract', {
+      const response = await fetch('https://cliniq-copilot-dev.loca.lt/api/intake/extract', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,7 +51,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
     setLoading(true);
     try {
       const payload = { ...finalData, patient_id: patient?.id };
-      const response = await fetch('http://localhost:8000/api/intake/save', {
+      const response = await fetch('https://cliniq-copilot-dev.loca.lt/api/intake/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -88,7 +88,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
     <div className="flex flex-col min-h-screen bg-transparent">
       <TopHeader />
 
-      <div className="fadeIn px-8 pb-8 flex-grow flex flex-col max-w-[1400px] mx-auto w-full">
+      <div className="fadeIn px-4 md:px-8 pb-8 flex-grow flex flex-col max-w-[1400px] mx-auto w-full">
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-[16px] text-red-600 text-sm mb-6 flex justify-between items-center shadow-sm animate-fade-in-up">
             <span className="font-bold">Error: {error}</span>
@@ -105,8 +105,8 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
           <div className="flex-grow flex flex-col">
             {/* Page Header */}
             <div className="mb-8 animate-fade-in-up">
-              <h2 className="text-[32px] text-brand-sidebar font-extrabold tracking-tight mb-2">AI Intake Engine</h2>
-              <p className="text-gray-500 max-w-3xl text-base">
+              <h2 className="text-2xl md:text-[32px] text-brand-sidebar font-extrabold tracking-tight mb-2">AI Intake Engine</h2>
+              <p className="text-gray-505 max-w-3xl text-sm md:text-base">
                 Upload unstructured clinical notes, lab results, or imaging reports. Our AI will automatically parse, structure, and route the data.
               </p>
             </div>
@@ -162,7 +162,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
                   {/* Document Type Override */}
                   <div className="bg-[#efeeea] border border-[#c4c7c7] rounded-[24px] p-6 relative overflow-hidden flex flex-col justify-center min-h-[120px] shadow-sm">
                     <div className="relative z-10">
-                      <label className="text-[10px] text-gray-650 font-extrabold mb-2.5 block uppercase tracking-wider">Document Type Override</label>
+                      <label className="text-[10px] text-gray-655 font-extrabold mb-2.5 block uppercase tracking-wider">Document Type Override</label>
                       <div className="relative">
                         <select
                           value={documentType}
@@ -249,10 +249,10 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
             {/* Header when file is active */}
             <div className="mb-4 flex justify-between items-center shrink-0">
               <div>
-                <h1 className="text-2xl font-extrabold text-brand-sidebar tracking-tight">
+                <h1 className="text-xl md:text-2xl font-extrabold text-brand-sidebar tracking-tight">
                   Multimodal AI Intake Review
                 </h1>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-505 mt-0.5">
                   Target: {patient ? `${patient.name} (${patient.id})` : 'New Patient Profile'}
                 </p>
               </div>
@@ -265,11 +265,11 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
             </div>
 
             {loading && fileData && (
-              <div className="flex-grow flex gap-6" style={{ height: 'calc(100vh - 200px)' }}>
-                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-4 flex overflow-hidden">
+              <div className="flex-grow flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-200px)]">
+                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-4 flex min-h-[300px] lg:min-h-0 overflow-hidden">
                   <PdfViewer fileData={fileData} />
                 </div>
-                <div className="flex-1 flex items-center justify-center bg-white border border-gray-200 rounded-[24px] p-6 shadow-sm">
+                <div className="flex-1 flex items-center justify-center bg-white border border-gray-200 rounded-[24px] p-6 shadow-sm min-h-[200px] lg:min-h-0">
                   <div className="text-center">
                     <div className="w-12 h-12 rounded-full border-4 border-brand-pink border-t-transparent animate-spin mb-4 mx-auto"></div>
                     <div className="text-brand-pink font-extrabold tracking-wider text-sm">AI ANALYZING DOCUMENT...</div>
@@ -279,13 +279,13 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
             )}
 
             {extraction && (
-              <div className="flex gap-6 min-h-0 flex-grow" style={{ height: 'calc(100vh - 200px)' }}>
+              <div className="flex flex-col lg:flex-row gap-6 min-h-0 flex-grow lg:h-[calc(100vh-200px)] pb-16 lg:pb-0">
                 {/* Left: PDF Viewer */}
-                <div className="flex-[1.2] bg-white border border-gray-200 rounded-[24px] p-4 flex min-h-0 overflow-hidden">
+                <div className="flex-[1.2] bg-white border border-gray-200 rounded-[24px] p-4 flex min-h-[300px] lg:min-h-0 overflow-hidden">
                   <PdfViewer fileData={fileData} />
                 </div>
                 {/* Right: Extraction results - scrolls internally */}
-                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-6 min-h-0 overflow-y-auto shadow-sm">
+                <div className="flex-1 bg-white border border-gray-200 rounded-[24px] p-6 min-h-[400px] lg:min-h-0 overflow-y-auto shadow-sm">
                   <ExtractionResults
                     data={extraction}
                     onApprove={handleApprove}

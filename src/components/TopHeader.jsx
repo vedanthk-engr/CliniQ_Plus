@@ -30,22 +30,25 @@ const TopHeader = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <header className="flex justify-between items-center px-8 py-4 shrink-0 z-40 relative border-b border-gray-200/50 mb-6">
+    <header 
+      className="flex justify-between items-center px-4 md:px-8 py-3 md:py-4 shrink-0 z-40 relative border-b border-gray-200/50 mb-4 md:mb-6"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+    >
       {/* Left side: Page Title */}
       <div className="flex flex-col">
-        <h1 className="text-xl font-extrabold text-brand-sidebar tracking-tight font-sans">
+        <h1 className="text-lg md:text-xl font-extrabold text-brand-sidebar tracking-tight font-sans">
           {title}
         </h1>
-        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+        <div className="flex items-center gap-1.5 mt-1 text-[10px] md:text-[11px] font-bold text-gray-500 uppercase tracking-wider">
           System Status: 
-          <span className="bg-brand-green/10 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-brand-green/20">
+          <span className="bg-brand-green/10 text-green-700 px-2 py-0.5 rounded-full text-[9px] font-bold border border-brand-green/20">
             ● Optimal
           </span>
         </div>
       </div>
 
       {/* Center: Search input */}
-      <div className="flex-1 flex justify-center max-w-xl mx-8">
+      <div className="flex-1 hidden md:flex justify-center max-w-xl mx-8">
         <div className="relative bg-white rounded-full flex items-center px-4 py-2.5 w-full border border-gray-200 shadow-sm hover:border-gray-300 transition-colors">
           <span className="material-symbols-outlined text-brand-pink text-xl mr-2">search</span>
           <input 

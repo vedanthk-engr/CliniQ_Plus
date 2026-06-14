@@ -30,7 +30,7 @@ const BodyMapContext = ({ patient }) => {
     organSSE.setLoading(true);
 
     try {
-      await organSSE.startStream(`http://localhost:8000/api/patient/${patient.id}/organ-assessment`, {
+      await organSSE.startStream(`https://cliniq-copilot-dev.loca.lt/api/patient/${patient.id}/organ-assessment`, {
         organ: organ.id
       });
     } catch (err) {
