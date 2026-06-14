@@ -1,6 +1,6 @@
 // src/api.js
 
-const BASE = 'https://cliniq-copilot-dev.loca.lt/api';
+const BASE = 'https://rotten-newt-48.loca.lt/api';
 
 // Fallback helper to log the error and indicate we're using mock data
 const logOffline = (endpoint, err) => {

@@ -38,7 +38,7 @@ const ComorbidityWeb = () => {
     
     try {
       webSSE.setData('');
-      await webSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/comorbidity/web', { patient_id: patientId });
+      await webSSE.startStream('https://rotten-newt-48.loca.lt/api/comorbidity/web', { patient_id: patientId });
     } catch (err) {
       console.error("Failed to load comorbidity web:", err);
     }
@@ -132,7 +132,7 @@ const ComorbidityWeb = () => {
         setActiveNode(d);
         nodeSSE.setData('');
         try {
-          await nodeSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/query', {
+          await nodeSSE.startStream('https://rotten-newt-48.loca.lt/api/query', {
             patient_id: currentPatient.id,
             query: `Describe the role of condition \"${d.condition}\" (ICD: ${d.icd_code}) for this patient. Give a 3-sentence clinical breakdown explaining its severity (${d.severity}) and potential complications.`
           });
@@ -208,7 +208,7 @@ const ComorbidityWeb = () => {
     try {
       opinionSSE.setData('');
       opinionSSE.setLoading(true);
-      await opinionSSE.startStream('https://cliniq-copilot-dev.loca.lt/api/second-opinion', {
+      await opinionSSE.startStream('https://rotten-newt-48.loca.lt/api/second-opinion', {
         patient_id: currentPatient.id,
         hypothesis: hypothesis
       });

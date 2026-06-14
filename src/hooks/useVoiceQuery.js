@@ -95,7 +95,7 @@ export default function useVoiceQuery(
 
                     const response =
                         await fetch(
-                            "http://localhost:8000/api/voice/query",
+                            "https://rotten-newt-48.loca.lt/api/voice/query",
                             {
                                 method: "POST",
                                 headers: {

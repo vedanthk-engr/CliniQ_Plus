@@ -101,7 +101,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         formData.append("patient_id", patient.id);
 
         try {
-          const res = await fetch("https://cliniq-copilot-dev.loca.lt/api/voice/patient-symptom", {
+          const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/patient-symptom", {
             method: "POST",
             body: formData
           });
@@ -160,7 +160,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
       // Get English translation of the spoken text if not English
       if (patientLang !== 'en-US') {
-        const res = await fetch("https://cliniq-copilot-dev.loca.lt/api/voice/translate", {
+        const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
