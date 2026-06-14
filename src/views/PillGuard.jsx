@@ -61,7 +61,7 @@ const PillGuard = ({ patient }) => {
               PillGuard Analysis
             </h2>
             <p className="font-body-md text-sm md:text-base text-[#444748] max-w-3xl leading-relaxed md:leading-[24px]">
-              Intelligent medication verification and adherence tracking for Dr. Vedanth's current patient load. Real-time scanning ensures accurate dosage and prevents interaction risks.
+              Intelligent medication verification and adherence tracking for Dr. Keerthi's current patient load. Real-time scanning ensures accurate dosage and prevents interaction risks.
             </p>
           </div>
 
