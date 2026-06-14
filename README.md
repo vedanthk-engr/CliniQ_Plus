@@ -1,49 +1,118 @@
-# ClinIQ Agent Setup & Architecture
+# 🏥 ClinIQ+ Clinical Intelligence Platform
 
-## Setup Instructions
+[![Frontend Deployed](https://img.shields.io/badge/Frontend-Vercel-blueviolet?style=flat-square&logo=vercel)](https://vercel.com)
+[![Backend Deployed](https://img.shields.io/badge/Backend-Render-brightgreen?style=flat-square&logo=render)](https://render.com)
+[![Vite](https://img.shields.io/badge/Vite-7.3-yellow?style=flat-square&logo=vite)](https://vitejs.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python-blue?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-red?style=flat-square&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
 
-### Backend (FastAPI + Python Agents)
-1. **Environment Variables**: Create a `.env` file in the `cliniq-backend` directory and add your Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_key_here
-   ```
-2. **Install Dependencies**: Ensure you have Python 3.10+ installed.
+ClinIQ+ is an advanced, AI-powered physician co-pilot and clinical decision support system. It integrates intelligent medical document processing, PillGuard safety analysis, patient voice assistant in local Indian languages, clinical trial eligibility screening, and interactive comorbidity visualizations to empower doctors and improve patient adherence.
+
+---
+
+## 🚀 Key Features
+
+### 1. Multimodal AI Intake Engine
+Instantly parse unstructured clinical notes, discharge summaries, and lab reports (PDF/Images) into structured patient profiles. The intake agent automatically extracts and streams patient demographics, vital signs, primary diagnoses, and medication regimens.
+
+| Document Upload | Structured AI Review |
+| :---: | :---: |
+| ![Intake Upload](docs/screenshots/intake_upload.png) | ![Intake Review](docs/screenshots/intake_review.png) |
+
+---
+
+### 2. PillGuard Scanner & Adherence Tracker
+Verify patient medication, track compliance, and prevent adverse events using vision AI.
+* **Adherence Logs**: A 7-day morning/afternoon/evening schedule tracking compliance.
+* **Drug Interaction Graph**: Real-time visual graphing of active medications and identified contraindications.
+* **Missed Dose Impact**: SSE-streamed clinical risk profile calculations for missed medication.
+* **Mock Tylenol Scanner**: Dialog showcasing active ingredients, dosage rules, and drug side-effects.
+
+| PillGuard Dashboard | AI Ingredient & Adherence Analysis |
+| :---: | :---: |
+| ![PillGuard Dashboard](docs/screenshots/pillguard_dashboard.png) | ![PillGuard Popup](docs/screenshots/pillguard_popup.png) |
+
+---
+
+### 3. Patient Voice Assistant (Multilingual)
+A multilingual voice assistant built for patients to speak symptoms, check drug queries, or log missed doses in their local language. Supports 7 Indian languages: **Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, and Marathi**, with real-time audio playback reassurance.
+
+<p align="center">
+  <img src="docs/screenshots/patient_mode.png" alt="Patient Voice Assistant" width="85%">
+</p>
+
+---
+
+### 4. Advanced Clinical Features
+* **Clinical Trial Matcher**: Match patients automatically against database trials using Gemini AI to evaluate complex eligibility (inclusion/exclusion) parameters.
+* **Comorbidity Network Graph**: Dynamic interactive network web of patient health conditions, showing risk levels and condition links.
+* **Professional PDF Case Sheet Export**: Download beautifully formatted PDF clinical summary sheets directly from the patient profile page.
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+* **Core**: React 19, React Router, Vite, Zustand (State Management)
+* **Styling**: Vanilla CSS + TailwindCSS, Glassmorphism, Responsive Bento Grids
+* **Visualizations**: D3.js, Recharts, Three.js (3D Assets), GSAP (Micro-animations)
+* **Integration**: Capacitor (Android/Mobile builds ready)
+
+### Backend
+* **Core**: FastAPI (Python), SQLite (Patient & Config database)
+* **AI & LLM**: Google GenAI SDK (`gemini-2.5-flash`)
+* **Utilities**: SSE (Server-Sent Events) streaming, ReportLab (PDF generator), Matplotlib (clinical forecasting charts)
+
+---
+
+## ⚙️ Setup & Installation
+
+### Prerequisites
+* Node.js (v18+)
+* Python 3.10+
+* Gemini API Key
+
+### Backend Setup (FastAPI)
+1. Navigate to the backend folder:
    ```bash
    cd cliniq-backend
-   pip install fastapi uvicorn pydantic python-dotenv google-generativeai pillow
    ```
-3. **Run Backend Service**:
+2. Create a `.env` file and specify your Gemini key:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the development backend:
    ```bash
    python main.py
    ```
-   *Runs on http://localhost:8000*
+   *The API will run on http://localhost:8000*
 
-### Frontend (React + Vite)
-1. **Install Dependencies**: Ensure Node.js is installed.
+### Frontend Setup (React + Vite)
+1. Go to the project root and install Node modules:
    ```bash
    npm install
    ```
-2. **Run Dev Server**:
+2. Start the Vite development server:
    ```bash
    npm run dev
    ```
-   *Runs on http://localhost:5173*
-
-## Agent Architecture Overview
-The Agent system is built around Gemini Function Calling (using `gemini-2.5-flash`), with multiple simulated internal and external mock-hospital APIs to gather context, check safety, and make autonomous decisions.
-
-### Multi-Step Reasoning Example
-When a user asks: *"Check patient P-00142's HbA1c trends over the last 6 months and ensure their current medication has no adverse drug reactions."*
-
-- **Step 1 (Perception)**: Agent understands the intent, identifies the patient ID.
-- **Step 2 (Action - Tool Call)**: Calls `extract_lab_trends` for `HbA1c` and receives the upward (worsening) trend data.
-- **Step 3 (Action - Tool Call)**: Calls `get_patient_case_sheet` to fetch active medications.
-- **Step 4 (Action - Tool Call)**: Calls `check_drug_interactions` with the medication list to find pharmacological conflicts.
-- **Step 5 (Synthesis)**: Summarizes the findings gracefully and presents the results.
-
-### Edge Case Handling
-- **Missing Patient Records**: The `get_patient_case_sheet` function handles invalid IDs and returns a specific `{'error': 'Patient not found'}` JSON object, which Gemini parses to politely notify the user.
-- **Empty Labs Data**: If an expected lab trend (e.g., HbA1c) isn't present in the mock data, the tool returns `{'error': 'No HbA1c data for P-XXXX'}` and avoids throwing a fatal exception.
+   *The client will run on http://localhost:5173*
 
 ---
-*For the architecture diagram, check `architecture.md` (or the rendered Mermaid graph).*
+
+## 🤖 AI Agent Architecture
+ClinIQ+ uses specific specialized agents powered by Gemini function calling to run clinical tasks:
+1. **Intake Agent (`intake_agent.py`)**: Extract and structure patient clinical metrics from documents.
+2. **Pill Agent (`pill_agent.py`, `pill_analyzer_agent.py`)**: Analyze pill images, identify chemicals, and calculate drug-drug interactions.
+3. **Voice Query Agent (`voice_query_agent.py`)**: Parse multilingual voice inputs, categorize medical complaints, and return localized audio reassurance.
+4. **Trial Matcher Agent (`trial_matcher_agent.py`)**: Compare structured patient case records against clinical trial protocols.
+
+---
+
+## 👥 Authors & Teammates
+* **Dr. Vedanth** - Lead Clinical AI Developer & System Architect
+* **Keerthivasa** - Senior Backend Engineer
