@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Request
 import json
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -159,8 +159,9 @@ def intake_extract(req: IntakeRequest):
     return result
 
 @app.post('/api/intake/save')
-def intake_save(data: dict):
-    print(f"Saving approved intake data: {data}")
+async def intake_save(request: Request):
+    data = await request.json()
+    print(f"Saving approved intake data: {list(data.keys())}")
     patient_id = data.get("patient_id")
     extracted_name = data.get("extracted_name", "Unknown Patient")
     
@@ -242,7 +243,7 @@ def intake_save(data: dict):
           "adherenceScore": random.randint(50, 100),
           "medications": meds_list,
           "labs": labs,
-          "bodyFlags": ["Heart"] if "heart" in doc_str(data) else [],
+          "bodyFlags": ["Heart"] if "heart" in json.dumps(data).lower() else [],
           "clinicalPatterns": [
               {"type": "Intake Note", "time": vital_time, "description": "Patient file initialized via AI.", "severity": "LOW"}
           ],
