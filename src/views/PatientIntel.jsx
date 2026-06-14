@@ -13,9 +13,12 @@ import TrajectoryPreview from '../components/PatientIntel/TrajectoryPreview';
 import ConsultationRecorder from '../components/voice/ConsultationRecorder';
 import { useVoice } from '../hooks/useVoice';
 import VoiceWaveform from '../components/voice/VoiceWaveform';
+import MicButton from '../components/voice/MicButton';
+import VoiceResultCard from '../components/voice/VoiceResultCard';
 
 const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentView, startInRegistry, onDeletePatient }) => {
   const navigate = useNavigate();
+  const [voiceResult, setVoiceResult] = useState(null);
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
   const [activeTab, setActiveTab] = useState('triage');
 
@@ -28,7 +31,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
   const [patientTranscript, setPatientTranscript] = useState('');
   const [patientInteractions, setPatientInteractions] = useState([]);
   const [patientAnalyser, setPatientAnalyser] = useState(null);
-  
+
   const patientMediaRecorderRef = useRef(null);
   const patientChunksRef = useRef([]);
   const patientAudioContextRef = useRef(null);
@@ -45,7 +48,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
       patientStreamRef.current = null;
     }
     if (patientAudioContextRef.current) {
-      try { patientAudioContextRef.current.close(); } catch(e) {}
+      try { patientAudioContextRef.current.close(); } catch (e) { }
       patientAudioContextRef.current = null;
     }
     setPatientAnalyser(null);
@@ -69,7 +72,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 512;
       source.connect(analyser);
-      
+
       patientAudioContextRef.current = audioCtx;
       setPatientAnalyser(analyser);
 
@@ -80,7 +83,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
       } catch (e) {
         mediaRecorder = new MediaRecorder(stream);
       }
-      
+
       patientMediaRecorderRef.current = mediaRecorder;
       mediaRecorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
@@ -91,7 +94,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
       mediaRecorder.onstop = async () => {
         setPatientIsProcessing(true);
         const audioBlob = new Blob(patientChunksRef.current, { type: 'audio/webm' });
-        
+
         const formData = new FormData();
         formData.append("audio", audioBlob, "patient_symptom.webm");
         formData.append("language_code", patientLang);
@@ -104,14 +107,14 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           });
           const data = await res.json();
           setPatientIsProcessing(false);
-          
+
           if (data.native_transcript) {
             setPatientTranscript(data.native_transcript);
             setPatientResponse(data.patient_reassurance_native);
-            
+
             // Speak response in patient's language
             speak(data.patient_reassurance_native, patientLang);
-            
+
             if (data.structured_data) {
               setPatientInteractions(prev => [data.structured_data, ...prev]);
             }
@@ -146,7 +149,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
     setPatientIsProcessing(true);
     setPatientResponse('');
     setPatientTranscript(text);
-    
+
     try {
       let nativeText = text;
       let reassuranceText = "";
@@ -175,7 +178,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         duration = "since yesterday";
         severity = 8;
         associated = ["Shortness of breath", "Fatigue"];
-        
+
         const langMap = {
           'hi-IN': "मुझे खेद है कि आपको छाती में दर्द हो रहा है। मैंने आपके डॉक्टर, डॉ. यूथिका को तुरंत सूचित कर दिया है। कृपया आराम करें जब तक हम आपके विटल्स की जांच करते हैं।",
           'ta-IN': "உங்களுக்கு நெஞ்சு வலி இருப்பதாகக் கேள்விப்பட்டு வருந்துகிறேன். இதை உங்கள் மருத்துவர் டாக்டர் யூதிகாவிற்கு உடனடியாகத் தெரிவித்துள்ளேன். உங்கள் முக்கிய அறிகுறிகளை நாங்கள் சரிபார்க்கும்போது தயவுசெய்து ஓய்வெடுக்கவும்.",
@@ -192,7 +195,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         duration = "this morning";
         severity = 4;
         associated = ["Glucose fluctuation"];
-        
+
         const langMap = {
           'hi-IN': "बताने के लिए धन्यवाद। मैंने छूटी हुई मेटफॉर्मिन खुराक को लॉग कर दिया है। यदि यह समय सीमा के भीतर है, तो कृपया इसे अभी लें।",
           'ta-IN': "எனக்குத் தெரிவித்ததற்கு நன்றி. தவறிய மெட்ஃபோர்மின் அளவை நான் பதிவு செய்துள்ளேன். தயவுசெய்து இப்போது எடுத்துக் கொள்ளுங்கள்.",
@@ -208,7 +211,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         primaryComplaint = "Drug Query (Metformin)";
         duration = "instant";
         severity = 2;
-        
+
         const langMap = {
           'hi-IN': "मेटफॉर्मिन का उपयोग टाइप 2 मधुमेह वाले रोगियों में इंसुलिन संवेदनशीलता में सुधार करके रक्त शर्करा के स्तर को नियंत्रित करने के लिए किया जाता है।",
           'ta-IN': "மெட்ஃபோர்மின் டைப் 2 நீரிழிவு நோயாளிகளின் இரத்த சர்க்கரை அளவைக் கட்டுப்படுத்தப் பயன்படுகிறது.",
@@ -225,7 +228,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         duration = "today";
         severity = 6;
         associated = ["Dizziness", "Headache"];
-        
+
         const langMap = {
           'hi-IN': "चक्कर आना और सिरदर्द लॉग कर लिया गया है। मैं आपके डॉक्टर को सचेत कर रहा हूँ।",
           'ta-IN': "தலைச்சுற்றல் மற்றும் தலைவலி பதிவு செய்யப்பட்டுள்ளது. நான் உங்கள் மருத்துவரை எச்சரிக்கிறேன்.",
@@ -241,7 +244,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
       setPatientTranscript(nativeText);
       setPatientResponse(reassuranceText);
-      
+
       speak(reassuranceText, patientLang);
 
       const structuredData = {
@@ -337,7 +340,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                           Physician: {p.doctor}
                         </p>
                       </div>
-                      
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -383,11 +386,11 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
   if (patientMode) {
     return createPortal(
       <div className="fixed inset-0 bg-[#FAF9F5] bg-vibrant-gradient text-on-surface z-[100000] flex flex-col p-8 justify-between animate-fade-in font-sans overflow-hidden w-screen h-screen">
-        
+
         {/* Decorative Blur Blobs */}
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#ffb0cc]/30 rounded-full blur-3xl opacity-60 pointer-events-none" />
         <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-[#fdcf49]/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
-        
+
         {/* Ambient Floating Elements */}
         <div className="absolute top-1/4 left-1/4 w-12 h-12 rounded-full bg-[#fdcf49]/40 blur-md animate-float pointer-events-none" style={{ animationDelay: '0.5s' }} />
         <div className="absolute bottom-1/3 right-1/4 w-16 h-16 rounded-full bg-[#ffb0cc]/40 blur-md animate-float pointer-events-none" style={{ animationDelay: '1.2s' }} />
@@ -397,7 +400,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           <div className="font-sans text-[24px] font-bold text-primary">
             ClinIQ+ <span className="text-on-surface-variant font-normal text-lg ml-2">Patient Mode</span>
           </div>
-          <button 
+          <button
             onClick={() => {
               stopSpeaking();
               stopPatientRecording();
@@ -412,7 +415,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
         {/* Center content */}
         <div className="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full my-4 z-10">
-          
+
           {/* Greeting */}
           <div className="text-center mb-8 animate-float">
             <h1 className="text-[48px] font-bold text-primary mb-3 leading-tight tracking-tight font-sans">
@@ -439,11 +442,10 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                   setPatientLang(lang.code);
                   stopSpeaking();
                 }}
-                className={`px-5 py-2.5 rounded-full border text-xs font-bold tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                  patientLang === lang.code
-                    ? 'bg-[#ffb0cc] text-[#39071f] border-transparent font-black scale-105 shadow-sm shadow-[#ffb0cc]/50'
-                    : 'bg-white/70 border-gray-200 text-[#1B1C1A]/70 hover:bg-white'
-                }`}
+                className={`px-5 py-2.5 rounded-full border text-xs font-bold tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${patientLang === lang.code
+                  ? 'bg-[#ffb0cc] text-[#39071f] border-transparent font-black scale-105 shadow-sm shadow-[#ffb0cc]/50'
+                  : 'bg-white/70 border-gray-200 text-[#1B1C1A]/70 hover:bg-white'
+                  }`}
               >
                 <span>{lang.flag}</span>
                 <span>{lang.name}</span>
@@ -459,12 +461,11 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                 <div className="absolute inset-0 rounded-full border-2 border-[#ffb0cc] opacity-40 animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
               </>
             )}
-            
+
             <button
               onClick={handlePatientMicClick}
-              className={`w-40 h-40 rounded-full bg-gradient-to-br from-[#ffb0cc] to-[#b56f89] flex flex-col items-center justify-center mic-glow transform transition-all duration-300 relative z-10 shadow-[inset_0_4px_12px_rgba(255,255,255,0.4)] ${
-                patientRecording ? 'scale-105' : 'hover:scale-105'
-              }`}
+              className={`w-40 h-40 rounded-full bg-gradient-to-br from-[#ffb0cc] to-[#b56f89] flex flex-col items-center justify-center mic-glow transform transition-all duration-300 relative z-10 shadow-[inset_0_4px_12px_rgba(255,255,255,0.4)] ${patientRecording ? 'scale-105' : 'hover:scale-105'
+                }`}
             >
               {patientIsProcessing ? (
                 <span className="material-symbols-outlined text-white text-[52px] animate-spin">progress_activity</span>
@@ -577,7 +578,6 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
       <TopHeader />
 
       <div className="fadeIn px-4 md:px-8 pb-8 flex-1 flex flex-col">
-        
         {/* Back navigation & Page Title Header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-2 animate-fade-in-up">
           <div className="flex flex-wrap items-center gap-3">
@@ -602,7 +602,11 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           </div>
 
           <div className="flex flex-wrap gap-2 items-center">
-            <button 
+            <MicButton
+              patientId={patient.id}
+              onResult={setVoiceResult}
+            />
+            <button
               onClick={() => setPatientMode(true)}
               className="px-4 py-2 bg-brand-sidebar hover:bg-brand-sidebar/90 text-white rounded-full flex items-center gap-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm"
             >
@@ -637,6 +641,28 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             {patient.sex || 'Male'}
           </span>
         </div>
+        {voiceResult && (
+          <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
+            <h3 className="font-bold mb-2">
+              Voice Query Result
+            </h3>
+
+            <pre
+              style={{
+                maxHeight: 300,
+                overflow: "auto"
+              }}
+            >
+              {
+                voiceResult && (
+                  <VoiceResultCard
+                    result={voiceResult}
+                  />
+                )
+              }
+            </pre>
+          </div>
+        )}
 
         {/* Patient Voice interactions feed */}
         {patientInteractions.length > 0 && (
@@ -654,9 +680,8 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-black text-gray-500 uppercase tracking-wider font-mono">Symptom Log</span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
-                        report.severity >= 7 ? 'bg-red-500/10 text-red-650' : 'bg-brand-yellow/20 text-[#715800]'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${report.severity >= 7 ? 'bg-red-500/10 text-red-650' : 'bg-brand-yellow/20 text-[#715800]'
+                        }`}>
                         Severity: {report.severity || 5}/10
                       </span>
                     </div>
@@ -706,7 +731,6 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
         {/* Desktop Layout - visible only on large screens */}
         <div className="hidden lg:flex flex-col gap-6 flex-grow w-full max-w-[1600px] mx-auto">
-          
           {/* AI Pre-consultation (Yellow Card - Full Width) */}
           <div className="bg-brand-yellow rounded-card p-6 relative overflow-hidden flat-look animate-fade-in-up">
             <div className="blob-bg blob-yellow"></div>
@@ -732,7 +756,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
           {/* Section 1: Patient Intelligence Profile (3-Column Layout) */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch font-sans">
-            
+
             {/* Column 1: Somatic Map */}
             <div className="flex flex-col gap-6">
               <BodyMapContext patient={patient} />
@@ -740,7 +764,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
             {/* Column 2: Biometrics & Risk Assessment */}
             <div className="flex flex-col gap-6">
-              
+
               {/* Biometrics Card */}
               <LabTrendChart patient={patient} />
 
@@ -791,7 +815,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
             {/* Column 3: Regimen & Insights */}
             <div className="flex flex-col gap-6">
-              
+
               {/* Current Regimen */}
               <MedicationsPanel patient={patient} />
 
