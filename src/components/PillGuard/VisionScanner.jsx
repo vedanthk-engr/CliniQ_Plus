@@ -34,7 +34,7 @@ const VisionScanner = ({ patient, onScanResult }) => {
     formData.append("back_image", backImage);
 
     try {
-      const response = await fetch('https://helpless-starfish-34.loca.lt/api/analyze-pill', {
+      const response = await fetch('https://unlucky-lion-86.loca.lt/api/analyze-pill', {
         method: 'POST',
         body: formData,
       });

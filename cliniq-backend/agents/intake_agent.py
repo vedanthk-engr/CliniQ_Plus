@@ -121,5 +121,55 @@ def run_intake_extraction(file_base64: str, file_type: str = "application/pdf", 
         return json.loads(content)
         
     except Exception as e:
-        print(f"Error executing Intake Agent: {str(e)}")
-        return { 'error': str(e) }
+        err_str = str(e)
+        print(f"Error executing Intake Agent: {err_str}")
+        is_rate_limit = '429' in err_str or 'quota' in err_str.lower()
+        is_imaging = 'imaging' in document_type.lower()
+        
+        if is_rate_limit:
+            # Return a graceful offline stub so the UI can still show something useful
+            note = "AI analysis temporarily unavailable (API quota reached). Please retry in ~1 minute."
+            if is_imaging:
+                return {
+                    "patient_match": "not_found",
+                    "extracted_name": expected_patient_name or "Unknown",
+                    "document_type": "imaging",
+                    "diagnosis": {"value": f"Imaging document uploaded. {note}", "confidence": 0},
+                    "medications": {"value": "Not mentioned", "confidence": 0},
+                    "vitals": {"value": {"bp": "—", "hr": "—", "glucose": "—", "raw": note}, "confidence": 0},
+                    "vital_thresholds": {"value": "Not mentioned", "confidence": 0},
+                    "dietary_restrictions": {"value": "Not mentioned", "confidence": 0},
+                    "activity_limitations": {"value": "Not mentioned", "confidence": 0},
+                    "follow_up_date": {"value": "Not mentioned", "confidence": 0},
+                    "imaging_analysis": {"value": f"Image received but could not be analyzed. {note}", "confidence": 0},
+                    "_offline": True
+                }
+            else:
+                return {
+                    "patient_match": "not_found",
+                    "extracted_name": expected_patient_name or "Unknown",
+                    "document_type": document_type,
+                    "diagnosis": {"value": f"Document uploaded. {note}", "confidence": 0},
+                    "medications": {"value": "Not mentioned", "confidence": 0},
+                    "vitals": {"value": {"bp": "—", "hr": "—", "glucose": "—", "raw": note}, "confidence": 0},
+                    "vital_thresholds": {"value": "Not mentioned", "confidence": 0},
+                    "dietary_restrictions": {"value": "Not mentioned", "confidence": 0},
+                    "activity_limitations": {"value": "Not mentioned", "confidence": 0},
+                    "follow_up_date": {"value": "Not mentioned", "confidence": 0},
+                    "imaging_analysis": {"value": "Not applicable", "confidence": 0},
+                    "_offline": True
+                }
+        # Non-rate-limit error — still return structured stub, never raw error
+        return {
+            "patient_match": "not_found",
+            "extracted_name": expected_patient_name or "Unknown",
+            "document_type": document_type,
+            "diagnosis": {"value": f"Extraction failed: {err_str[:120]}", "confidence": 0},
+            "medications": {"value": "Not mentioned", "confidence": 0},
+            "vitals": {"value": {"bp": "—", "hr": "—", "glucose": "—", "raw": ""}, "confidence": 0},
+            "vital_thresholds": {"value": "Not mentioned", "confidence": 0},
+            "dietary_restrictions": {"value": "Not mentioned", "confidence": 0},
+            "activity_limitations": {"value": "Not mentioned", "confidence": 0},
+            "follow_up_date": {"value": "Not mentioned", "confidence": 0},
+            "imaging_analysis": {"value": "Not available", "confidence": 0},
+        }

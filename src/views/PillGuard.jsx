@@ -37,7 +37,7 @@ const PillGuard = ({ patient }) => {
     setMissedCellInfo({ drugName });
     missedSSE.setData('');
     try {
-      await missedSSE.startStream('https://helpless-starfish-34.loca.lt/api/pillguard/missed-dose-impact', {
+      await missedSSE.startStream('https://unlucky-lion-86.loca.lt/api/pillguard/missed-dose-impact', {
         patient_id: patient.id,
         drug_name: drugName
       });

@@ -54,7 +54,7 @@ function AppContent() {
 
   const handleDeletePatient = async (id) => {
     try {
-      await fetch(`https://helpless-starfish-34.loca.lt/api/patient/${id}`, { method: 'DELETE' });
+      await fetch(`https://unlucky-lion-86.loca.lt/api/patient/${id}`, { method: 'DELETE' });
       await refreshPatients();
       navigate('/registry');
     } catch (err) {

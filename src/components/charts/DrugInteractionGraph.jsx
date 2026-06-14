@@ -10,7 +10,7 @@ const DrugInteractionGraph = ({ patient }) => {
     if (!patient) return;
     
     // Fetch all drug interactions from the backend
-    fetch(`https://helpless-starfish-34.loca.lt/api/patient/${patient.id}/interactions`)
+    fetch(`https://unlucky-lion-86.loca.lt/api/patient/${patient.id}/interactions`)
       .then(res => res.json())
       .then(data => {
         setInteractions(data);

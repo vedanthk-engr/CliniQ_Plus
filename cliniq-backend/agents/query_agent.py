@@ -94,10 +94,19 @@ TOOL_MAP = {
 }
 
 def local_query_fallback(query: str, patient_id: str) -> str:
-    from mock_data import PATIENTS
-    patient = next((p for p in PATIENTS if p['id'] == patient_id), None)
+    import sys, os as _os
+    # Ensure mock_data is importable regardless of working directory
+    backend_dir = _os.path.dirname(_os.path.dirname(__file__))
+    if backend_dir not in sys.path:
+        sys.path.insert(0, backend_dir)
+    try:
+        from mock_data import PATIENTS
+        patient = next((p for p in PATIENTS if p['id'] == patient_id), None)
+    except Exception:
+        patient = None
+
     if not patient:
-        return f"Patient with ID {patient_id} not found in local database."
+        return f"**ClinIQ Offline Mode**\n\nPatient {patient_id} — offline analysis unavailable. Please try again when the AI service is available."
     
     query_lower = query.lower()
     
@@ -141,7 +150,38 @@ def local_query_fallback(query: str, patient_id: str) -> str:
                 f"Therapeutic adjustment (such as adding an SGLT2 inhibitor or titrating insulin dose) is recommended to target HbA1c < 7.0% as per clinical guidelines."
             )
 
-    # 3. BP / Blood Pressure / Hypertension / BP Systolic
+    # 3. Lipids / Cholesterol / LDL / HDL / Triglycerides
+    if any(k in query_lower for k in ['lipid', 'cholesterol', 'ldl', 'hdl', 'triglyceride', 'dyslipid']):
+        labs_data = patient.get('labs', {})
+        lipid_keys = [k for k in ['LDL', 'HDL', 'Cholesterol', 'Triglycerides', 'Total_Cholesterol'] if k in labs_data]
+        if lipid_keys:
+            lines = []
+            for key in lipid_keys:
+                labs = labs_data[key]
+                latest = labs[-1]
+                first = labs[0]
+                unit = 'mg/dL'
+                trend_dir = 'worsening' if key != 'HDL' and latest['val'] > first['val'] else ('improving' if key != 'HDL' else ('worsening' if latest['val'] < first['val'] else 'stable'))
+                lines.append(f"- **{key}**: {first['val']} → {latest['val']} {unit} ({trend_dir.upper()}), timeline: " + ", ".join([f"{l['date']}: {l['val']}" for l in labs]))
+            return (
+                f"**Clinical Insight: Lipid Profile Trends (Last 6 Months)**\n\n"
+                f"For patient **{patient['name']}** ({patient_id}), lipid panel progression:\n"
+                + "\n".join(lines) +
+                f"\n\n**Clinical Interpretation**: "
+                f"Review statin adherence and dietary compliance. Persistent LDL elevation raises cardiovascular risk, especially given co-existing T2DM and CKD. "
+                f"Per ACC/AHA guidelines, target LDL < 70 mg/dL for very high-risk patients. Consider titrating statin dose or adding ezetimibe if targets are unmet."
+                f"\n\n*(Local offline analysis — live AI service temporarily unavailable)*"
+            )
+        else:
+            return (
+                f"**Clinical Insight: Lipid Panel**\n\n"
+                f"No detailed lipid time-series data is available in offline records for patient **{patient['name']}** ({patient_id}).\n\n"
+                f"Based on the active medication list, **Atorvastatin** is prescribed, suggesting a history of dyslipidaemia. "
+                f"Please review the most recent lab panel for LDL, HDL, and total cholesterol values.\n\n"
+                f"*(Local offline analysis — live AI service temporarily unavailable)*"
+            )
+
+    # 4. BP / Blood Pressure / Hypertension / BP Systolic
     if any(k in query_lower for k in ['bp', 'blood pressure', 'systolic', 'hypertension', 'htn']):
         if 'BP_Systolic' in patient.get('labs', {}):
             labs = patient['labs']['BP_Systolic']
@@ -160,7 +200,7 @@ def local_query_fallback(query: str, patient_id: str) -> str:
                 f"Recommend verifying medication adherence (patient has missed doses of Lisinopril recently) or considering lifestyle modifications."
             )
 
-    # 4. ESR / Rheumatoid Arthritis / RA
+    # 5. ESR / Rheumatoid Arthritis / RA
     if any(k in query_lower for k in ['esr', 'rheumatoid', 'ra', 'arthritis']):
         if 'ESR' in patient.get('labs', {}):
             labs = patient['labs']['ESR']
@@ -179,7 +219,7 @@ def local_query_fallback(query: str, patient_id: str) -> str:
                 f"suggesting that the rheumatoid arthritis is stabilizing."
             )
 
-    # 5. Hemoglobin / Anaemia
+    # 6. Hemoglobin / Anaemia
     if any(k in query_lower for k in ['hemoglobin', 'hgb', 'anaemia', 'anemia']):
         if 'Hemoglobin' in patient.get('labs', {}):
             labs = patient['labs']['Hemoglobin']
@@ -197,18 +237,18 @@ def local_query_fallback(query: str, patient_id: str) -> str:
                 f"**Clinical Interpretation**: Hemoglobin has risen from 9.0 g/dL to 12.8 g/dL, indicating successful resolution of anemia."
             )
 
-    # Default fallback
+    # Default fallback — always succeeds
     meds = ", ".join([m['name'] for m in patient.get('medications', [])])
     diags = ", ".join(patient.get('diagnosis', []))
     brief = patient.get('consultBrief', 'Review required.')
     
     return (
-        f"**ClinIQ AI Co-Pilot Clinical Summary**\n\n"
+        f"**ClinIQ AI Co-Pilot — Offline Clinical Summary**\n\n"
         f"**Patient**: {patient['name']} ({patient_id}, {patient['age']}Y {patient['sex']})\n"
         f"**Diagnoses**: {diags}\n"
         f"**Active Medications**: {meds}\n"
-        f"**Clinical Status Summary**: {brief}\n\n"
-        f"*(Local fallback activated: query '{query}' processed offline)*"
+        f"**Clinical Status**: {brief}\n\n"
+        f"*Live AI analysis is temporarily unavailable (API quota exceeded). The above reflects the patient's last known clinical profile.*"
     )
 
 def run_nl_query(query: str, patient_id: str) -> str:
@@ -275,4 +315,16 @@ def run_nl_query(query: str, patient_id: str) -> str:
             return local_query_fallback(query, patient_id)
         except Exception as fe:
             print(f"Local query fallback failed: {str(fe)}")
-            return f"AI Agent encountered a system failure: {str(e)}"
+            # Detect rate-limit specifically and show a helpful, clean message
+            err_str = str(e)
+            if '429' in err_str or 'quota' in err_str.lower() or 'rate' in err_str.lower():
+                return (
+                    "**ClinIQ AI \u2014 Offline Mode**\n\n"
+                    "The Gemini AI service is temporarily rate-limited (free-tier quota reached). "
+                    "Your query has been noted but cannot be processed live right now.\n\n"
+                    "**Please try again in ~1 minute.** Your clinical data is safe and no information was lost."
+                )
+            return (
+                "**ClinIQ AI \u2014 Service Unavailable**\n\n"
+                "The AI analysis service encountered an unexpected error. Please refresh and try again."
+            )

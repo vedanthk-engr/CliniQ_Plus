@@ -45,7 +45,7 @@ const Forecast = () => {
     setSimulatedData(null);
     try {
       baseSSE.setData('');
-      await baseSSE.startStream('https://helpless-starfish-34.loca.lt/api/forecast/trajectory', { patient_id: patientId });
+      await baseSSE.startStream('https://unlucky-lion-86.loca.lt/api/forecast/trajectory', { patient_id: patientId });
     } catch (err) {
       console.error("Failed to stream forecast:", err);
     }
@@ -92,7 +92,7 @@ const Forecast = () => {
     const runSimulation = async () => {
       try {
         simSSE.setData('');
-        await simSSE.startStream('https://helpless-starfish-34.loca.lt/api/forecast/simulate', {
+        await simSSE.startStream('https://unlucky-lion-86.loca.lt/api/forecast/simulate', {
           patient_id: currentPatient.id,
           interventions: activeList
         });
