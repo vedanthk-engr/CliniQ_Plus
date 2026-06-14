@@ -450,10 +450,16 @@ async def clinical_voice_query(
 
         print("Voice Query Error:", e)
 
+        error_detail = str(e)
+        if "GEMINI_API_KEY" in error_detail:
+            summary = "AI service is not configured. Set GEMINI_API_KEY in cliniq-backend/.env and restart the backend."
+        else:
+            summary = f"Failed to process query: {error_detail}"
+
         return {
             "response_type": "patient_summary",
             "intent_detected": req.query,
-            "summary": "Failed to process query.",
+            "summary": summary,
             "data": {},
             "confidence": "low"
         }

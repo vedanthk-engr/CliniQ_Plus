@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { BASE_API } from "../config.js";
 
 export default function useVoiceQuery(
     patientId,
@@ -95,7 +96,7 @@ export default function useVoiceQuery(
 
                     const response =
                         await fetch(
-                            "https://unlucky-lion-86.loca.lt/api/voice/query",
+                            `${BASE_API}/voice/query`,
                             {
                                 method: "POST",
                                 headers: {
@@ -109,6 +110,10 @@ export default function useVoiceQuery(
                                 })
                             }
                         );
+
+                    if (!response.ok) {
+                        throw new Error(`Voice query failed (${response.status})`);
+                    }
 
                     const data =
                         await response.json();
@@ -125,6 +130,14 @@ export default function useVoiceQuery(
                     console.error(
                         error
                     );
+
+                    onResult({
+                        response_type: "error",
+                        intent_detected: query,
+                        summary: "Could not reach the voice API. Make sure the backend is running on http://localhost:8000.",
+                        data: {},
+                        confidence: "low"
+                    });
 
                 } finally {
 
