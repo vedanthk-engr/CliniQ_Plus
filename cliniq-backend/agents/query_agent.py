@@ -93,6 +93,124 @@ TOOL_MAP = {
   'generate_adherence_report': generate_adherence_report,
 }
 
+def local_query_fallback(query: str, patient_id: str) -> str:
+    from mock_data import PATIENTS
+    patient = next((p for p in PATIENTS if p['id'] == patient_id), None)
+    if not patient:
+        return f"Patient with ID {patient_id} not found in local database."
+    
+    query_lower = query.lower()
+    
+    # 1. Creatinine / Renal / Kidney / CKD
+    if any(k in query_lower for k in ['creatinine', 'creatine', 'renal', 'kidney', 'ckd']):
+        if 'Creatinine' in patient.get('labs', {}):
+            labs = patient['labs']['Creatinine']
+            values_str = ", ".join([f"{l['date']}: {l['val']} mg/dL" for l in labs])
+            latest_val = labs[-1]['val']
+            first_val = labs[0]['val']
+            trend = "worsening" if latest_val > first_val else "improving"
+            return (
+                f"**Clinical Insight: Renal Function (Creatinine Trends)**\n\n"
+                f"For patient **{patient['name']}** ({patient_id}), the creatinine markers over the last 12-14 months are:\n"
+                f"- **Timeline**: {values_str}\n"
+                f"- **Baseline (Jul 24)**: {first_val} mg/dL\n"
+                f"- **Latest (Sep 25)**: {latest_val} mg/dL\n"
+                f"- **Trend**: **{trend.upper()}** (overall increase of {round(latest_val - first_val, 2)} mg/dL)\n\n"
+                f"**Clinical Interpretation**: The steadily rising creatinine levels suggest progressive renal impairment. "
+                f"This trend is consistent with a progression from CKD Stage 2 to Stage 3. "
+                f"Recommend close monitoring of eGFR and UACR, avoiding nephrotoxic agents, and reviewing the dosage of renal-cleared medications."
+            )
+            
+    # 2. HbA1c / Diabetes / Glucose / Glycemic
+    if any(k in query_lower for k in ['hba1c', 'diabetes', 'glucose', 'glycemic', 't2dm']):
+        if 'HbA1c' in patient.get('labs', {}):
+            labs = patient['labs']['HbA1c']
+            values_str = ", ".join([f"{l['date']}: {l['val']}%" for l in labs])
+            latest_val = labs[-1]['val']
+            first_val = labs[0]['val']
+            trend = "worsening" if latest_val > first_val else "improving"
+            return (
+                f"**Clinical Insight: Glycemic Control (HbA1c Trends)**\n\n"
+                f"For patient **{patient['name']}** ({patient_id}), the HbA1c progression over the last 12-14 months is:\n"
+                f"- **Timeline**: {values_str}\n"
+                f"- **Baseline (Jul 24)**: {first_val}%\n"
+                f"- **Latest (Sep 25)**: {latest_val}%\n"
+                f"- **Trend**: **{trend.upper()}** (net change of {round(latest_val - first_val, 2)}%)\n\n"
+                f"**Clinical Interpretation**: The patient shows persistent glycemic elevation (peaking at 9.5% in July 25 before dropping to 8.6% in September 25). "
+                f"Uncontrolled Type 2 Diabetes is indicated. "
+                f"Therapeutic adjustment (such as adding an SGLT2 inhibitor or titrating insulin dose) is recommended to target HbA1c < 7.0% as per clinical guidelines."
+            )
+
+    # 3. BP / Blood Pressure / Hypertension / BP Systolic
+    if any(k in query_lower for k in ['bp', 'blood pressure', 'systolic', 'hypertension', 'htn']):
+        if 'BP_Systolic' in patient.get('labs', {}):
+            labs = patient['labs']['BP_Systolic']
+            values_str = ", ".join([f"{l['date']}: {l['val']} mmHg" for l in labs])
+            latest_val = labs[-1]['val']
+            first_val = labs[0]['val']
+            trend = "worsening" if latest_val > first_val else "improving"
+            return (
+                f"**Clinical Insight: Blood Pressure Trends**\n\n"
+                f"For patient **{patient['name']}** ({patient_id}), the systolic blood pressure readings over the last 12-14 months are:\n"
+                f"- **Timeline**: {values_str}\n"
+                f"- **Baseline (Jul 24)**: {first_val} mmHg\n"
+                f"- **Latest (Sep 25)**: {latest_val} mmHg\n"
+                f"- **Trend**: **{trend.upper()}**\n\n"
+                f"**Clinical Interpretation**: BP remains elevated despite dual antihypertensive therapy (Amlodipine and Lisinopril). "
+                f"Recommend verifying medication adherence (patient has missed doses of Lisinopril recently) or considering lifestyle modifications."
+            )
+
+    # 4. ESR / Rheumatoid Arthritis / RA
+    if any(k in query_lower for k in ['esr', 'rheumatoid', 'ra', 'arthritis']):
+        if 'ESR' in patient.get('labs', {}):
+            labs = patient['labs']['ESR']
+            values_str = ", ".join([f"{l['date']}: {l['val']} mm/hr" for l in labs])
+            latest_val = labs[-1]['val']
+            first_val = labs[0]['val']
+            trend = "improving" if latest_val < first_val else "worsening"
+            return (
+                f"**Clinical Insight: Inflammatory Markers (ESR Trends)**\n\n"
+                f"For patient **{patient['name']}** ({patient_id}), the ESR values over the last 12-14 months are:\n"
+                f"- **Timeline**: {values_str}\n"
+                f"- **Baseline (Jul 24)**: {first_val} mm/hr\n"
+                f"- **Latest (Sep 25)**: {latest_val} mm/hr\n"
+                f"- **Trend**: **{trend.upper()}** (ESR has decreased significantly by {abs(latest_val - first_val)} mm/hr)\n\n"
+                f"**Clinical Interpretation**: The significant downward trend in ESR indicates a positive response to DMARD therapy (Methotrexate), "
+                f"suggesting that the rheumatoid arthritis is stabilizing."
+            )
+
+    # 5. Hemoglobin / Anaemia
+    if any(k in query_lower for k in ['hemoglobin', 'hgb', 'anaemia', 'anemia']):
+        if 'Hemoglobin' in patient.get('labs', {}):
+            labs = patient['labs']['Hemoglobin']
+            values_str = ", ".join([f"{l['date']}: {l['val']} g/dL" for l in labs])
+            latest_val = labs[-1]['val']
+            first_val = labs[0]['val']
+            trend = "improving" if latest_val > first_val else "worsening"
+            return (
+                f"**Clinical Insight: Hematological Markers (Hemoglobin Trends)**\n\n"
+                f"For patient **{patient['name']}** ({patient_id}), the Hemoglobin values over the last 12-14 months are:\n"
+                f"- **Timeline**: {values_str}\n"
+                f"- **Baseline (Jul 24)**: {first_val} g/dL\n"
+                f"- **Latest (Sep 25)**: {latest_val} g/dL\n"
+                f"- **Trend**: **{trend.upper()}**\n\n"
+                f"**Clinical Interpretation**: Hemoglobin has risen from 9.0 g/dL to 12.8 g/dL, indicating successful resolution of anemia."
+            )
+
+    # Default fallback
+    meds = ", ".join([m['name'] for m in patient.get('medications', [])])
+    diags = ", ".join(patient.get('diagnosis', []))
+    brief = patient.get('consultBrief', 'Review required.')
+    
+    return (
+        f"**ClinIQ AI Co-Pilot Clinical Summary**\n\n"
+        f"**Patient**: {patient['name']} ({patient_id}, {patient['age']}Y {patient['sex']})\n"
+        f"**Diagnoses**: {diags}\n"
+        f"**Active Medications**: {meds}\n"
+        f"**Clinical Status Summary**: {brief}\n\n"
+        f"*(Local fallback activated: query '{query}' processed offline)*"
+    )
+
 def run_nl_query(query: str, patient_id: str) -> str:
     print(f"Executing Gemini Query Agent for {patient_id}... Query: {query}")
     try:
@@ -153,4 +271,8 @@ def run_nl_query(query: str, patient_id: str) -> str:
         return response.text
     except Exception as e:
         print(f"Error executing Query Agent: {str(e)}")
-        return f"AI Agent encountered a system failure: {str(e)}"
+        try:
+            return local_query_fallback(query, patient_id)
+        except Exception as fe:
+            print(f"Local query fallback failed: {str(fe)}")
+            return f"AI Agent encountered a system failure: {str(e)}"

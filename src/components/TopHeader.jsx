@@ -12,6 +12,7 @@ const getHeaderTitle = (pathname) => {
   if (pathname === '/pillguard') return 'PillGuard Scanner';
   if (pathname === '/analytics') return 'Clinical Analytics';
   if (pathname === '/alerts') return 'Alert Centre';
+  if (pathname === '/trials') return 'Clinical Trial Matcher';
   return 'ClinIQ+ Portal';
 };
 

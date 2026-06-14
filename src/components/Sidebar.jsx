@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/userStore';
+import { usePatientStore } from '../stores/patientStore';
 
 const GENERAL_NAV = [
   { id: 'overview', label: 'Dashboard', path: '/', icon: 'dashboard', activeColor: 'text-brand-pink bg-brand-pink/10' },
@@ -13,6 +14,7 @@ const GENERAL_NAV = [
 const TOOLS_NAV = [
   { id: 'intake', label: 'AI Intake', path: '/intake', icon: 'file_upload', activeColor: 'text-brand-blue bg-brand-blue/10' },
   { id: 'pillguard', label: 'PillGuard', path: '/pillguard', icon: 'medication', activeColor: 'text-brand-green bg-brand-green/10' },
+  { id: 'trials', label: 'Trial Matches', path: '/trials', icon: 'science', activeColor: 'text-brand-blue bg-brand-blue/10' },
 ];
 
 const Sidebar = () => {
@@ -21,6 +23,7 @@ const Sidebar = () => {
   const currentPath = location.pathname;
 
   const { doctorName, setDoctorName } = useUserStore();
+  const { currentPatient } = usePatientStore();
   const [isEditingName, setIsEditingName] = useState(false);
   const inputRef = useRef(null);
 
@@ -61,7 +64,7 @@ const Sidebar = () => {
 
         {GENERAL_NAV.map((item) => {
           const isActive = currentPath === item.path ||
-            (item.id === 'patient-registry' && currentPath.startsWith('/patient/'));
+            (item.id === 'patient-registry' && currentPath.startsWith('/patient/') && location.state?.tab !== 'trials');
 
           return (
             <Link
@@ -87,7 +90,8 @@ const Sidebar = () => {
         <span className="px-3 py-1 text-white/40 text-[11px] font-bold uppercase tracking-wider mt-4 mb-1">Tools</span>
 
         {TOOLS_NAV.map((item) => {
-          const isActive = currentPath === item.path;
+          const isActive = currentPath === item.path ||
+            (item.id === 'trials' && currentPath.startsWith('/patient/') && location.state?.tab === 'trials');
 
           return (
             <Link

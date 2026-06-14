@@ -30,6 +30,7 @@ const BottomNav = () => {
     { label: 'Comorbidity Network', icon: 'hub', path: '/comorbidity' },
     { label: 'Clinical Analytics', icon: 'analytics', path: '/analytics' },
     { label: 'AI Intake Engine', icon: 'upload_file', path: '/intake' },
+    { label: 'Trial Matches', icon: 'science', path: '/trials' },
   ];
 
   return (

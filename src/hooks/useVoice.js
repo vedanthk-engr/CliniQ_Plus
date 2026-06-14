@@ -190,7 +190,7 @@ export const useVoice = (onActionExecuted) => {
     formData.append("context", context);
 
     try {
-      const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/transcribe", {
+      const res = await fetch("https://helpless-starfish-34.loca.lt/api/voice/transcribe", {
         method: "POST",
         body: formData
       });
@@ -227,7 +227,7 @@ export const useVoice = (onActionExecuted) => {
   const sendCommand = async (commandText) => {
     try {
       const page = window.location.pathname.split('/').pop() || 'dashboard';
-      const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/command", {
+      const res = await fetch("https://helpless-starfish-34.loca.lt/api/voice/command", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -304,7 +304,7 @@ export const useVoice = (onActionExecuted) => {
   const translateAndSpeak = async (text, targetLanguage) => {
     setIsProcessing(true);
     try {
-      const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/translate", {
+      const res = await fetch("https://helpless-starfish-34.loca.lt/api/voice/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

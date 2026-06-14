@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { T } from '../tokens';
 import TopHeader from '../components/TopHeader';
 import BodyMapContext from '../components/PatientIntel/BodyMapContext';
@@ -16,14 +16,22 @@ import VoiceWaveform from '../components/voice/VoiceWaveform';
 import MicButton from '../components/voice/MicButton';
 import VoiceResultCard from '../components/voice/VoiceResultCard';
 import TrialMatcherPanel from '../components/PatientIntel/TrialMatcherPanel';
+import { usePatientStore } from '../stores/patientStore';
 
 const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentView, startInRegistry, onDeletePatient }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [voiceResult, setVoiceResult] = useState(null);
   const [viewMode, setViewMode] = useState(!patient || startInRegistry ? 'list' : 'detail');
   const [activeTab, setActiveTab] = useState('triage');
-  // Trial cache lives here so it survives tab switching (component unmount/remount)
-  const [cachedTrials, setCachedTrials] = useState({});
+  // Trial cache is now shared globally via Zustand store
+  const { cachedTrials, setCachedTrials } = usePatientStore();
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location.state?.tab]);
 
   // Voice & Patient Mode states
   const [patientLang, setPatientLang] = useState('hi-IN');
@@ -104,7 +112,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
         formData.append("patient_id", patient.id);
 
         try {
-          const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/patient-symptom", {
+          const res = await fetch("https://helpless-starfish-34.loca.lt/api/voice/patient-symptom", {
             method: "POST",
             body: formData
           });
@@ -163,7 +171,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
 
       // Get English translation of the spoken text if not English
       if (patientLang !== 'en-US') {
-        const res = await fetch("https://rotten-newt-48.loca.lt/api/voice/translate", {
+        const res = await fetch("https://helpless-starfish-34.loca.lt/api/voice/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -907,7 +915,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
           {/* Section 2: Deep Analytics (Split into Two Rows for Perfect Alignment) */}
           <div className="flex flex-col gap-8">
             {/* Row 1: Scribe, Clinical Query, and Alert Feed */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch font-sans animate-fade-in-up">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start font-sans animate-fade-in-up">
               {/* Left Column (col-span-8) */}
               <div className="lg:col-span-8 flex flex-col gap-8">
                 {/* Consultation Scribe (Recorder) */}
@@ -925,7 +933,7 @@ const PatientIntel = ({ patients = [], patient, setCurrentPatient, setCurrentVie
             </div>
 
             {/* Row 2: Trajectory Forecast, Simulator, and AI Opinion */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch font-sans animate-fade-in-up">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start font-sans animate-fade-in-up">
               {/* Left Column (col-span-8) */}
               <div className="lg:col-span-8 flex flex-col gap-6">
                 {/* Trajectory Forecast & Intervention Simulator */}

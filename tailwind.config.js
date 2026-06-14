@@ -35,6 +35,21 @@ module.exports = {
         "on-primary": "#FFFFFF",
         "on-surface": "#1B1C1A",
         "primary": "#1B1C1A",
+        // Vibrant Pro Redesign specific colors
+        "vibrant-pink": "#FFB0CC",
+        "vibrant-yellow": "#FDCF49",
+        "vibrant-green": "#85A65A",
+        "vibrant-blue": "#A3C4D9",
+        "dark-blue": "#1C2A3A",
+        "card-bg": "#FFFFFF",
+        // Stitch color-blocked specific colors
+        "secondary-fixed": "#ffe08f",
+        "on-secondary-fixed": "#241a00",
+        "secondary-container": "#fdcf49",
+        "surface-container-low": "#f5f4f0",
+        "surface-container-high": "#e9e8e4",
+        "surface-container-highest": "#e3e2df",
+        "surface-dim": "#dbdad6",
       },
       borderRadius: {
         card: "24px",

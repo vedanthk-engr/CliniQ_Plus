@@ -19,7 +19,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
     setExtraction(null);
 
     try {
-      const response = await fetch('https://rotten-newt-48.loca.lt/api/intake/extract', {
+      const response = await fetch('https://helpless-starfish-34.loca.lt/api/intake/extract', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,7 +51,7 @@ const Intake = ({ patient, patients = [], setCurrentPatient, refreshPatients, se
     setLoading(true);
     try {
       const payload = { ...finalData, patient_id: patient?.id };
-      const response = await fetch('https://rotten-newt-48.loca.lt/api/intake/save', {
+      const response = await fetch('https://helpless-starfish-34.loca.lt/api/intake/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

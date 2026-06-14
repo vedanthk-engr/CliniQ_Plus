@@ -95,7 +95,7 @@ export default function useVoiceQuery(
 
                     const response =
                         await fetch(
-                            "https://rotten-newt-48.loca.lt/api/voice/query",
+                            "https://helpless-starfish-34.loca.lt/api/voice/query",
                             {
                                 method: "POST",
                                 headers: {

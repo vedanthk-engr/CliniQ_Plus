@@ -89,11 +89,9 @@ const NaturalLanguageQuery = ({ patient }) => {
         </div>
         <button
           onClick={handleAsk}
-          disabled={isLoading || !query.trim()}
-          className={`px-6 py-3 rounded-full font-bold text-sm flex items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md cursor-pointer ${
-            isLoading || !query.trim()
-              ? 'bg-gray-50 text-gray-400 border border-gray-250 cursor-not-allowed shadow-none'
-              : 'bg-black text-white hover:bg-black/90 shadow-black/10'
+          disabled={isLoading}
+          className={`px-6 py-3 rounded-full font-bold text-sm flex items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md cursor-pointer bg-black text-white hover:bg-black/90 shadow-black/10 ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           <span className="material-symbols-outlined text-[20px]">search_insights</span>

@@ -187,4 +187,29 @@ Return ONLY a JSON array. Each object must have: nctId, briefTitle, phases, elig
         }
 
     except Exception as e:
-        return {"error": str(e)}
+        print(f"Gemini trial screening failed: {e}. Falling back to rule-based screening.")
+        try:
+            extracted_trials = extract_trials_from_studies(studies)
+            evaluated_trials = []
+            for trial in extracted_trials:
+                screen_res = rule_based_screen(patient, trial)
+                evaluated_trials.append({
+                    "nctId": trial["nctId"],
+                    "briefTitle": trial["briefTitle"],
+                    "phases": trial["phases"],
+                    "eligible": screen_res["eligible"],
+                    "confidence": screen_res["confidence"],
+                    "match_reasons": screen_res["match_reasons"],
+                    "disqualifiers": screen_res["disqualifiers"],
+                    "priority_score": screen_res["priority_score"]
+                })
+            
+            evaluated_trials.sort(key=lambda x: x.get("priority_score", 0), reverse=True)
+            return {
+                "patient_id": patient.get("id"),
+                "matches": evaluated_trials,
+                "total_searched": len(studies),
+                "fallback_active": True
+            }
+        except Exception as fallback_err:
+            return {"error": f"Fallback matching failed: {fallback_err}"}

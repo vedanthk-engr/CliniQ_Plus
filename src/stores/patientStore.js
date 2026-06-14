@@ -6,11 +6,16 @@ export const usePatientStore = create((set, get) => ({
   currentPatient: null,
   loading: true,
   isOffline: false,
+  cachedTrials: {},
 
   setPatients: (patients) => set({ patients }),
   setCurrentPatient: (patient) => set({ currentPatient: patient }),
   setLoading: (loading) => set({ loading }),
   setIsOffline: (isOffline) => set({ isOffline }),
+  setCachedTrials: (cachedTrials) => set((state) => {
+    const nextTrials = typeof cachedTrials === 'function' ? cachedTrials(state.cachedTrials) : cachedTrials;
+    return { cachedTrials: nextTrials };
+  }),
 
   loadPatients: async () => {
     set({ loading: true });

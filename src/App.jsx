@@ -10,6 +10,7 @@ import AlertCentre from './views/AlertCentre';
 import Intake from './views/Intake';
 import Forecast from './pages/Forecast';
 import ComorbidityWeb from './pages/ComorbidityWeb';
+import TrialMatcherPage from './pages/TrialMatcherPage';
 import { usePatientStore } from './stores/patientStore';
 import { T } from './tokens';
 import ShaderBackground from './components/ShaderBackground';
@@ -53,7 +54,7 @@ function AppContent() {
 
   const handleDeletePatient = async (id) => {
     try {
-      await fetch(`https://rotten-newt-48.loca.lt/api/patient/${id}`, { method: 'DELETE' });
+      await fetch(`https://helpless-starfish-34.loca.lt/api/patient/${id}`, { method: 'DELETE' });
       await refreshPatients();
       navigate('/registry');
     } catch (err) {
@@ -141,6 +142,7 @@ function AppContent() {
             <Route path="/pillguard" element={<PillGuard patient={currentPatient} />} />
             <Route path="/analytics" element={<Analytics patients={patients} />} />
             <Route path="/alerts" element={<AlertCentre patients={patients} />} />
+            <Route path="/trials" element={<TrialMatcherPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

@@ -11,7 +11,7 @@ const AlertCard = ({ alert, isAcknowledged, onAck, colorIndex }) => {
     if (data) return;
     
     try {
-      await startStream('https://rotten-newt-48.loca.lt/api/alerts/explain', {
+      await startStream('https://helpless-starfish-34.loca.lt/api/alerts/explain', {
         alert_id: alert.id,
         patient_id: alert.patientId,
         description: alert.description
