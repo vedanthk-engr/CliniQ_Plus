@@ -112,7 +112,3 @@ ClinIQ+ uses specific specialized agents powered by Gemini function calling to r
 4. **Trial Matcher Agent (`trial_matcher_agent.py`)**: Compare structured patient case records against clinical trial protocols.
 
 ---
-
-## 👥 Authors & Teammates
-* **Dr. Vedanth** - Lead Clinical AI Developer & System Architect
-* **Keerthivasa** - Senior Backend Engineer
